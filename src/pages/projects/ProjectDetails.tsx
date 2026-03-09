@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Building2, Calendar, FileText, Image as ImageIcon, Upload, X } from 'lucide-react';
+import { Plus, Building2, Calendar, FileText, ImageIcon, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Project {
@@ -62,6 +62,7 @@ export default function ProjectDetails() {
       if (error) throw error;
       setProjects(data || []);
     } catch (error) {
+      console.error('Error fetching projects:', error);
       toast.error('Failed to fetch projects');
     } finally {
       setLoading(false);
@@ -110,6 +111,7 @@ export default function ProjectDetails() {
       setNewProject(prev => ({ ...prev, project_image_url: publicUrl }));
       toast.success('Image uploaded successfully');
     } catch (error) {
+      console.error('Upload error:', error);
       toast.error('Failed to upload image');
       setPreviewImage(null);
     } finally {
@@ -157,6 +159,7 @@ export default function ProjectDetails() {
       });
       fetchProjects();
     } catch (error) {
+      console.error('Error adding project:', error);
       toast.error('Failed to add project');
     }
   };
@@ -268,6 +271,7 @@ export default function ProjectDetails() {
                         <button
                           onClick={handleRemoveImage}
                           className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                          type="button"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -292,7 +296,7 @@ export default function ProjectDetails() {
                     />
                     {uploading && (
                       <p className="text-sm text-blue-600 mt-2 flex items-center gap-2">
-                        <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                        <span className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full inline-block"></span>
                         Uploading...
                       </p>
                     )}
@@ -330,16 +334,22 @@ export default function ProjectDetails() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {projects.map((project) => (
               <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="h-48 bg-gradient-to-br from-slate-200 to-slate-300 relative">
+                <div className="h-48 bg-gradient-to-br from-slate-100 to-slate-200 relative">
                   {project.project_image_url ? (
                     <img
                       src={project.project_image_url}
                       alt={project.project_name}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // If image fails to load, show placeholder
+                        console.error('Image failed to load:', project.project_image_url);
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <ImageIcon className="w-16 h-16 text-slate-400" />
+                    <div className="w-full h-full flex flex-col items-center justify-center">
+                      <ImageIcon className="w-16 h-16 text-slate-400 mb-2" />
+                      <span className="text-sm text-slate-500">No image available</span>
                     </div>
                   )}
                   <div className="absolute top-4 right-4">
