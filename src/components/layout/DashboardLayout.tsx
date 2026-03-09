@@ -15,6 +15,8 @@ import {
   Calendar,
   AlertCircle,
   X,
+  Settings,
+  User,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -169,7 +171,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span>Home</span>
               <ChevronRight className="w-4 h-4" />
               <span className="text-slate-900 font-medium capitalize">
-                {location.pathname.split('/').pop()?.replace('-', ' ') || 'Dashboard'}
+                {location.pathname === '/' ? 'Dashboard' : location.pathname.split('/').pop()?.replace('-', ' ')}
               </span>
             </nav>
           </div>
@@ -185,7 +187,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+                <DropdownMenuItem onClick={() => navigate('/settings')} className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/settings')} className="cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut} className="text-red-600 cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign Out
                 </DropdownMenuItem>

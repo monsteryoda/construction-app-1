@@ -1,25 +1,17 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import NotFound from "./pages/NotFound";
-import Dashboard from "./pages/Dashboard";
-import ProjectDetails from "./pages/projects/ProjectDetails";
-import Activities from "./pages/projects/Activities";
-import Deliveries from "./pages/projects/Deliveries";
-import Schedules from "./pages/projects/Schedules";
-import Documents from "./pages/projects/Documents";
-import Issues from "./pages/projects/Issues";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from '@/components/ui/sonner';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import Login from '@/pages/Login';
+import Index from '@/pages/Index';
+import ProjectDetails from '@/pages/projects/Details';
+import Activities from '@/pages/projects/Activities';
+import Deliveries from '@/pages/projects/Deliveries';
+import Schedules from '@/pages/projects/Schedules';
+import Documents from '@/pages/projects/Documents';
+import Issues from '@/pages/projects/Issues';
+import Settings from '@/pages/Settings';
 
-const queryClient = new QueryClient();
-
-// Redirect authenticated users to dashboard, unauthenticated to login
-function RootRedirect() {
+function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   
   if (loading) {
@@ -30,92 +22,84 @@ function RootRedirect() {
     );
   }
   
-  return user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
+  return user ? <>{children}</> : <Navigate to="/login" />;
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            
-            {/* Protected Routes */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <RootRedirect />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/projects/details"
-              element={
-                <ProtectedRoute>
-                  <ProjectDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/projects/activities"
-              element={
-                <ProtectedRoute>
-                  <Activities />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/projects/deliveries"
-              element={
-                <ProtectedRoute>
-                  <Deliveries />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/projects/schedules"
-              element={
-                <ProtectedRoute>
-                  <Schedules />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/projects/documents"
-              element={
-                <ProtectedRoute>
-                  <Documents />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/projects/issues"
-              element={
-                <ProtectedRoute>
-                  <Issues />
-                </ProtectedRoute>
-              }
-            />
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <Index />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/details"
+            element={
+              <PrivateRoute>
+                <ProjectDetails />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/activities"
+            element={
+              <PrivateRoute>
+                <Activities />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/deliveries"
+            element={
+              <PrivateRoute>
+                <Deliveries />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/schedules"
+            element={
+              <PrivateRoute>
+                <Schedules />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/documents"
+            element={
+              <PrivateRoute>
+                <Documents />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/issues"
+            element={
+              <PrivateRoute>
+                <Issues />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <PrivateRoute>
+                <Settings />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+        <Toaster position="top-right" />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
 
 export default App;
