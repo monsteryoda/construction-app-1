@@ -383,12 +383,22 @@ export default function Activities() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Assigned To</Label>
-                    <Input
+                    <Label>Status</Label>
+                    <Select
                       value={newActivity.assigned_to}
-                      onChange={(e) => setNewActivity({ ...newActivity, assigned_to: e.target.value })}
-                      placeholder="Enter name"
-                    />
+                      onValueChange={(value) => setNewActivity({ ...newActivity, assigned_to: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="not_started">Not Started</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="on_hold">On Hold</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
