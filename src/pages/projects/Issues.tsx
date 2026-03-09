@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, AlertCircle, Calendar, User, Flag, MessageSquare } from 'lucide-react';
+import { Plus, AlertCircle, Calendar, User, Flag, MessageSquare, Image, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Issue {
@@ -30,6 +30,14 @@ interface Issue {
 interface Project {
   id: string;
   project_name: string;
+}
+
+interface ImageAttachment {
+  file: File;
+  id: string;
+  uploaded: boolean;
+  url?: string;
+  preview: string;
 }
 
 const issueTypes = ['Safety', 'Quality', 'Schedule', 'Cost', 'Design', 'General'];
@@ -54,6 +62,9 @@ export default function Issues() {
     resolved_date: '',
     resolution_notes: '',
   });
+  const [images, setImages] = useState<ImageAttachment[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchProjects();
@@ -96,19 +107,114 @@ export default function Issues() {
     }
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newImages: ImageAttachment[] = Array.from(files).map((file) => ({
+      file,
+      id: Math.random().toString(36).substring(7),
+      uploaded: false,
+      preview: URL.createObjectURL(file),
+    }));
+
+    setImages((prev) => [...prev, ...newImages]);
+  };
+
+  const removeImage = (id: string) => {
+    setImages((prev) => {
+      const image = prev.find((img) => img.id === id);
+      if (image && !image.uploaded) {
+        URL.revokeObjectURL(image.preview);
+      }
+      return prev.filter((img) => img.id !== id);
+    });
+  };
+
+  const uploadImages = async (): Promise<string[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const uploadedUrls: string[] = [];
+    setIsUploading(true);
+
+    for (const image of images) {
+      if (image.uploaded && image.url) {
+        uploadedUrls.push(image.url);
+        continue;
+      }
+
+      const fileExt = image.file.name.split('.').pop();
+      const filePath = `${user.id}/issues/${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('issue-images')
+        .upload(filePath, image.file);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        toast.error(`Failed to upload ${image.file.name}`);
+        continue;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('issue-images')
+        .getPublicUrl(filePath);
+
+      uploadedUrls.push(publicUrlData.publicUrl);
+      
+      setImages((prev) =>
+        prev.map((img) =>
+          img.id === image.id ? { ...img, uploaded: true, url: publicUrlData.publicUrl } : img
+        )
+      );
+    }
+
+    setIsUploading(false);
+    return uploadedUrls;
+  };
+
   const handleAddIssue = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase.from('project_issues').insert([
-        {
-          user_id: user.id,
-          ...newIssue,
-        },
-      ]);
+      // Upload images if any
+      let imageUrls: string[] = [];
+      if (images.length > 0) {
+        imageUrls = await uploadImages();
+      }
+
+      const { data: issueData, error } = await supabase
+        .from('project_issues')
+        .insert([
+          {
+            user_id: user.id,
+            ...newIssue,
+          },
+        ])
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Save image URLs to issue_images table if images were uploaded
+      if (imageUrls.length > 0 && issueData) {
+        const imageRecords = imageUrls.map((url) => ({
+          issue_id: issueData.id,
+          image_url: url,
+          file_name: images.find((img) => img.url === url)?.file.name || 'image',
+        }));
+
+        const { error: imageError } = await supabase
+          .from('issue_images')
+          .insert(imageRecords);
+
+        if (imageError) {
+          console.error('Error saving image records:', imageError);
+        }
+      }
+
       toast.success('Issue added successfully');
       setShowAddDialog(false);
       setNewIssue({
@@ -124,6 +230,13 @@ export default function Issues() {
         resolved_date: '',
         resolution_notes: '',
       });
+      // Clean up preview URLs
+      images.forEach((img) => {
+        if (!img.uploaded) {
+          URL.revokeObjectURL(img.preview);
+        }
+      });
+      setImages([]);
       fetchIssues();
     } catch (error) {
       toast.error('Failed to add issue');
@@ -169,6 +282,14 @@ export default function Issues() {
       default:
         return <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center"><MessageSquare className="w-5 h-5 text-slate-600" /></div>;
     }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
@@ -319,12 +440,59 @@ export default function Issues() {
                     placeholder="Enter resolution notes"
                   />
                 </div>
+
+                {/* Image Upload Section */}
+                <div className="col-span-2 space-y-2">
+                  <Label>Attachments (Images)</Label>
+                  <div 
+                    className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-blue-500 hover:bg-slate-50 transition-colors cursor-pointer"
+                    onClick={() => imageInputRef.current?.click()}
+                  >
+                    <input
+                      ref={imageInputRef}
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageSelect}
+                    />
+                    <Image className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                    <p className="text-sm text-slate-600">Click to upload images or drag and drop</p>
+                    <p className="text-xs text-slate-400 mt-1">JPG, PNG, GIF up to 10MB</p>
+                  </div>
+                  
+                  {/* Image Preview Grid */}
+                  {images.length > 0 && (
+                    <div className="grid grid-cols-3 gap-3 mt-3">
+                      {images.map((image) => (
+                        <div key={image.id} className="relative group">
+                          <img
+                            src={image.preview}
+                            alt={image.file.name}
+                            className="w-full h-24 object-cover rounded-lg border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(image.id)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                          <p className="text-xs text-slate-500 mt-1 truncate">{image.file.name}</p>
+                          <p className="text-xs text-slate-400">{formatFileSize(image.file.size)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setShowAddDialog(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleAddIssue}>Report Issue</Button>
+                <Button onClick={handleAddIssue} disabled={isUploading}>
+                  {isUploading ? 'Uploading...' : 'Report Issue'}
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
