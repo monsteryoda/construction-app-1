@@ -397,7 +397,7 @@ export default function Activities() {
 
                 {/* Image Upload Section */}
                 <div className="space-y-2">
-                  <Label>Attach Images</Label>
+                  <Label>Images</Label>
                   <div className="mt-2">
                     <div
                       onClick={() => fileInputRef.current?.click()}
