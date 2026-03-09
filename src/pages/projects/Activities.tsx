@@ -25,6 +25,7 @@ interface Activity {
   activity_name: string;
   description: string;
   activity_date: string;
+  end_date: string;
   status: string;
   priority: string;
   assigned_to: string;
@@ -50,6 +51,7 @@ export default function Activities() {
     activity_name: '',
     description: '',
     activity_date: '',
+    end_date: '',
     status: 'pending',
     priority: 'medium',
     assigned_to: '',
@@ -220,6 +222,7 @@ export default function Activities() {
         activity_name: '',
         description: '',
         activity_date: '',
+        end_date: '',
         status: 'pending',
         priority: 'medium',
         assigned_to: '',
@@ -341,13 +344,23 @@ export default function Activities() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Date</Label>
+                    <Label>Start Date</Label>
                     <Input
                       type="date"
                       value={newActivity.activity_date}
                       onChange={(e) => setNewActivity({ ...newActivity, activity_date: e.target.value })}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label>End Date</Label>
+                    <Input
+                      type="date"
+                      value={newActivity.end_date}
+                      onChange={(e) => setNewActivity({ ...newActivity, end_date: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Status</Label>
                     <Select
@@ -364,8 +377,6 @@ export default function Activities() {
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Priority</Label>
                     <Select
@@ -379,24 +390,6 @@ export default function Activities() {
                         <SelectItem value="low">Low</SelectItem>
                         <SelectItem value="medium">Medium</SelectItem>
                         <SelectItem value="high">High</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Status</Label>
-                    <Select
-                      value={newActivity.assigned_to}
-                      onValueChange={(value) => setNewActivity({ ...newActivity, assigned_to: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="not_started">Not Started</SelectItem>
-                        <SelectItem value="in_progress">In Progress</SelectItem>
-                        <SelectItem value="on_hold">On Hold</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -542,6 +535,12 @@ export default function Activities() {
                           <div className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
                             <span>{new Date(activity.activity_date).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                        {activity.end_date && (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>End: {new Date(activity.end_date).toLocaleDateString()}</span>
                           </div>
                         )}
                         {activity.assigned_to && (
