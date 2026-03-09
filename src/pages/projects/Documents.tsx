@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, FileText, Upload, Download, Eye, Calendar } from 'lucide-react';
+import { Plus, FileText, Upload, Download, Eye, Calendar, X, FileUp } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Document {
@@ -26,6 +26,13 @@ interface Document {
 interface Project {
   id: string;
   project_name: string;
+}
+
+interface FileAttachment {
+  file: File;
+  id: string;
+  uploaded: boolean;
+  url?: string;
 }
 
 const documentTypes = [
@@ -53,6 +60,9 @@ export default function Documents() {
     file_url: '',
     version: '1.0',
   });
+  const [attachments, setAttachments] = useState<FileAttachment[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchProjects();
@@ -95,15 +105,89 @@ export default function Documents() {
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newAttachments: FileAttachment[] = Array.from(files).map((file) => ({
+      file,
+      id: Math.random().toString(36).substring(7),
+      uploaded: false,
+    }));
+
+    setAttachments((prev) => [...prev, ...newAttachments]);
+  };
+
+  const removeAttachment = (id: string) => {
+    setAttachments((prev) => prev.filter((att) => att.id !== id));
+  };
+
+  const uploadFiles = async (): Promise<string[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const uploadedUrls: string[] = [];
+    setIsUploading(true);
+
+    for (const attachment of attachments) {
+      if (attachment.uploaded && attachment.url) {
+        uploadedUrls.push(attachment.url);
+        continue;
+      }
+
+      const fileExt = attachment.file.name.split('.').pop();
+      const filePath = `${user.id}/${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('project-documents')
+        .upload(filePath, attachment.file);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        toast.error(`Failed to upload ${attachment.file.name}`);
+        continue;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('project-documents')
+        .getPublicUrl(filePath);
+
+      uploadedUrls.push(publicUrlData.publicUrl);
+      
+      setAttachments((prev) =>
+        prev.map((att) =>
+          att.id === attachment.id ? { ...att, uploaded: true, url: publicUrlData.publicUrl } : att
+        )
+      );
+    }
+
+    setIsUploading(false);
+    return uploadedUrls;
+  };
+
   const handleAddDocument = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      let fileUrl = newDocument.file_url;
+      let fileSize = 0;
+
+      // Upload attachments if any
+      if (attachments.length > 0) {
+        const urls = await uploadFiles();
+        if (urls.length > 0) {
+          fileUrl = urls[0]; // Primary file
+          fileSize = attachments[0].file.size;
+        }
+      }
+
       const { error } = await supabase.from('project_documents').insert([
         {
           user_id: user.id,
           ...newDocument,
+          file_url: fileUrl,
+          file_size: fileSize,
         },
       ]);
 
@@ -118,6 +202,7 @@ export default function Documents() {
         file_url: '',
         version: '1.0',
       });
+      setAttachments([]);
       fetchDocuments();
     } catch (error) {
       toast.error('Failed to add document');
@@ -160,7 +245,7 @@ export default function Documents() {
                 Create Document
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Document</DialogTitle>
               </DialogHeader>
@@ -217,14 +302,53 @@ export default function Documents() {
                     placeholder="Enter document description"
                   />
                 </div>
+                
+                {/* File Upload Section */}
                 <div className="space-y-2">
-                  <Label>File URL</Label>
-                  <Input
-                    value={newDocument.file_url}
-                    onChange={(e) => setNewDocument({ ...newDocument, file_url: e.target.value })}
-                    placeholder="Enter file URL or link"
-                  />
+                  <Label>Attachments</Label>
+                  <div 
+                    className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-blue-500 hover:bg-slate-50 transition-colors cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
+                    <FileUp className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                    <p className="text-sm text-slate-600">Click to upload files or drag and drop</p>
+                    <p className="text-xs text-slate-400 mt-1">PDF, DOC, XLS, JPG, PNG up to 50MB</p>
+                  </div>
+                  
+                  {/* Selected Files List */}
+                  {attachments.length > 0 && (
+                    <div className="space-y-2 mt-3">
+                      {attachments.map((attachment) => (
+                        <div key={attachment.id} className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-slate-700 truncate">{attachment.file.name}</p>
+                              <p className="text-xs text-slate-500">{formatFileSize(attachment.file.size)}</p>
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeAttachment(attachment.id)}
+                            className="text-slate-400 hover:text-red-500"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
+
                 <div className="space-y-2">
                   <Label>Version</Label>
                   <Input
@@ -238,7 +362,9 @@ export default function Documents() {
                 <Button variant="outline" onClick={() => setShowAddDialog(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleAddDocument}>Add Document</Button>
+                <Button onClick={handleAddDocument} disabled={isUploading}>
+                  {isUploading ? 'Uploading...' : 'Add Document'}
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
