@@ -157,7 +157,7 @@ export default function Documents() {
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="w-4 h-4" />
-                Add Document
+                Create Document
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
