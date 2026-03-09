@@ -25,7 +25,6 @@ interface Activity {
   activity_name: string;
   description: string;
   activity_date: string;
-  end_date: string;
   status: string;
   priority: string;
   assigned_to: string;
@@ -51,7 +50,6 @@ export default function Activities() {
     activity_name: '',
     description: '',
     activity_date: '',
-    end_date: '',
     status: 'pending',
     priority: 'medium',
     assigned_to: '',
@@ -187,6 +185,26 @@ export default function Activities() {
     return uploadedImages.length;
   };
 
+  const deleteActivityImage = async (imageId: string, imageUrl: string) => {
+    try {
+      // Extract filename from URL
+      const urlParts = imageUrl.split('/');
+      const fileName = urlParts.slice(-2).join('/'); // userId/filename
+
+      // Delete from storage
+      await supabase.storage.from('activity-images').remove([fileName]);
+
+      // Delete from database
+      await supabase.from('activity_images').delete().eq('id', imageId);
+
+      toast.success('Image deleted');
+      fetchActivities();
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      toast.error('Failed to delete image');
+    }
+  };
+
   const handleAddActivity = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -222,7 +240,6 @@ export default function Activities() {
         activity_name: '',
         description: '',
         activity_date: '',
-        end_date: '',
         status: 'pending',
         priority: 'medium',
         assigned_to: '',
@@ -239,26 +256,6 @@ export default function Activities() {
       console.error('Error adding activity:', error);
       toast.error('Failed to add activity');
       setUploading(false);
-    }
-  };
-
-  const deleteActivityImage = async (imageId: string, imageUrl: string) => {
-    try {
-      // Extract filename from URL
-      const urlParts = imageUrl.split('/');
-      const fileName = urlParts.slice(-2).join('/'); // userId/filename
-
-      // Delete from storage
-      await supabase.storage.from('activity-images').remove([fileName]);
-
-      // Delete from database
-      await supabase.from('activity_images').delete().eq('id', imageId);
-
-      toast.success('Image deleted');
-      fetchActivities();
-    } catch (error) {
-      console.error('Error deleting image:', error);
-      toast.error('Failed to delete image');
     }
   };
 
@@ -342,23 +339,13 @@ export default function Activities() {
                     placeholder="Enter activity description"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Start Date</Label>
-                    <Input
-                      type="date"
-                      value={newActivity.activity_date}
-                      onChange={(e) => setNewActivity({ ...newActivity, activity_date: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>End Date</Label>
-                    <Input
-                      type="date"
-                      value={newActivity.end_date}
-                      onChange={(e) => setNewActivity({ ...newActivity, end_date: e.target.value })}
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label>Activity Date</Label>
+                  <Input
+                    type="date"
+                    value={newActivity.activity_date}
+                    onChange={(e) => setNewActivity({ ...newActivity, activity_date: e.target.value })}
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -535,12 +522,6 @@ export default function Activities() {
                           <div className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
                             <span>{new Date(activity.activity_date).toLocaleDateString()}</span>
-                          </div>
-                        )}
-                        {activity.end_date && (
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>End: {new Date(activity.end_date).toLocaleDateString()}</span>
                           </div>
                         )}
                         {activity.assigned_to && (
