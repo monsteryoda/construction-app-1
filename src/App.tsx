@@ -3,7 +3,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import Login from '@/pages/Login';
 import Index from '@/pages/Index';
-import ProjectDetails from '@/pages/projects/Details';
+import ProjectDetails from '@/pages/projects/ProjectDetails';
 import Activities from '@/pages/projects/Activities';
 import Deliveries from '@/pages/projects/Deliveries';
 import Schedules from '@/pages/projects/Schedules';
