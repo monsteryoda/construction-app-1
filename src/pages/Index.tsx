@@ -1,19 +1,16 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
-import { MadeWithDyad } from "@/components/made-with-dyad";
+export default function Index() {
+  const { user, loading } = useAuth();
 
-const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">
-          Start building your amazing project here!
-        </p>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full"></div>
       </div>
-      <MadeWithDyad />
-    </div>
-  );
-};
+    );
+  }
 
-export default Index;
+  return user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
+}
