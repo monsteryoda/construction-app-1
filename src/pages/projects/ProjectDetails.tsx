@@ -24,6 +24,42 @@ interface Project {
   status: string;
 }
 
+// Separate component for project image to handle loading states
+function ProjectImage({ imageUrl, projectName }: { imageUrl: string | null; projectName: string }) {
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  if (!imageUrl || hasError) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+        <ImageIcon className="w-16 h-16 text-slate-400 mb-2" />
+        <span className="text-sm text-slate-500">No image available</span>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-100">
+          <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+        </div>
+      )}
+      <img
+        src={imageUrl}
+        alt={projectName}
+        className={`w-full h-full object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        onError={() => {
+          console.error('Image failed to load:', imageUrl);
+          setHasError(true);
+          setIsLoading(false);
+        }}
+        onLoad={() => setIsLoading(false)}
+      />
+    </>
+  );
+}
+
 export default function ProjectDetails() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,6 +96,14 @@ export default function ProjectDetails() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      // Debug: Log image URLs
+      if (data) {
+        data.forEach(p => {
+          console.log(`Project "${p.project_name}" image URL:`, p.project_image_url);
+        });
+      }
+      
       setProjects(data || []);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -98,15 +142,24 @@ export default function ProjectDetails() {
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
+      console.log('Uploading file:', fileName);
+
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from('project-images')
         .upload(fileName, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('Upload successful:', uploadData);
 
       const { data: { publicUrl } } = supabase.storage
         .from('project-images')
         .getPublicUrl(fileName);
+
+      console.log('Public URL:', publicUrl);
 
       setNewProject(prev => ({ ...prev, project_image_url: publicUrl }));
       toast.success('Image uploaded successfully');
@@ -132,16 +185,24 @@ export default function ProjectDetails() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase.from('projects').insert([
+      console.log('Adding project with image URL:', newProject.project_image_url);
+
+      const { error, data: insertData } = await supabase.from('projects').insert([
         {
           user_id: user.id,
           ...newProject,
           contract_period: parseInt(newProject.contract_period) || 0,
           defect_liability_period: parseInt(newProject.defect_liability_period) || 0,
         },
-      ]);
+      ]).select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Insert error:', error);
+        throw error;
+      }
+
+      console.log('Project added:', insertData);
+
       toast.success('Project added successfully');
       setShowAddDialog(false);
       setPreviewImage(null);
@@ -334,24 +395,11 @@ export default function ProjectDetails() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {projects.map((project) => (
               <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="h-48 bg-gradient-to-br from-slate-100 to-slate-200 relative">
-                  {project.project_image_url ? (
-                    <img
-                      src={project.project_image_url}
-                      alt={project.project_name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // If image fails to load, show placeholder
-                        console.error('Image failed to load:', project.project_image_url);
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center">
-                      <ImageIcon className="w-16 h-16 text-slate-400 mb-2" />
-                      <span className="text-sm text-slate-500">No image available</span>
-                    </div>
-                  )}
+                <div className="h-48 relative bg-slate-100">
+                  <ProjectImage 
+                    imageUrl={project.project_image_url} 
+                    projectName={project.project_name} 
+                  />
                   <div className="absolute top-4 right-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${project.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}`}>
                       {project.status}
