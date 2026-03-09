@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Building2, Calendar, FileText, Image as ImageIcon } from 'lucide-react';
+import { Plus, Building2, Calendar, FileText, Image as ImageIcon, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Project {
@@ -28,6 +28,9 @@ export default function ProjectDetails() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [newProject, setNewProject] = useState({
     project_name: '',
     contract_number: '',
@@ -38,6 +41,7 @@ export default function ProjectDetails() {
     date_of_commence: '',
     date_of_completion: '',
     defect_liability_period: '',
+    project_image_url: '',
   });
 
   useEffect(() => {
@@ -64,6 +68,63 @@ export default function ProjectDetails() {
     }
   };
 
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+
+    // Create preview
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewImage(objectUrl);
+
+    // Upload to Supabase Storage
+    setUploading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('project-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('project-images')
+        .getPublicUrl(fileName);
+
+      setNewProject(prev => ({ ...prev, project_image_url: publicUrl }));
+      toast.success('Image uploaded successfully');
+    } catch (error) {
+      toast.error('Failed to upload image');
+      setPreviewImage(null);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setPreviewImage(null);
+    setNewProject(prev => ({ ...prev, project_image_url: '' }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleAddProject = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -81,6 +142,7 @@ export default function ProjectDetails() {
       if (error) throw error;
       toast.success('Project added successfully');
       setShowAddDialog(false);
+      setPreviewImage(null);
       setNewProject({
         project_name: '',
         contract_number: '',
@@ -91,6 +153,7 @@ export default function ProjectDetails() {
         date_of_commence: '',
         date_of_completion: '',
         defect_liability_period: '',
+        project_image_url: '',
       });
       fetchProjects();
     } catch (error) {
@@ -183,7 +246,7 @@ export default function ProjectDetails() {
                     onChange={(e) => setNewProject({ ...newProject, date_of_completion: e.target.value })}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 col-span-2">
                   <Label>Defect Liability Period (months)</Label>
                   <Input
                     type="number"
@@ -191,6 +254,49 @@ export default function ProjectDetails() {
                     onChange={(e) => setNewProject({ ...newProject, defect_liability_period: e.target.value })}
                     placeholder="Enter defect liability period"
                   />
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <Label>Project Image</Label>
+                  <div className="mt-2">
+                    {previewImage || newProject.project_image_url ? (
+                      <div className="relative w-full h-48 rounded-lg overflow-hidden border border-slate-200">
+                        <img
+                          src={previewImage || newProject.project_image_url}
+                          alt="Project preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          onClick={handleRemoveImage}
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full h-48 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-slate-50 transition-colors"
+                      >
+                        <Upload className="w-10 h-10 text-slate-400 mb-2" />
+                        <p className="text-sm text-slate-500">Click to upload project image</p>
+                        <p className="text-xs text-slate-400 mt-1">PNG, JPG, GIF up to 5MB</p>
+                      </div>
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                    {uploading && (
+                      <p className="text-sm text-blue-600 mt-2 flex items-center gap-2">
+                        <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                        Uploading...
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex justify-end gap-2">
