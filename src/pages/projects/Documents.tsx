@@ -348,15 +348,6 @@ export default function Documents() {
                     </div>
                   )}
                 </div>
-
-                <div className="space-y-2">
-                  <Label>Version</Label>
-                  <Input
-                    value={newDocument.version}
-                    onChange={(e) => setNewDocument({ ...newDocument, version: e.target.value })}
-                    placeholder="e.g., 1.0"
-                  />
-                </div>
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setShowAddDialog(false)}>
