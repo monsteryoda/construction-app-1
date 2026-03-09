@@ -25,6 +25,7 @@ interface Activity {
   activity_name: string;
   description: string;
   activity_date: string;
+  end_date: string;
   status: string;
   priority: string;
   assigned_to: string;
@@ -50,6 +51,7 @@ export default function Activities() {
     activity_name: '',
     description: '',
     activity_date: '',
+    end_date: '',
     status: 'pending',
     priority: 'medium',
     assigned_to: '',
@@ -210,6 +212,16 @@ export default function Activities() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Validate end_date is after activity_date if both are provided
+      if (newActivity.end_date && newActivity.activity_date) {
+        const startDate = new Date(newActivity.activity_date);
+        const endDate = new Date(newActivity.end_date);
+        if (endDate < startDate) {
+          toast.error('End date must be after the start date');
+          return;
+        }
+      }
+
       // First create the activity
       const { data: activityData, error: activityError } = await supabase
         .from('project_activities')
@@ -240,6 +252,7 @@ export default function Activities() {
         activity_name: '',
         description: '',
         activity_date: '',
+        end_date: '',
         status: 'pending',
         priority: 'medium',
         assigned_to: '',
@@ -339,13 +352,23 @@ export default function Activities() {
                     placeholder="Enter activity description"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Activity Date</Label>
-                  <Input
-                    type="date"
-                    value={newActivity.activity_date}
-                    onChange={(e) => setNewActivity({ ...newActivity, activity_date: e.target.value })}
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Start Date</Label>
+                    <Input
+                      type="date"
+                      value={newActivity.activity_date}
+                      onChange={(e) => setNewActivity({ ...newActivity, activity_date: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>End Date</Label>
+                    <Input
+                      type="date"
+                      value={newActivity.end_date}
+                      onChange={(e) => setNewActivity({ ...newActivity, end_date: e.target.value })}
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -522,6 +545,12 @@ export default function Activities() {
                           <div className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
                             <span>{new Date(activity.activity_date).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                        {activity.end_date && (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>End: {new Date(activity.end_date).toLocaleDateString()}</span>
                           </div>
                         )}
                         {activity.assigned_to && (
