@@ -256,7 +256,7 @@ export default function Documents() {
               <p className="text-slate-500 mb-6">Add your first project document</p>
               <Button onClick={() => setShowAddDialog(true)}>
                 <Plus className="w-4 h-4 mr-2" />
-                Add Document
+                Create Document
               </Button>
             </CardContent>
           </Card>
