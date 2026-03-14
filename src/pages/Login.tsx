@@ -12,13 +12,15 @@ import { toast } from 'sonner';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Redirect if already logged in
   useEffect(() => {
     if (user) {
+      console.log('User already logged in, redirecting to dashboard');
       navigate('/');
     }
   }, [user, navigate]);
@@ -28,21 +30,44 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Attempting login with email:', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Login error:', error);
+        throw error;
+      }
 
+      console.log('Login successful, user:', data.user?.email);
+      
       toast.success('Successfully signed in!');
-      navigate('/');
+      
+      // Small delay to ensure session is properly set
+      setTimeout(() => {
+        navigate('/');
+      }, 100);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to sign in');
+      console.error('Login failed:', error);
+      toast.error(error.message || 'Failed to sign in. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+          <p className="text-slate-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">

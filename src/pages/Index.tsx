@@ -12,5 +12,11 @@ export default function Index() {
     );
   }
 
-  return user ? <Navigate to="/" replace /> : <Navigate to="/login" replace />;
+  // Redirect to dashboard if logged in
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // Redirect to login if not logged in
+  return <Navigate to="/login" replace />;
 }

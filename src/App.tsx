@@ -3,6 +3,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import Login from '@/pages/Login';
 import Index from '@/pages/Index';
+import Dashboard from '@/pages/Dashboard';
 import ProjectDetails from '@/pages/projects/ProjectDetails';
 import Activities from '@/pages/projects/Activities';
 import Deliveries from '@/pages/projects/Deliveries';
@@ -36,6 +37,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Index />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
               </PrivateRoute>
             }
           />
