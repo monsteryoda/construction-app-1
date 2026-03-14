@@ -1,81 +1,32 @@
-import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, ClipboardList, Package, Calendar, AlertCircle, FileText } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 export default function Dashboard() {
-  const [stats, setStats] = useState({
-    projects: 0,
-    activities: 0,
-    deliveries: 0,
-    schedules: 0,
-    documents: 0,
-    issues: 0,
-  });
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const [
-        { count: projects },
-        { count: activities },
-        { count: deliveries },
-        { count: schedules },
-        { count: documents },
-        { count: issues },
-      ] = await Promise.all([
-        supabase.from('projects').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-        supabase.from('project_activities').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-        supabase.from('project_deliveries').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-        supabase.from('project_schedules').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-        supabase.from('project_documents').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-        supabase.from('project_issues').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-      ]);
-
-      setStats({
-        projects: projects || 0,
-        activities: activities || 0,
-        deliveries: deliveries || 0,
-        schedules: schedules || 0,
-        documents: documents || 0,
-        issues: issues || 0,
-      });
-    };
-
-    fetchStats();
-  }, []);
-
-  const statCards = [
-    { title: 'Total Projects', value: stats.projects, icon: Building2, color: 'bg-blue-500' },
-    { title: 'Activities', value: stats.activities, icon: ClipboardList, color: 'bg-green-500' },
-    { title: 'Deliveries', value: stats.deliveries, icon: Package, color: 'bg-orange-500' },
-    { title: 'Schedules', value: stats.schedules, icon: Calendar, color: 'bg-purple-500' },
-    { title: 'Documents', value: stats.documents, icon: FileText, color: 'bg-cyan-500' },
-    { title: 'Issues', value: stats.issues, icon: AlertCircle, color: 'bg-red-500' },
+  const stats = [
+    { label: 'Active Projects', value: '12', icon: Building2, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { label: 'Pending Activities', value: '8', icon: ClipboardList, color: 'text-amber-600', bg: 'bg-amber-100' },
+    { label: 'Deliveries Due', value: '5', icon: Package, color: 'text-green-600', bg: 'bg-green-100' },
+    { label: 'Open Issues', value: '3', icon: AlertCircle, color: 'text-red-600', bg: 'bg-red-100' },
   ];
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-slate-500 mt-1">Overview of your construction projects</p>
+      <div className="p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+          <p className="text-slate-500">Welcome back! Here's an overview of your projects.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {statCards.map((stat) => (
-            <Card key={stat.title} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">{stat.title}</CardTitle>
-                <div className={`${stat.color} p-2 rounded-lg`}>
-                  <stat.icon className="w-4 h-4 text-white" />
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {stats.map((stat) => (
+            <Card key={stat.label}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
+                <stat.icon className={`h-4 w-4 ${stat.color}`} />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-slate-900">{stat.value}</div>
+                <div className="text-2xl font-bold">{stat.value}</div>
               </CardContent>
             </Card>
           ))}
@@ -84,18 +35,54 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
+              <CardTitle>Recent Projects</CardTitle>
+              <CardDescription>Your latest construction projects</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-slate-500 text-sm">No recent activity to display.</p>
+              <div className="space-y-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex items-center gap-4 p-3 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors cursor-pointer">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                      <Building2 className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-medium text-slate-900">Project Alpha {i}</h3>
+                      <p className="text-sm text-slate-500">Construction • Active</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-slate-900">85%</p>
+                      <p className="text-xs text-slate-500">Complete</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader>
-              <CardTitle>Upcoming Deliveries</CardTitle>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>Common tasks and operations</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-slate-500 text-sm">No upcoming deliveries.</p>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { icon: FileText, label: 'New Project', color: 'bg-blue-500' },
+                  { icon: ClipboardList, label: 'Add Activity', color: 'bg-amber-500' },
+                  { icon: Package, label: 'Schedule Delivery', color: 'bg-green-500' },
+                  { icon: AlertCircle, label: 'Report Issue', color: 'bg-red-500' },
+                ].map((action) => (
+                  <button
+                    key={action.label}
+                    className="flex flex-col items-center gap-2 p-4 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                  >
+                    <div className={`w-10 h-10 ${action.color} rounded-lg flex items-center justify-center`}>
+                      <action.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="text-sm font-medium text-slate-700">{action.label}</span>
+                  </button>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </div>

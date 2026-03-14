@@ -4,6 +4,10 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import Login from '@/pages/Login';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
+import Documentation from '@/pages/resources/Documentation';
+import Help from '@/pages/resources/Help';
+import Reports from '@/pages/resources/Reports';
+import Links from '@/pages/resources/Links';
 import ProjectDetails from '@/pages/projects/ProjectDetails';
 import Activities from '@/pages/projects/Activities';
 import Deliveries from '@/pages/projects/Deliveries';
@@ -45,6 +49,38 @@ function App() {
             element={
               <PrivateRoute>
                 <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/resources/documentation"
+            element={
+              <PrivateRoute>
+                <Documentation />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/resources/help"
+            element={
+              <PrivateRoute>
+                <Help />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/resources/reports"
+            element={
+              <PrivateRoute>
+                <Reports />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/resources/links"
+            element={
+              <PrivateRoute>
+                <Links />
               </PrivateRoute>
             }
           />

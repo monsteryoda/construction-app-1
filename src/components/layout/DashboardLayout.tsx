@@ -17,6 +17,10 @@ import {
   X,
   Settings,
   User,
+  BookOpen,
+  HelpCircle,
+  FileSpreadsheet,
+  Link as LinkIcon,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -36,7 +40,7 @@ const navItems: NavItem[] = [
   {
     label: 'Dashboard',
     icon: <LayoutDashboard className="w-5 h-5" />,
-    path: '/',
+    path: '/dashboard',
   },
   {
     label: 'Projects',
@@ -50,6 +54,16 @@ const navItems: NavItem[] = [
       { label: 'Issues', path: '/projects/issues', icon: <AlertCircle className="w-4 h-4" /> },
     ],
   },
+  {
+    label: 'Resources',
+    icon: <BookOpen className="w-5 h-5" />,
+    children: [
+      { label: 'Documentation', path: '/resources/documentation', icon: <FileText className="w-4 h-4" /> },
+      { label: 'Help Center', path: '/resources/help', icon: <HelpCircle className="w-4 h-4" /> },
+      { label: 'Reports', path: '/resources/reports', icon: <FileSpreadsheet className="w-4 h-4" /> },
+      { label: 'External Links', path: '/resources/links', icon: <LinkIcon className="w-4 h-4" /> },
+    ],
+  },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -58,6 +72,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { signOut, user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [projectExpanded, setProjectExpanded] = useState(true);
+  const [resourcesExpanded, setResourcesExpanded] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -99,16 +114,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 ) : (
                   <div>
                     <button
-                      onClick={() => setProjectExpanded(!projectExpanded)}
+                      onClick={() => item.label === 'Projects' ? setProjectExpanded(!projectExpanded) : setResourcesExpanded(!resourcesExpanded)}
                       className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200"
                     >
                       <div className="flex items-center gap-3">
                         {item.icon}
                         <span className="font-medium whitespace-nowrap">{item.label}</span>
                       </div>
-                      {projectExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                      {item.label === 'Projects' ? (projectExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />) : (resourcesExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />)}
                     </button>
-                    {projectExpanded && (
+                    {(item.label === 'Projects' ? projectExpanded : resourcesExpanded) && (
                       <ul className="mt-1 ml-4 space-y-1 border-l-2 border-slate-700 pl-3">
                         {item.children.map((child) => (
                           <li key={child.path}>
@@ -171,7 +186,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span>Home</span>
               <ChevronRight className="w-4 h-4" />
               <span className="text-slate-900 font-medium capitalize">
-                {location.pathname === '/' ? 'Dashboard' : location.pathname.split('/').pop()?.replace('-', ' ')}
+                {location.pathname === '/dashboard' ? 'Dashboard' : location.pathname.split('/').pop()?.replace('-', ' ')}
               </span>
             </nav>
           </div>
