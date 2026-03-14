@@ -27,7 +27,7 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_relativeSplatPath: true }}>
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
