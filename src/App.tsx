@@ -4,10 +4,9 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import Login from '@/pages/Login';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
-import Documentation from '@/pages/resources/Documentation';
-import Help from '@/pages/resources/Help';
-import Reports from '@/pages/resources/Reports';
-import Links from '@/pages/resources/Links';
+import Manpower from '@/pages/resources/Manpower';
+import Machinery from '@/pages/resources/Machinery';
+import Material from '@/pages/resources/Material';
 import ProjectDetails from '@/pages/projects/ProjectDetails';
 import Activities from '@/pages/projects/Activities';
 import Deliveries from '@/pages/projects/Deliveries';
@@ -53,34 +52,26 @@ function App() {
             }
           />
           <Route
-            path="/resources/documentation"
+            path="/resources/manpower"
             element={
               <PrivateRoute>
-                <Documentation />
+                <Manpower />
               </PrivateRoute>
             }
           />
           <Route
-            path="/resources/help"
+            path="/resources/machinery"
             element={
               <PrivateRoute>
-                <Help />
+                <Machinery />
               </PrivateRoute>
             }
           />
           <Route
-            path="/resources/reports"
+            path="/resources/material"
             element={
               <PrivateRoute>
-                <Reports />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/resources/links"
-            element={
-              <PrivateRoute>
-                <Links />
+                <Material />
               </PrivateRoute>
             }
           />

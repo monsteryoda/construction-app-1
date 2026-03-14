@@ -21,6 +21,9 @@ import {
   HelpCircle,
   FileSpreadsheet,
   Link as LinkIcon,
+  Users,
+  Hammer,
+  Box,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -58,10 +61,9 @@ const navItems: NavItem[] = [
     label: 'Resources',
     icon: <BookOpen className="w-5 h-5" />,
     children: [
-      { label: 'Documentation', path: '/resources/documentation', icon: <FileText className="w-4 h-4" /> },
-      { label: 'Help Center', path: '/resources/help', icon: <HelpCircle className="w-4 h-4" /> },
-      { label: 'Reports', path: '/resources/reports', icon: <FileSpreadsheet className="w-4 h-4" /> },
-      { label: 'External Links', path: '/resources/links', icon: <LinkIcon className="w-4 h-4" /> },
+      { label: 'Manpower', path: '/resources/manpower', icon: <Users className="w-4 h-4" /> },
+      { label: 'Machinery', path: '/resources/machinery', icon: <Hammer className="w-4 h-4" /> },
+      { label: 'Material', path: '/resources/material', icon: <Box className="w-4 h-4" /> },
     ],
   },
 ];
