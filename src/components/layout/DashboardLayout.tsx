@@ -31,7 +31,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import logo from '@/assets/logo.png';
 
 interface NavItem {
   label: string;
@@ -93,7 +92,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-              <img src={logo} alt="BEENA Logo" className="w-full h-full object-contain" />
+              <img src="/logo.png" alt="BEENA Logo" className="w-full h-full object-contain" />
             </div>
             <div className="overflow-hidden whitespace-nowrap">
               <h1 className="font-bold text-lg">BEENA</h1>
