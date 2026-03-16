@@ -39,6 +39,10 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
     }
   };
 
+  // Debug: Log the activity data
+  console.log('ActivityCard - Activity data:', activity);
+  console.log('ActivityCard - Projects:', (activity as any).projects);
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
