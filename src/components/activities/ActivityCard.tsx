@@ -39,9 +39,6 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
     }
   };
 
-  console.log('[ActivityCard] Activity data:', activity);
-  console.log('[ActivityCard] Images:', activity.images);
-
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
@@ -58,7 +55,7 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
             )}
             <p className="text-slate-600 text-sm mb-4">{activity.description}</p>
             
-            {/* Display Activity Images */}
+            {/* Display Activity Images - Prominent Display */}
             {activity.images && activity.images.length > 0 && (
               <ActivityImages images={activity.images} />
             )}
@@ -87,15 +84,15 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
 }
 
 function ActivityImages({ images }: { images: any[] }) {
-  console.log('[ActivityImages] Rendering with images:', images);
-  
   return (
     <div className="mb-4">
-      <p className="text-sm text-slate-500 mb-2 flex items-center gap-1">
-        <ImageIcon className="w-4 h-4" />
-        {images.length} image(s)
-      </p>
-      <div className="grid grid-cols-6 gap-2">
+      <div className="flex items-center gap-2 mb-3">
+        <ImageIcon className="w-5 h-5 text-slate-500" />
+        <span className="text-sm font-medium text-slate-700">
+          {images.length} image{images.length > 1 ? 's' : ''}
+        </span>
+      </div>
+      <div className="grid grid-cols-4 gap-3">
         {images.map((image) => (
           <div key={image.id} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 group">
             <img
@@ -103,16 +100,12 @@ function ActivityImages({ images }: { images: any[] }) {
               alt={image.file_name}
               className="w-full h-full object-cover"
               onError={(e) => {
-                console.error('[ActivityImages] Image failed to load:', image.image_url);
                 (e.target as HTMLImageElement).style.display = 'none';
-              }}
-              onLoad={() => {
-                console.log('[ActivityImages] Image loaded:', image.image_url);
               }}
             />
             <button
               onClick={() => deleteActivityImage(image.id, image.image_url)}
-              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
               title="Delete image"
             >
               <Trash2 className="w-3 h-3" />
@@ -127,10 +120,12 @@ function ActivityImages({ images }: { images: any[] }) {
 function ActivityRemarks({ remarks, onDeleteRemark }: { remarks: Remark[]; onDeleteRemark: (id: string) => void }) {
   return (
     <div className="mb-4">
-      <p className="text-sm text-slate-500 mb-2 flex items-center gap-1">
-        <MessageSquare className="w-4 h-4" />
-        {remarks.length} remark(s)
-      </p>
+      <div className="flex items-center gap-2 mb-3">
+        <MessageSquare className="w-5 h-5 text-slate-500" />
+        <span className="text-sm font-medium text-slate-700">
+          {remarks.length} remark{remarks.length > 1 ? 's' : ''}
+        </span>
+      </div>
       <div className="space-y-2">
         {remarks.map((remark) => (
           <div key={remark.id} className="bg-slate-50 p-3 rounded-lg border border-slate-200">
