@@ -69,6 +69,8 @@ export default function Activities() {
             .eq('activity_id', activity.id)
             .order('created_at', { ascending: false });
 
+          console.log(`Activity ${activity.id} has ${images?.length || 0} images`);
+          
           return { ...activity, images: images || [], remarks: remarks || [] };
         })
       );
