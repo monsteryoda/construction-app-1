@@ -142,13 +142,18 @@ export default function Activities() {
             <h1 className="text-3xl font-bold text-slate-900">Project Activities</h1>
             <p className="text-slate-500 mt-1">Manage and track project activities</p>
           </div>
-          <ActivityForm
-            isOpen={showAddDialog}
-            onClose={() => setShowAddDialog(false)}
-            onSubmit={handleAddActivity}
-            projects={projects}
-          />
+          <Button onClick={() => setShowAddDialog(true)} className="gap-2">
+            <Plus className="w-4 h-4" />
+            Add Activity
+          </Button>
         </div>
+
+        <ActivityForm
+          isOpen={showAddDialog}
+          onClose={() => setShowAddDialog(false)}
+          onSubmit={handleAddActivity}
+          projects={projects}
+        />
 
         {loading ? (
           <div className="text-center py-12">
@@ -159,10 +164,10 @@ export default function Activities() {
             <CardContent>
               <ClipboardList className="w-16 h-16 text-slate-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-slate-900 mb-2">No Activities Yet</h3>
-              <p className="text-slate-500 mb-6">Add your first project activity</p>
-              <Button onClick={() => setShowAddDialog(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Activity
+              <p className="text-slate-500 mb-6">Add your first project activity to get started</p>
+              <Button onClick={() => setShowAddDialog(true)} className="gap-2">
+                <Plus className="w-4 h-4" />
+                Add Your First Activity
               </Button>
             </CardContent>
           </Card>
