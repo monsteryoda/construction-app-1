@@ -1,4 +1,4 @@
-import { Calendar, User, Image as ImageIcon } from 'lucide-react';
+import { Calendar, User, Image as ImageIcon, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,8 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
     }
   };
 
+  const progress = activity.progress || 0;
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
@@ -53,6 +55,23 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
             )}
             <p className="text-slate-600 text-sm mb-4">{activity.description}</p>
             
+            {/* Progress Bar */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-slate-500" />
+                  <span className="text-sm font-medium text-slate-700">Progress</span>
+                </div>
+                <span className="text-sm font-bold text-blue-600">{progress}%</span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-2.5">
+                <div 
+                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+            </div>
+
             {/* Display Activity Images - Prominent Display */}
             {activity.images && activity.images.length > 0 && (
               <ActivityImages images={activity.images} />
