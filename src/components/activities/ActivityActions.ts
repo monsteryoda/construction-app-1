@@ -34,37 +34,52 @@ export const deleteRemark = async (remarkId: string) => {
 export const uploadImages = async (activityId: string, userId: string, images: File[]) => {
   const uploadedImages: { image_url: string; file_name: string }[] = [];
 
+  console.log(`[uploadImages] Starting upload for activity ${activityId} with ${images.length} images`);
+
   for (const file of images) {
     const fileExt = file.name.split('.').pop();
     const fileName = `${userId}/${activityId}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-    const { error: uploadError } = await supabase.storage
+    console.log(`[uploadImages] Uploading file: ${fileName}`);
+
+    const { error: uploadError, data: uploadData } = await supabase.storage
       .from('activity-images')
       .upload(fileName, file);
 
     if (uploadError) {
-      console.error('Upload error:', uploadError);
+      console.error(`[uploadImages] Upload error for ${fileName}:`, uploadError);
+      toast.error(`Failed to upload ${file.name}`);
       continue;
     }
 
-    const { data: { publicUrl } } = supabase.storage
+    console.log(`[uploadImages] Upload successful:`, uploadData);
+
+    const { data: publicUrlData } = supabase.storage
       .from('activity-images')
       .getPublicUrl(fileName);
 
-    uploadedImages.push({ image_url: publicUrl, file_name: file.name });
+    console.log(`[uploadImages] Public URL:`, publicUrlData.publicUrl);
+
+    uploadedImages.push({ image_url: publicUrlData.publicUrl, file_name: file.name });
   }
 
+  // Save image records to database
   if (uploadedImages.length > 0) {
-    const { error } = await supabase.from('activity_images').insert(
-      uploadedImages.map((img) => ({
-        activity_id: activityId,
-        image_url: img.image_url,
-        file_name: img.file_name,
-      }))
-    );
+    console.log(`[uploadImages] Saving ${uploadedImages.length} image records to database`);
+    
+    const imageRecords = uploadedImages.map((img) => ({
+      activity_id: activityId,
+      image_url: img.image_url,
+      file_name: img.file_name,
+    }));
+
+    const { data: insertData, error } = await supabase.from('activity_images').insert(imageRecords).select();
 
     if (error) {
-      console.error('Error saving image records:', error);
+      console.error('[uploadImages] Error saving image records:', error);
+      toast.error('Failed to save image records');
+    } else {
+      console.log('[uploadImages] Image records saved:', insertData);
     }
   }
 

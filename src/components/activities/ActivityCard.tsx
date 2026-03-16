@@ -39,6 +39,9 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
     }
   };
 
+  console.log('[ActivityCard] Activity data:', activity);
+  console.log('[ActivityCard] Images:', activity.images);
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
@@ -84,6 +87,8 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
 }
 
 function ActivityImages({ images }: { images: any[] }) {
+  console.log('[ActivityImages] Rendering with images:', images);
+  
   return (
     <div className="mb-4">
       <p className="text-sm text-slate-500 mb-2 flex items-center gap-1">
@@ -98,7 +103,11 @@ function ActivityImages({ images }: { images: any[] }) {
               alt={image.file_name}
               className="w-full h-full object-cover"
               onError={(e) => {
+                console.error('[ActivityImages] Image failed to load:', image.image_url);
                 (e.target as HTMLImageElement).style.display = 'none';
+              }}
+              onLoad={() => {
+                console.log('[ActivityImages] Image loaded:', image.image_url);
               }}
             />
             <button

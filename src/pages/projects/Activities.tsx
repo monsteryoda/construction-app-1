@@ -56,27 +56,39 @@ export default function Activities() {
 
       if (error) throw error;
 
+      console.log('[fetchActivities] Fetched activities:', data);
+
       const activitiesWithDetails = await Promise.all(
         (data || []).map(async (activity) => {
-          const { data: images } = await supabase
+          const { data: images, error: imagesError } = await supabase
             .from('activity_images')
             .select('*')
             .eq('activity_id', activity.id);
 
-          const { data: remarks } = await supabase
+          if (imagesError) {
+            console.error(`[fetchActivities] Error fetching images for activity ${activity.id}:`, imagesError);
+          }
+
+          const { data: remarks, error: remarksError } = await supabase
             .from('activity_remarks')
             .select('*')
             .eq('activity_id', activity.id)
             .order('created_at', { ascending: false });
 
-          console.log(`Activity ${activity.id} has ${images?.length || 0} images`);
+          if (remarksError) {
+            console.error(`[fetchActivities] Error fetching remarks for activity ${activity.id}:`, remarksError);
+          }
+
+          console.log(`[fetchActivities] Activity ${activity.id} has ${images?.length || 0} images and ${remarks?.length || 0} remarks`);
           
           return { ...activity, images: images || [], remarks: remarks || [] };
         })
       );
 
+      console.log('[fetchActivities] Final activities with details:', activitiesWithDetails);
       setActivities(activitiesWithDetails);
     } catch (error) {
+      console.error('[fetchActivities] Error:', error);
       toast.error('Failed to fetch activities');
     } finally {
       setLoading(false);
@@ -88,16 +100,26 @@ export default function Activities() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      console.log('[handleAddActivity] Creating activity with data:', activity);
+      console.log('[handleAddActivity] Images to upload:', images.length);
+
       const { data: activityData, error: activityError } = await supabase
         .from('project_activities')
         .insert([{ user_id: user.id, ...activity }])
         .select()
         .single();
 
-      if (activityError) throw activityError;
+      if (activityError) {
+        console.error('[handleAddActivity] Error creating activity:', activityError);
+        throw activityError;
+      }
+
+      console.log('[handleAddActivity] Activity created:', activityData);
 
       if (images.length > 0 && activityData) {
+        console.log('[handleAddActivity] Uploading images...');
         const uploadedCount = await uploadImages(activityData.id, user.id, images);
+        console.log('[handleAddActivity] Uploaded count:', uploadedCount);
         toast.success(`${uploadedCount} image(s) uploaded successfully`);
       }
 
@@ -105,7 +127,7 @@ export default function Activities() {
       setShowAddDialog(false);
       fetchActivities();
     } catch (error) {
-      console.error('Error adding activity:', error);
+      console.error('[handleAddActivity] Error:', error);
       toast.error('Failed to add activity');
     }
   };
