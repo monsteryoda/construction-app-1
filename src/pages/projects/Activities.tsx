@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, ClipboardList, Calendar, User, Image as ImageIcon, Upload, X, Trash2 } from 'lucide-react';
+import { Plus, ClipboardList, Calendar, User, Image as ImageIcon, Upload, X, Trash2, MessageSquare, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ActivityImage {
@@ -16,6 +16,14 @@ interface ActivityImage {
   activity_id: string;
   image_url: string;
   file_name: string;
+  created_at: string;
+}
+
+interface Remark {
+  id: string;
+  activity_id: string;
+  remark: string;
+  created_by: string;
   created_at: string;
 }
 
@@ -29,6 +37,7 @@ interface Activity {
   status: string;
   priority: string;
   assigned_to: string;
+  remarks?: Remark[];
   images?: ActivityImage[];
 }
 
@@ -56,6 +65,9 @@ export default function Activities() {
     priority: 'medium',
     assigned_to: '',
   });
+  const [showRemarkDialog, setShowRemarkDialog] = useState(false);
+  const [selectedActivityId, setSelectedActivityId] = useState<string>('');
+  const [newRemark, setNewRemark] = useState('');
 
   useEffect(() => {
     fetchProjects();
@@ -91,18 +103,25 @@ export default function Activities() {
 
       if (error) throw error;
 
-      // Fetch images for each activity
-      const activitiesWithImages = await Promise.all(
+      // Fetch images and remarks for each activity
+      const activitiesWithDetails = await Promise.all(
         (data || []).map(async (activity) => {
           const { data: images } = await supabase
             .from('activity_images')
             .select('*')
             .eq('activity_id', activity.id);
-          return { ...activity, images: images || [] };
+
+          const { data: remarks } = await supabase
+            .from('activity_remarks')
+            .select('*')
+            .eq('activity_id', activity.id)
+            .order('created_at', { ascending: false });
+
+          return { ...activity, images: images || [], remarks: remarks || [] };
         })
       );
 
-      setActivities(activitiesWithImages);
+      setActivities(activitiesWithDetails);
     } catch (error) {
       toast.error('Failed to fetch activities');
     } finally {
@@ -269,6 +288,55 @@ export default function Activities() {
       console.error('Error adding activity:', error);
       toast.error('Failed to add activity');
       setUploading(false);
+    }
+  };
+
+  const handleAddRemark = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      if (!newRemark.trim()) {
+        toast.error('Please enter a remark');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('activity_remarks')
+        .insert([
+          {
+            activity_id: selectedActivityId,
+            remark: newRemark,
+            created_by: user.id,
+          },
+        ]);
+
+      if (error) throw error;
+
+      toast.success('Remark added successfully');
+      setShowRemarkDialog(false);
+      setNewRemark('');
+      fetchActivities();
+    } catch (error) {
+      console.error('Error adding remark:', error);
+      toast.error('Failed to add remark');
+    }
+  };
+
+  const deleteRemark = async (remarkId: string) => {
+    try {
+      const { error } = await supabase
+        .from('activity_remarks')
+        .delete()
+        .eq('id', remarkId);
+
+      if (error) throw error;
+
+      toast.success('Remark deleted');
+      fetchActivities();
+    } catch (error) {
+      console.error('Error deleting remark:', error);
+      toast.error('Failed to delete remark');
     }
   };
 
@@ -540,6 +608,34 @@ export default function Activities() {
                         </div>
                       )}
 
+                      {/* Display Remarks */}
+                      {activity.remarks && activity.remarks.length > 0 && (
+                        <div className="mb-4">
+                          <p className="text-sm text-slate-500 mb-2 flex items-center gap-1">
+                            <MessageSquare className="w-4 h-4" />
+                            {activity.remarks.length} remark(s)
+                          </p>
+                          <div className="space-y-2">
+                            {activity.remarks.map((remark) => (
+                              <div key={remark.id} className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                                <p className="text-sm text-slate-700">{remark.remark}</p>
+                                <div className="flex items-center justify-between mt-2">
+                                  <p className="text-xs text-slate-500">
+                                    {new Date(remark.created_at).toLocaleDateString()} • {new Date(remark.created_at).toLocaleTimeString()}
+                                  </p>
+                                  <button
+                                    onClick={() => deleteRemark(remark.id)}
+                                    className="text-red-500 hover:text-red-700 text-xs"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       <div className="flex items-center gap-6 text-sm text-slate-500">
                         {activity.activity_date && (
                           <div className="flex items-center gap-1">
@@ -564,12 +660,53 @@ export default function Activities() {
                         </span>
                       </div>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedActivityId(activity.id);
+                          setShowRemarkDialog(true);
+                        }}
+                      >
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Add Remark
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         )}
+
+        {/* Add Remark Dialog */}
+        <Dialog open={showRemarkDialog} onOpenChange={setShowRemarkDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Remark</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Remark</Label>
+                <Textarea
+                  value={newRemark}
+                  onChange={(e) => setNewRemark(e.target.value)}
+                  placeholder="Enter remark..."
+                  rows={4}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowRemarkDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAddRemark}>
+                Add Remark
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
