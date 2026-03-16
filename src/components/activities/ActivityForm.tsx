@@ -22,7 +22,7 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
     description: '',
     activity_date: '',
     end_date: '',
-    status: 'pending',
+    status: 'in_progress',
     priority: 'medium',
     assigned_to: '',
   });
@@ -85,7 +85,7 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
       description: '',
       activity_date: '',
       end_date: '',
-      status: 'pending',
+      status: 'in_progress',
       priority: 'medium',
       assigned_to: '',
     });
@@ -169,7 +169,6 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="in_progress">In Progress</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
                 </SelectContent>
