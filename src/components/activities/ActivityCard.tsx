@@ -42,20 +42,6 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
-        {/* Project Image */}
-        {(activity as any).projects?.project_image_url && (
-          <div className="mb-4">
-            <img
-              src={(activity as any).projects.project_image_url}
-              alt={(activity as any).projects.project_name}
-              className="w-full h-48 object-cover rounded-lg"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-          </div>
-        )}
-        
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
