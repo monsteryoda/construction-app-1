@@ -47,7 +47,7 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
           <div className="mb-4">
             <img
               src={(activity as any).projects.project_image_url}
-              alt={(activity as any).projects.project_name || 'Project'}
+              alt={(activity as any).projects.project_name}
               className="w-full h-48 object-cover rounded-lg"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';
