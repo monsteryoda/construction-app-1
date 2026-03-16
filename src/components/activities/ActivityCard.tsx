@@ -152,7 +152,7 @@ function ActivityDetails({ activity, getPriorityColor }: { activity: any; getPri
       {activity.activity_date && (
         <div className="flex items-center gap-1">
           <Calendar className="w-4 h-4" />
-          <span>{new Date(activity.activity_date)..toLocaleDateString()}</span>
+          <span>{new Date(activity.activity_date).toLocaleDateString()}</span>
         </div>
       )}
       {activity.end_date && (
