@@ -2,18 +2,25 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, ClipboardList, Package, Calendar, AlertCircle, FileText } from 'lucide-react';
 import { useProjects } from '@/hooks/useProjects';
+import { useActivities } from '@/hooks/useActivities';
 
 export default function Dashboard() {
-  const { projects, loading, error } = useProjects();
+  const { projects, loading: projectsLoading, error: projectsError } = useProjects();
+  const { activities, loading: activitiesLoading, error: activitiesError } = useActivities();
+
+  const pendingActivitiesCount = activities.length;
 
   const stats = [
     { label: 'Active Projects', value: projects.filter(p => p.status === 'active').length.toString(), icon: Building2, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { label: 'Pending Activities', value: '8', icon: ClipboardList, color: 'text-amber-600', bg: 'bg-amber-100' },
+    { label: 'Pending Activities', value: pendingActivitiesCount.toString(), icon: ClipboardList, color: 'text-amber-600', bg: 'bg-amber-100' },
     { label: 'Deliveries Due', value: '5', icon: Package, color: 'text-green-600', bg: 'bg-green-100' },
     { label: 'Open Issues', value: '3', icon: AlertCircle, color: 'text-red-600', bg: 'bg-red-100' },
   ];
 
-  if (loading) {
+  const isLoading = projectsLoading || activitiesLoading;
+  const error = projectsError || activitiesError;
+
+  if (isLoading) {
     return (
       <DashboardLayout>
         <div className="p-6">
@@ -30,7 +37,7 @@ export default function Dashboard() {
       <DashboardLayout>
         <div className="p-6">
           <div className="flex items-center justify-center h-64">
-            <p className="text-red-500">Error loading projects: {error.message}</p>
+            <p className="text-red-500">Error loading data: {error.message}</p>
           </div>
         </div>
       </DashboardLayout>
