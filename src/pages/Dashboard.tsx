@@ -4,24 +4,27 @@ import { Building2, ClipboardList, Package, Calendar, AlertCircle, FileText } fr
 import { useProjects } from '@/hooks/useProjects';
 import { useActivities } from '@/hooks/useActivities';
 import { useDeliveries } from '@/hooks/useDeliveries';
+import { useIssues } from '@/hooks/useIssues';
 
 export default function Dashboard() {
   const { projects, loading: projectsLoading, error: projectsError } = useProjects();
   const { activities, loading: activitiesLoading, error: activitiesError } = useActivities();
   const { deliveries, loading: deliveriesLoading, error: deliveriesError } = useDeliveries();
+  const { issues, loading: issuesLoading, error: issuesError } = useIssues();
 
   const pendingActivitiesCount = activities.length;
   const deliveriesDueCount = deliveries.length;
+  const openIssuesCount = issues.length;
 
   const stats = [
     { label: 'Active Projects', value: projects.filter(p => p.status === 'active').length.toString(), icon: Building2, color: 'text-blue-600', bg: 'bg-blue-100' },
     { label: 'Pending Activities', value: pendingActivitiesCount.toString(), icon: ClipboardList, color: 'text-amber-600', bg: 'bg-amber-100' },
     { label: 'Deliveries Due', value: deliveriesDueCount.toString(), icon: Package, color: 'text-green-600', bg: 'bg-green-100' },
-    { label: 'Open Issues', value: '3', icon: AlertCircle, color: 'text-red-600', bg: 'bg-red-100' },
+    { label: 'Open Issues', value: openIssuesCount.toString(), icon: AlertCircle, color: 'text-red-600', bg: 'bg-red-100' },
   ];
 
-  const isLoading = projectsLoading || activitiesLoading || deliveriesLoading;
-  const error = projectsError || activitiesError || deliveriesError;
+  const isLoading = projectsLoading || activitiesLoading || deliveriesLoading || issuesLoading;
+  const error = projectsError || activitiesError || deliveriesError || issuesError;
 
   if (isLoading) {
     return (
