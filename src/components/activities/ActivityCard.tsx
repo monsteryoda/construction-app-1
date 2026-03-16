@@ -1,9 +1,10 @@
-import { Calendar, User } from 'lucide-react';
+import { Calendar, User, Image as ImageIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Trash2 } from 'lucide-react';
 import { Remark } from './ActivityTypes';
+import { deleteActivityImage } from './ActivityActions';
 
 interface ActivityCardProps {
   activity: any;
@@ -83,8 +84,6 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
 }
 
 function ActivityImages({ images }: { images: any[] }) {
-  const { deleteActivityImage } = require('./ActivityActions');
-  
   return (
     <div className="mb-4">
       <p className="text-sm text-slate-500 mb-2 flex items-center gap-1">
