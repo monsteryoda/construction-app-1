@@ -321,7 +321,7 @@ export default function Material() {
                     </Button>
                     <Button type="submit" className="gap-2" disabled={loading}>
                       <Box className="w-4 h-4" />
-                      {loading ? 'Adding...' : 'Add Material'}
+                      {loading ? 'Saving...' : 'Save'}
                     </Button>
                   </div>
                 </form>
