@@ -1,24 +1,31 @@
-import { Calendar, User, Image as ImageIcon, TrendingUp } from 'lucide-react';
+"use client";
+
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Trash2 } from 'lucide-react';
-import { Remark } from './ActivityTypes';
-import { deleteActivityImage } from './ActivityActions';
+import { Badge } from '@/components/ui/badge';
+import { MessageSquare, Plus, Image as ImageIcon, X } from 'lucide-react';
+import { Activity } from './ActivityTypes';
+import { deleteRemark } from './ActivityActions';
 
 interface ActivityCardProps {
-  activity: any;
-  onAddRemark: (activityId: string) => void;
-  onDeleteRemark: (remarkId: string) => void;
+  activity: Activity;
+  onAddRemark: (id: string) => void;
+  onDeleteRemark: (remarkId: string) => Promise<void>;
 }
 
 export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: ActivityCardProps) {
+  const [showImageDialog, setShowImageDialog] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
         return 'bg-green-100 text-green-700';
       case 'in_progress':
         return 'bg-blue-100 text-blue-700';
+      case 'on_hold':
+        return 'bg-yellow-100 text-yellow-700';
       default:
         return 'bg-slate-100 text-slate-700';
     }
@@ -26,169 +33,204 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
+      case 'urgent':
+        return 'bg-red-100 text-red-700';
       case 'high':
-        return 'text-red-600';
+        return 'bg-orange-100 text-orange-700';
       case 'medium':
-        return 'text-orange-600';
-      case 'low':
-        return 'text-green-600';
+        return 'bg-yellow-100 text-yellow-700';
       default:
-        return 'text-slate-600';
+        return 'bg-green-100 text-green-700';
     }
   };
 
-  const progress = activity.progress || 0;
+  const handleDeleteRemark = async (remarkId: string) => {
+    try {
+      await onDeleteRemark(remarkId);
+    } catch (error) {
+      console.error('Error deleting remark:', error);
+    }
+  };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h3 className="font-semibold text-lg text-slate-900">{activity.activity_name}</h3>
-              <Badge className={getStatusColor(activity.status)}>
-                {activity.status.replace('_', ' ').toUpperCase()}
-              </Badge>
-            </div>
-            {(activity as any).projects?.project_name && (
-              <p className="text-sm text-blue-600 mb-2">{(activity as any).projects.project_name}</p>
-            )}
-            <p className="text-slate-600 text-sm mb-4">{activity.description}</p>
-            
-            {/* Progress Bar */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-slate-500" />
-                  <span className="text-sm font-medium text-slate-700">Progress</span>
+    <>
+      <Card className="hover:shadow-md transition-shadow">
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h3 className="text-lg font-semibold text-slate-900">{activity.activity_name}</h3>
+                <Badge className={getStatusColor(activity.status)}>
+                  {activity.status}
+                </Badge>
+                <Badge className={getPriorityColor(activity.priority)}>
+                  {activity.priority}
+                </Badge>
+              </div>
+              
+              <p className="text-sm text-slate-500 mb-3">
+                {activity.projects?.project_name || 'No project'}
+              </p>
+              
+              {activity.description && (
+                <p className="text-sm text-slate-600 mb-4 line-clamp-2">
+                  {activity.description}
+                </p>
+              )}
+
+              <div className="flex flex-wrap gap-4 text-sm text-slate-500 mb-4">
+                <div className="flex items-center gap-1">
+                  <span className="font-medium">Date:</span>
+                  <span>{activity.activity_date ? new Date(activity.activity_date).toLocaleDateString() : 'N/A'}</span>
                 </div>
-                <span className="text-sm font-bold text-blue-600">{progress}%</span>
+                {activity.end_date && (
+                  <div className="flex items-center gap-1">
+                    <span className="font-medium">End:</span>
+                    <span>{new Date(activity.end_date).toLocaleDateString()}</span>
+                  </div>
+                )}
+                {activity.assigned_to && (
+                  <div className="flex items-center gap-1">
+                    <span className="font-medium">Assigned:</span>
+                    <span>{activity.assigned_to}</span>
+                  </div>
+                )}
               </div>
-              <div className="w-full bg-slate-200 rounded-full h-2.5">
-                <div 
-                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
-                  style={{ width: `${progress}%` }}
-                ></div>
-              </div>
+
+              {/* Images Section */}
+              {activity.images && activity.images.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ImageIcon className="w-4 h-4 text-slate-500" />
+                    <span className="text-sm font-medium text-slate-700">
+                      {activity.images.length} image(s)
+                    </span>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {activity.images.map((image, index) => (
+                      <button
+                        key={image.id}
+                        onClick={() => {
+                          setSelectedImageIndex(index);
+                          setShowImageDialog(true);
+                        }}
+                        className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-slate-200 hover:ring-2 hover:ring-blue-500 transition-all"
+                      >
+                        <img
+                          src={image.image_url}
+                          alt={`Activity image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Remarks Section */}
+              {activity.remarks && activity.remarks.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4 text-slate-500" />
+                      <span className="text-sm font-medium text-slate-700">
+                        {activity.remarks.length} remark(s)
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {activity.remarks.map((remark) => (
+                      <div key={remark.id} className="bg-slate-50 p-3 rounded-lg">
+                        <p className="text-sm text-slate-700">{remark.remark}</p>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-xs text-slate-500">
+                            {new Date(remark.created_at).toLocaleDateString()}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteRemark(remark.id)}
+                            className="h-6 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <X className="w-3 h-3 mr-1" />
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Display Activity Images - Prominent Display */}
-            {activity.images && activity.images.length > 0 && (
-              <ActivityImages images={activity.images} />
-            )}
-
-            {/* Display Remarks */}
-            {activity.remarks && activity.remarks.length > 0 && (
-              <ActivityRemarks remarks={activity.remarks} onDeleteRemark={onDeleteRemark} />
-            )}
-
-            <ActivityDetails activity={activity} getPriorityColor={getPriorityColor} />
-          </div>
-          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => onAddRemark(activity.id)}
+              className="gap-2"
             >
-              <MessageSquare className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4" />
               Add Remark
             </Button>
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+        </CardContent>
+      </Card>
 
-function ActivityImages({ images }: { images: any[] }) {
-  return (
-    <div className="mb-4">
-      <div className="flex items-center gap-2 mb-3">
-        <ImageIcon className="w-5 h-5 text-slate-500" />
-        <span className="text-sm font-medium text-slate-700">
-          {images.length} image{images.length > 1 ? 's' : ''}
-        </span>
-      </div>
-      <div className="grid grid-cols-4 gap-3">
-        {images.map((image) => (
-          <div key={image.id} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 group">
-            <img
-              src={image.image_url}
-              alt={image.file_name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-            <button
-              onClick={() => deleteActivityImage(image.id, image.image_url)}
-              className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-              title="Delete image"
-            >
-              <Trash2 className="w-3 h-3" />
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ActivityRemarks({ remarks, onDeleteRemark }: { remarks: Remark[]; onDeleteRemark: (id: string) => void }) {
-  return (
-    <div className="mb-4">
-      <div className="flex items-center gap-2 mb-3">
-        <MessageSquare className="w-5 h-5 text-slate-500" />
-        <span className="text-sm font-medium text-slate-700">
-          {remarks.length} remark{remarks.length > 1 ? 's' : ''}
-        </span>
-      </div>
-      <div className="space-y-2">
-        {remarks.map((remark) => (
-          <div key={remark.id} className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <p className="text-sm text-slate-700">{remark.remark}</p>
-            <div className="flex items-center justify-between mt-2">
-              <p className="text-xs text-slate-500">
-                {new Date(remark.created_at).toLocaleDateString()} • {new Date(remark.created_at).toLocaleTimeString()}
-              </p>
-              <button
-                onClick={() => onDeleteRemark(remark.id)}
-                className="text-red-500 hover:text-red-700 text-xs"
+      {/* Image Preview Dialog */}
+      {showImageDialog && activity.images && activity.images.length > 0 && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowImageDialog(false)}
+        >
+          <div
+            className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold">Activity Images</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowImageDialog(false)}
               >
-                Delete
-              </button>
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+            <div className="p-4">
+              <img
+                src={activity.images[selectedImageIndex]?.image_url}
+                alt={`Activity image ${selectedImageIndex + 1}`}
+                className="w-full h-auto rounded-lg"
+              />
+            </div>
+            <div className="flex items-center justify-between p-4 border-t bg-slate-50">
+              <span className="text-sm text-slate-500">
+                Image {selectedImageIndex + 1} of {activity.images.length}
+              </span>
+              <div className="flex gap-2">
+                {selectedImageIndex > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedImageIndex(prev => prev - 1)}
+                  >
+                    Previous
+                  </Button>
+                )}
+                {selectedImageIndex < activity.images.length - 1 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedImageIndex(prev => prev + 1)}
+                  >
+                    Next
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ActivityDetails({ activity, getPriorityColor }: { activity: any; getPriorityColor: (p: string) => string }) {
-  return (
-    <div className="flex items-center gap-6 text-sm text-slate-500">
-      {activity.activity_date && (
-        <div className="flex items-center gap-1">
-          <Calendar className="w-4 h-4" />
-          <span>{new Date(activity.activity_date).toLocaleDateString()}</span>
         </div>
       )}
-      {activity.end_date && (
-        <div className="flex items-center gap-1">
-          <Calendar className="w-4 h-4" />
-          <span>End: {new Date(activity.end_date).toLocaleDateString()}</span>
-        </div>
-      )}
-      {activity.assigned_to && (
-        <div className="flex items-center gap-1">
-          <User className="w-4 h-4" />
-          <span>{activity.assigned_to}</span>
-        </div>
-      )}
-      <span className={`font-medium ${getPriorityColor(activity.priority)}`}>
-        {activity.priority.charAt(0).toUpperCase() + activity.priority.slice(1)} Priority
-      </span>
-    </div>
+    </>
   );
 }
