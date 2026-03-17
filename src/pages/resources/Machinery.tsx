@@ -3,8 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Hammer, Plus, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 export default function Machinery() {
+  const navigate = useNavigate();
+  
   const equipment = [
     { id: 1, ref: 'REF-001', plantMachinery: 'Excavator CAT 320', type: 'Heavy Equipment', status: 'In Use', location: 'Site A', no: '001' },
     { id: 2, ref: 'REF-002', plantMachinery: 'Cranes 50T', type: 'Heavy Equipment', status: 'Maintenance', location: 'Workshop', no: '002' },
@@ -22,7 +25,7 @@ export default function Machinery() {
               <h1 className="text-2xl font-bold text-slate-900">Machinery</h1>
               <p className="text-slate-500">Manage construction equipment and machinery</p>
             </div>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={() => navigate('/resources/machinery/add')}>
               <Plus className="w-4 h-4" />
               Add Equipment
             </Button>

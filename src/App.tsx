@@ -12,6 +12,7 @@ import Documents from '@/pages/projects/Documents';
 import Manpower from '@/pages/resources/Manpower';
 import ClockInOut from '@/pages/resources/ClockInOut';
 import Machinery from '@/pages/resources/Machinery';
+import AddEquipment from '@/pages/resources/AddEquipment';
 import Material from '@/pages/resources/Material';
 import Documentation from '@/pages/resources/Documentation';
 import Help from '@/pages/resources/Help';
@@ -36,6 +37,7 @@ function App() {
         <Route path="/resources/manpower" element={<Manpower />} />
         <Route path="/resources/clock-in-out" element={<ClockInOut />} />
         <Route path="/resources/machinery" element={<Machinery />} />
+        <Route path="/resources/machinery/add" element={<AddEquipment />} />
         <Route path="/resources/material" element={<Material />} />
         <Route path="/resources/documentation" element={<Documentation />} />
         <Route path="/resources/help" element={<Help />} />
