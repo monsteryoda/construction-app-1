@@ -87,6 +87,13 @@ export default function Issues() {
 
       console.log('[handleAddIssue] Creating issue with', images.length, 'images');
       console.log('[handleAddIssue] Issue data:', issue);
+      console.log('[handleAddIssue] Images array:', images);
+
+      // Validate images
+      if (images.length === 0) {
+        toast.error('No images selected');
+        return;
+      }
 
       // First create the issue
       const { data: issueData, error: issueError } = await supabase
