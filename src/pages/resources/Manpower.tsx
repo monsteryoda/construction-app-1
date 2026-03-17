@@ -5,15 +5,44 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
+
+interface Worker {
+  id: string;
+  name: string;
+  ic_number: string;
+  position: string;
+  contact: string;
+  status: string;
+  location: string;
+  created_at: string;
+}
 
 export default function Manpower() {
-  const workers = [
-    { id: 1, name: 'John Smith', icNumber: '850101-14-5678', position: 'Site Manager', contact: '+6012-3456789', status: 'Active', location: 'Site A' },
-    { id: 2, name: 'Maria Garcia', icNumber: '900515-08-1234', position: 'Foreman', contact: '+6013-4567890', status: 'Active', location: 'Site B' },
-    { id: 3, name: 'David Chen', icNumber: '880720-12-9876', position: 'Electrician', contact: '+6014-5678901', status: 'On Leave', location: 'Site A' },
-    { id: 4, name: 'Sarah Johnson', icNumber: '920310-16-5432', position: 'Plumber', contact: '+6015-6789012', status: 'Active', location: 'Site C' },
-    { id: 5, name: 'Michael Brown', icNumber: '870905-14-8765', position: 'Carpenter', contact: '+6016-7890123', status: 'Active', location: 'Site B' },
-  ];
+  const [workers, setWorkers] = useState<Worker[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchWorkers();
+  }, []);
+
+  const fetchWorkers = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('workers')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setWorkers(data || []);
+    } catch (error) {
+      console.error('Error fetching workers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const totalStaff = workers.length;
   const activeStaff = workers.filter(w => w.status === 'Active').length;
@@ -121,56 +150,70 @@ export default function Manpower() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-200">
-                  {workers.map((worker) => (
-                    <tr key={worker.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">{worker.icNumber}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{worker.position}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                            <Users className="w-5 h-5 text-white" />
-                          </div>
-                          <span className="font-medium text-slate-900">{worker.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5 text-sm text-slate-600">
-                          <Phone className="w-3.5 h-3.5 text-slate-400" />
-                          {worker.contact}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          worker.status === 'Active' ? 'bg-green-100 text-green-800' : 
-                          worker.status === 'Inactive' ? 'bg-red-100 text-red-800' : 
-                          'bg-amber-100 text-amber-800'
-                        }`}>
-                          {worker.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="gap-2">
-                              <Edit className="w-4 h-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="gap-2 text-red-600 focus:text-red-600">
-                              <Trash2 className="w-4 h-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                        Loading workers...
                       </td>
                     </tr>
-                  ))}
+                  ) : workers.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                        No workers found. Add your first worker to get started.
+                      </td>
+                    </tr>
+                  ) : (
+                    workers.map((worker) => (
+                      <tr key={worker.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">{worker.ic_number}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{worker.position}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                              <Users className="w-5 h-5 text-white" />
+                            </div>
+                            <span className="font-medium text-slate-900">{worker.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                            <Phone className="w-3.5 h-3.5 text-slate-400" />
+                            {worker.contact}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            worker.status === 'Active' ? 'bg-green-100 text-green-800' : 
+                            worker.status === 'Inactive' ? 'bg-red-100 text-red-800' : 
+                            'bg-amber-100 text-amber-800'
+                          }`}>
+                            {worker.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreVertical className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="gap-2">
+                                <Edit className="w-4 h-4" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="gap-2 text-red-600 focus:text-red-600">
+                                <Trash2 className="w-4 h-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
