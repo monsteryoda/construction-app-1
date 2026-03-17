@@ -1,16 +1,17 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Plus, Search, UserCheck, UserX, UserMinus } from 'lucide-react';
+import { Users, Plus, Search, UserCheck, UserX, UserMinus, Phone, Mail, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export default function Manpower() {
   const workers = [
-    { id: 1, name: 'John Smith', number: 'EMP-001', position: 'Site Manager', status: 'Active', location: 'Site A' },
-    { id: 2, name: 'Maria Garcia', number: 'EMP-002', position: 'Foreman', status: 'Active', location: 'Site B' },
-    { id: 3, name: 'David Chen', number: 'EMP-003', position: 'Electrician', status: 'On Leave', location: 'Site A' },
-    { id: 4, name: 'Sarah Johnson', number: 'EMP-004', position: 'Plumber', status: 'Active', location: 'Site C' },
-    { id: 5, name: 'Michael Brown', number: 'EMP-005', position: 'Carpenter', status: 'Active', location: 'Site B' },
+    { id: 1, name: 'John Smith', icNumber: '850101-14-5678', position: 'Site Manager', contact: '+6012-3456789', email: 'john.smith@email.com', status: 'Active', location: 'Site A' },
+    { id: 2, name: 'Maria Garcia', icNumber: '900515-08-1234', position: 'Foreman', contact: '+6013-4567890', email: 'maria.garcia@email.com', status: 'Active', location: 'Site B' },
+    { id: 3, name: 'David Chen', icNumber: '880720-12-9876', position: 'Electrician', contact: '+6014-5678901', email: 'david.chen@email.com', status: 'On Leave', location: 'Site A' },
+    { id: 4, name: 'Sarah Johnson', icNumber: '920310-16-5432', position: 'Plumber', contact: '+6015-6789012', email: 'sarah.johnson@email.com', status: 'Active', location: 'Site C' },
+    { id: 5, name: 'Michael Brown', icNumber: '870905-14-8765', position: 'Carpenter', contact: '+6016-7890123', email: 'michael.brown@email.com', status: 'Active', location: 'Site B' },
   ];
 
   const totalStaff = workers.length;
@@ -86,7 +87,7 @@ export default function Manpower() {
             <div className="flex items-center gap-3">
               <Search className="w-5 h-5 text-slate-400" />
               <Input
-                placeholder="Search workers by name, number, or position..."
+                placeholder="Search workers by name, IC number, or position..."
                 className="flex-1"
               />
             </div>
@@ -99,16 +100,19 @@ export default function Manpower() {
               <table className="w-full">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Number</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Passport/IC Number</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Position</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Contact</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Location</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-200">
                   {workers.map((worker) => (
                     <tr key={worker.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">{worker.icNumber}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{worker.position}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
@@ -117,16 +121,48 @@ export default function Manpower() {
                           <span className="font-medium text-slate-900">{worker.name}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{worker.number}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{worker.position}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                            <Phone className="w-3.5 h-3.5 text-slate-400" />
+                            {worker.contact}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                            <Mail className="w-3.5 h-3.5 text-slate-400" />
+                            {worker.email}
+                          </div>
+                        </div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          worker.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+                          worker.status === 'Active' ? 'bg-green-100 text-green-800' : 
+                          worker.status === 'Inactive' ? 'bg-red-100 text-red-800' : 
+                          'bg-amber-100 text-amber-800'
                         }`}>
                           {worker.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{worker.location}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="gap-2">
+                              <Edit className="w-4 h-4" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="gap-2 text-red-600 focus:text-red-600">
+                              <Trash2 className="w-4 h-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
