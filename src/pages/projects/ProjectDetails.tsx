@@ -369,25 +369,25 @@ export default function ProjectDetails() {
                     </span>
                   </div>
                 </div>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-xl font-semibold text-slate-900">{project.project_name}</CardTitle>
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
-                    <FileText className="w-4 h-4" />
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-semibold text-slate-900">{project.project_name}</CardTitle>
+                  <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <FileText className="w-3 h-3" />
                     <span>Contract: {project.contract_number || 'N/A'}</span>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-sm">
+                <CardContent className="space-y-2">
+                  <div className="text-xs">
                     <span className="text-slate-500">Client: </span>
                     <span className="text-slate-900">{project.client || 'N/A'}</span>
                   </div>
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                    <div className="flex items-center gap-2 text-sm text-slate-500">
-                      <Calendar className="w-4 h-4" />
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                      <Calendar className="w-3 h-3" />
                       <span>{project.date_of_commence ? new Date(project.date_of_commence).toLocaleDateString() : 'No start date'}</span>
                     </div>
-                    <Button variant="ghost" className="gap-1 text-slate-600" onClick={() => handleViewProject(project.id)}>
-                      View <ArrowRight className="w-4 h-4" />
+                    <Button variant="ghost" className="gap-1 text-slate-600 text-xs" onClick={() => handleViewProject(project.id)}>
+                      View <ArrowRight className="w-3 h-3" />
                     </Button>
                   </div>
                 </CardContent>
