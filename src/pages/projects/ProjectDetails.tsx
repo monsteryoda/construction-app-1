@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { supabase } from '@/integrations/supabase/client';
 import { Plus, Building2, Calendar, FileText, ImageIcon, Upload, X, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface Project {
   id: string;
@@ -61,6 +62,7 @@ function ProjectImage({ imageUrl, projectName }: { imageUrl: string | null; proj
 }
 
 export default function ProjectDetails() {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -110,23 +112,19 @@ export default function ProjectDetails() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('File size must be less than 5MB');
       return;
     }
 
-    // Create preview
     const objectUrl = URL.createObjectURL(file);
     setPreviewImage(objectUrl);
 
-    // Upload to Supabase Storage
     setUploading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -135,24 +133,17 @@ export default function ProjectDetails() {
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
-      console.log('Uploading file:', fileName);
-
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('project-images')
         .upload(fileName, file);
 
       if (uploadError) {
-        console.error('Upload error:', uploadError);
         throw uploadError;
       }
-
-      console.log('Upload successful:', uploadData);
 
       const { data: { publicUrl } } = supabase.storage
         .from('project-images')
         .getPublicUrl(fileName);
-
-      console.log('Public URL:', publicUrl);
 
       setNewProject(prev => ({ ...prev, project_image_url: publicUrl }));
       toast.success('Image uploaded successfully');
@@ -178,8 +169,6 @@ export default function ProjectDetails() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      console.log('Adding project with image URL:', newProject.project_image_url);
-
       const { error, data: insertData } = await supabase.from('projects').insert([
         {
           user_id: user.id,
@@ -190,11 +179,8 @@ export default function ProjectDetails() {
       ]).select();
 
       if (error) {
-        console.error('Insert error:', error);
         throw error;
       }
-
-      console.log('Project added:', insertData);
 
       toast.success('Project added successfully');
       setShowAddDialog(false);
@@ -216,6 +202,10 @@ export default function ProjectDetails() {
       console.error('Error adding project:', error);
       toast.error('Failed to add project');
     }
+  };
+
+  const handleViewProject = (projectId: string) => {
+    navigate(`/projects/${projectId}`);
   };
 
   return (
@@ -416,7 +406,7 @@ export default function ProjectDetails() {
                       <Calendar className="w-4 h-4" />
                       <span>{project.date_of_commence ? new Date(project.date_of_commence).toLocaleDateString() : 'No start date'}</span>
                     </div>
-                    <Button variant="ghost" className="gap-1 text-slate-600">
+                    <Button variant="ghost" className="gap-1 text-slate-600" onClick={() => handleViewProject(project.id)}>
                       View <ArrowRight className="w-4 h-4" />
                     </Button>
                   </div>
