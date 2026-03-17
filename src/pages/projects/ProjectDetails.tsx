@@ -137,6 +137,18 @@ export default function ProjectDetails() {
 
       console.log('[handleFileSelect] Uploading to bucket: project-images, path:', fileName);
 
+      // First, check if bucket exists
+      const { data: buckets } = await supabase.storage.listBuckets();
+      console.log('[handleFileSelect] Available buckets:', buckets);
+
+      const bucketExists = buckets?.some(b => b.name === 'project-images');
+      if (!bucketExists) {
+        console.error('[handleFileSelect] Bucket project-images does not exist');
+        toast.error('Storage bucket "project-images" not found. Please create it in Supabase dashboard.');
+        setPreviewImage(null);
+        return;
+      }
+
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('project-images')
         .upload(fileName, file, {
@@ -146,10 +158,7 @@ export default function ProjectDetails() {
 
       if (uploadError) {
         console.error('[handleFileSelect] Upload error:', uploadError);
-        // If upload fails, use local preview instead
-        toast.warning('Storage bucket not available. Using local preview only.');
-        setNewProject(prev => ({ ...prev, project_image_url: objectUrl }));
-        return;
+        throw uploadError;
       }
 
       console.log('[handleFileSelect] Upload successful:', uploadData);
