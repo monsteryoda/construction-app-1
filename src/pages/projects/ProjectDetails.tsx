@@ -146,7 +146,10 @@ export default function ProjectDetails() {
 
       if (uploadError) {
         console.error('[handleFileSelect] Upload error:', uploadError);
-        throw uploadError;
+        // If upload fails, use local preview instead
+        toast.warning('Storage bucket not available. Using local preview only.');
+        setNewProject(prev => ({ ...prev, project_image_url: objectUrl }));
+        return;
       }
 
       console.log('[handleFileSelect] Upload successful:', uploadData);
