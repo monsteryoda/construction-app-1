@@ -40,7 +40,7 @@ export default function WorkerModal({ isOpen, onClose, onSuccess }: WorkerModalP
 
       toast({
         title: 'Success',
-        description: 'Worker added successfully',
+        description: 'Manpower added successfully',
       });
 
       setFormData({
@@ -54,10 +54,10 @@ export default function WorkerModal({ isOpen, onClose, onSuccess }: WorkerModalP
       onClose();
       onSuccess();
     } catch (error) {
-      console.error('Error adding worker:', error);
+      console.error('Error adding manpower:', error);
       toast({
         title: 'Error',
-        description: 'Failed to add worker',
+        description: 'Failed to add manpower',
         variant: 'destructive',
       });
     } finally {
@@ -73,7 +73,7 @@ export default function WorkerModal({ isOpen, onClose, onSuccess }: WorkerModalP
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">Add New Worker</h2>
+              <h2 className="text-2xl font-bold text-slate-900">Add New Manpower</h2>
               <p className="text-slate-500">Fill in the details to add a new worker to your team</p>
             </div>
             <Button variant="ghost" size="sm" onClick={onClose}>
@@ -158,7 +158,7 @@ export default function WorkerModal({ isOpen, onClose, onSuccess }: WorkerModalP
             <div className="flex gap-3 pt-4">
               <Button type="submit" disabled={loading} className="gap-2">
                 <Save className="w-4 h-4" />
-                {loading ? 'Adding Worker...' : 'Add Worker'}
+                {loading ? 'Adding Manpower...' : 'Add Manpower'}
               </Button>
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel

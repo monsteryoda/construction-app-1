@@ -76,7 +76,7 @@ export default function Manpower() {
             </div>
             <Button className="gap-2" onClick={() => setIsModalOpen(true)}>
               <Plus className="w-4 h-4" />
-              Add Worker
+              Add Manpower
             </Button>
           </div>
         </div>
