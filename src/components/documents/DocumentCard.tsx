@@ -103,13 +103,46 @@ export default function DocumentCard({ document, onDeleteFile }: DocumentCardPro
                         >
                           <X className="w-3 h-3" />
                         </button>
+                        {/* Download/View buttons for each file */}
+                        <div className="absolute top-10 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="h-6 px-2"
+                            asChild
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedFileIndex(index);
+                              setShowFileDialog(true);
+                            }}
+                          >
+                            <a href={file.file_url} target="_blank" rel="noopener noreferrer">
+                              <Eye className="w-3 h-3" />
+                            </a>
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="h-6 px-2"
+                            asChild
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedFileIndex(index);
+                              setShowFileDialog(true);
+                            }}
+                          >
+                            <a href={file.file_url} download>
+                              <Download className="w-3 h-3" />
+                            </a>
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Download/View Buttons */}
+              {/* Download/View Buttons for main document */}
               {document.file_url && (
                 <div className="flex gap-2 mt-4">
                   <Button variant="outline" size="sm" className="gap-1" asChild>
