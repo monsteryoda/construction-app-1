@@ -6,11 +6,11 @@ import ProjectDetailPage from './pages/projects/ProjectDetailPage';
 import Machinery from './pages/resources/Machinery';
 import Material from './pages/resources/Material';
 import Login from './pages/Login';
-import { SessionContextProvider } from './contexts/SessionContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
   return (
-    <SessionContextProvider>
+    <AuthProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -21,7 +21,7 @@ function App() {
           <Route path="/material" element={<Material />} />
         </Routes>
       </BrowserRouter>
-    </SessionContextProvider>
+    </AuthProvider>
   );
 }
 
