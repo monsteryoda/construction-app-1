@@ -8,31 +8,24 @@ export const uploadImages = async (issueId: string, userId: string, images: File
     const uploadedUrls: string[] = [];
 
     for (const image of images) {
-      console.log('[uploadImages] Uploading image:', image.name);
-      const fileExt = image.name.split('.').pop();
-      const filePath = `${userId}/${issueId}/${Math.random().toString(36).substring(7)}.${fileExt}`;
+      console.log('[uploadImages] Converting image to base64:', image.name);
+      
+      // Convert image to base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(image);
+      });
 
-      const { error: uploadError } = await supabase.storage
-        .from('issue-images')
-        .upload(filePath, image);
-
-      if (uploadError) {
-        console.error('[uploadImages] Upload error:', uploadError);
-        throw new Error(`Failed to upload ${image.name}: ${uploadError.message}`);
-      }
-
-      const { data: publicUrlData } = supabase.storage
-        .from('issue-images')
-        .getPublicUrl(filePath);
-
-      console.log('[uploadImages] Image uploaded:', publicUrlData.publicUrl);
+      console.log('[uploadImages] Base64 size:', base64.length);
 
       // Store image reference in database
       const { data, error } = await supabase
         .from('issue_images')
         .insert([{
           issue_id: issueId,
-          image_url: publicUrlData.publicUrl,
+          image_url: base64,
           file_name: image.name,
         }])
         .select()
@@ -43,7 +36,7 @@ export const uploadImages = async (issueId: string, userId: string, images: File
         throw new Error(`Failed to save image record: ${error.message}`);
       }
 
-      uploadedUrls.push(publicUrlData.publicUrl);
+      uploadedUrls.push(base64);
       console.log('[uploadImages] Image record saved successfully');
     }
 
