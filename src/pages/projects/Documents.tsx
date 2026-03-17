@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, FileText, Upload, Download, Eye, Calendar, X, FileUp, Paperclip } from 'lucide-react';
+import { Plus, FileText, Upload, Download, Eye, Calendar, X, FileUp } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Document {
@@ -136,7 +136,7 @@ export default function Documents() {
       }
 
       const fileExt = attachment.file.name.split('.').pop();
-      const filePath = `${user.id}/documents/${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${user.id}/${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('project-documents')
@@ -170,19 +170,24 @@ export default function Documents() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      let fileUrl = newDocument.file_url;
+      let fileSize = 0;
+
       // Upload attachments if any
-      let fileUrls: string[] = [];
       if (attachments.length > 0) {
-        fileUrls = await uploadFiles();
+        const urls = await uploadFiles();
+        if (urls.length > 0) {
+          fileUrl = urls[0]; // Primary file
+          fileSize = attachments[0].file.size;
+        }
       }
 
-      // Create document record with all file URLs
       const { error } = await supabase.from('project_documents').insert([
         {
           user_id: user.id,
           ...newDocument,
-          file_url: fileUrls.length > 0 ? fileUrls[0] : '',
-          file_size: fileUrls.length > 0 ? attachments[0].file.size : 0,
+          file_url: fileUrl,
+          file_size: fileSize,
         },
       ]);
 
@@ -223,27 +228,6 @@ export default function Documents() {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const handleDownload = async (url: string, fileName: string) => {
-    try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-      toast.success('Download started');
-    } catch (error) {
-      console.error('Download error:', error);
-      // Fallback to direct link
-      window.open(url, '_blank');
-      toast.info('Opening file in new tab');
-    }
   };
 
   return (
@@ -321,7 +305,7 @@ export default function Documents() {
                 
                 {/* File Upload Section */}
                 <div className="space-y-2">
-                  <Label>Attachments (Multiple files allowed)</Label>
+                  <Label>Attachments</Label>
                   <div 
                     className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-blue-500 hover:bg-slate-50 transition-colors cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
@@ -335,16 +319,12 @@ export default function Documents() {
                     />
                     <FileUp className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                     <p className="text-sm text-slate-600">Click to upload files or drag and drop</p>
-                    <p className="text-xs text-slate-400 mt-1">PDF, DOC, XLS, JPG, PNG up to 50MB each</p>
+                    <p className="text-xs text-slate-400 mt-1">PDF, DOC, XLS, JPG, PNG up to 50MB</p>
                   </div>
                   
                   {/* Selected Files List */}
                   {attachments.length > 0 && (
                     <div className="space-y-2 mt-3">
-                      <div className="flex items-center gap-2 text-sm text-slate-600 mb-2">
-                        <Paperclip className="w-4 h-4" />
-                        <span>{attachments.length} file(s) selected</span>
-                      </div>
                       {attachments.map((attachment) => (
                         <div key={attachment.id} className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border">
                           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -429,14 +409,16 @@ export default function Documents() {
                       </div>
                       {doc.file_url && (
                         <div className="flex gap-2 mt-4">
-                          <Button variant="outline" size="sm" className="gap-1" onClick={() => handleDownload(doc.file_url, doc.document_name)}>
-                            <Download className="w-4 h-4" />
-                            Download
-                          </Button>
                           <Button variant="outline" size="sm" className="gap-1" asChild>
                             <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
                               <Eye className="w-4 h-4" />
                               View
+                            </a>
+                          </Button>
+                          <Button variant="outline" size="sm" className="gap-1" asChild>
+                            <a href={doc.file_url} download>
+                              <Download className="w-4 h-4" />
+                              Download
                             </a>
                           </Button>
                         </div>
