@@ -108,6 +108,15 @@ export default function ProjectDetails() {
     }
   };
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -124,10 +133,18 @@ export default function ProjectDetails() {
       return;
     }
 
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewImage(objectUrl);
-    setNewProject(prev => ({ ...prev, project_image_url: objectUrl }));
-    toast.success('Image selected successfully');
+    try {
+      setUploading(true);
+      const base64 = await fileToBase64(file);
+      setPreviewImage(base64);
+      setNewProject(prev => ({ ...prev, project_image_url: base64 }));
+      toast.success('Image selected successfully');
+    } catch (error) {
+      console.error('[handleFileSelect] Error converting image:', error);
+      toast.error('Failed to process image');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleRemoveImage = () => {
@@ -321,7 +338,7 @@ export default function ProjectDetails() {
                     {uploading && (
                       <p className="text-sm text-blue-600 mt-2 flex items-center gap-2">
                         <span className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full inline-block"></span>
-                        Uploading...
+                        Processing image...
                       </p>
                     )}
                   </div>
