@@ -112,6 +112,8 @@ export default function ProjectDetails() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    console.log('[handleFileSelect] File selected:', file.name, file.size);
+
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
       return;
@@ -130,26 +132,36 @@ export default function ProjectDetails() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const fileExt = file.name.split('.').pop() || 'jpg';
+      const fileName = `${user.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      console.log('[handleFileSelect] Uploading to bucket: project-images, path:', fileName);
 
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('project-images')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
+        console.error('[handleFileSelect] Upload error:', uploadError);
         throw uploadError;
       }
+
+      console.log('[handleFileSelect] Upload successful:', uploadData);
 
       const { data: { publicUrl } } = supabase.storage
         .from('project-images')
         .getPublicUrl(fileName);
 
+      console.log('[handleFileSelect] Public URL:', publicUrl);
+
       setNewProject(prev => ({ ...prev, project_image_url: publicUrl }));
       toast.success('Image uploaded successfully');
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload image');
+    } catch (error: any) {
+      console.error('[handleFileSelect] Error:', error);
+      toast.error(`Failed to upload image: ${error.message || 'Unknown error'}`);
       setPreviewImage(null);
     } finally {
       setUploading(false);
