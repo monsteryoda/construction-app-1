@@ -54,17 +54,23 @@ export default function Issues() {
       // Fetch images for each issue
       const issuesWithImages = await Promise.all(
         (data || []).map(async (issue) => {
-          const { data: images } = await supabase
+          const { data: images, error: imagesError } = await supabase
             .from('issue_images')
             .select('*')
             .eq('issue_id', issue.id);
+
+          if (imagesError) {
+            console.error(`[fetchIssues] Error fetching images for issue ${issue.id}:`, imagesError);
+          }
 
           return { ...issue, images: images || [] };
         })
       );
 
+      console.log('[fetchIssues] Fetched issues with images:', issuesWithImages.length);
       setIssues(issuesWithImages);
     } catch (error) {
+      console.error('[fetchIssues] Error:', error);
       toast.error('Failed to fetch issues');
     } finally {
       setLoading(false);
@@ -74,9 +80,13 @@ export default function Issues() {
   const handleAddIssue = async (issue: any, images: File[]) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        toast.error('User not authenticated');
+        return;
+      }
 
       console.log('[handleAddIssue] Creating issue with', images.length, 'images');
+      console.log('[handleAddIssue] Issue data:', issue);
 
       // First create the issue
       const { data: issueData, error: issueError } = await supabase
@@ -90,14 +100,16 @@ export default function Issues() {
 
       if (issueError) {
         console.error('[handleAddIssue] Issue creation error:', issueError);
-        throw issueError;
+        throw new Error(`Failed to create issue: ${issueError.message}`);
       }
 
       console.log('[handleAddIssue] Issue created:', issueData.id);
 
       // Then upload images if any
       if (images.length > 0 && issueData) {
+        console.log('[handleAddIssue] Uploading', images.length, 'images...');
         const uploadedUrls = await uploadImages(issueData.id, user.id, images);
+        console.log('[handleAddIssue] Uploaded', uploadedUrls.length, 'images');
         toast.success(`${uploadedUrls.length} image(s) uploaded successfully`);
       }
 

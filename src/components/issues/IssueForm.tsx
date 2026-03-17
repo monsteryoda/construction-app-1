@@ -109,6 +109,7 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
 
   const handleSubmit = async () => {
     console.log('[IssueForm] Submitting issue with', selectedImages.length, 'images');
+    console.log('[IssueForm] Form data:', formData);
     
     // Validate required fields
     if (!formData.project_id) {
