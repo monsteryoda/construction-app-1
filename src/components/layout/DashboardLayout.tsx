@@ -50,7 +50,7 @@ const navItems: NavItem[] = [
     label: 'Projects',
     icon: <Building2 className="w-5 h-5" />,
     children: [
-      { label: 'Project Details', path: '/projects/details', icon: <FileText className="w-4 h-4" /> },
+      { label: 'Project Details', path: '/projects', icon: <FileText className="w-4 h-4" /> },
       { label: 'Activities', path: '/projects/activities', icon: <ClipboardList className="w-4 h-4" /> },
       { label: 'Deliveries', path: '/projects/deliveries', icon: <Package className="w-4 h-4" /> },
       { label: 'Schedules', path: '/projects/schedules', icon: <Calendar className="w-4 h-4" /> },
