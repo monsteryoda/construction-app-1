@@ -9,6 +9,13 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ClockRecord {
   id: string;
@@ -19,18 +26,54 @@ interface ClockRecord {
   clocked_at: string;
 }
 
+interface Worker {
+  id: string;
+  name: string;
+  ic_number: string;
+  position: string;
+  contact: string;
+  status: string;
+  location: string;
+}
+
 export default function ClockInOut() {
   const { user } = useAuth();
   const [clockRecords, setClockRecords] = useState<ClockRecord[]>([]);
+  const [workers, setWorkers] = useState<Worker[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedWorker, setSelectedWorker] = useState<string>('');
   const [todayClockIn, setTodayClockIn] = useState<string | null>(null);
   const [todayClockOut, setTodayClockOut] = useState<string | null>(null);
   const [isClocking, setIsClocking] = useState(false);
 
   useEffect(() => {
     fetchClockRecords();
+    fetchWorkers();
     checkTodayClockStatus();
   }, []);
+
+  const fetchWorkers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('workers')
+        .select('*')
+        .eq('status', 'Active')
+        .order('name');
+
+      if (error) {
+        console.error('Error fetching workers:', error);
+        toast.error('Failed to fetch workers');
+      } else {
+        setWorkers(data || []);
+        if (data && data.length > 0 && !selectedWorker) {
+          setSelectedWorker(data[0].id);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching workers:', error);
+      toast.error('Failed to fetch workers');
+    }
+  };
 
   const fetchClockRecords = async () => {
     try {
@@ -62,7 +105,7 @@ export default function ClockInOut() {
       const { data, error } = await supabase
         .from('clock_records')
         .select('action, clocked_at')
-        .eq('user_id', user?.id)
+        .eq('worker_id', selectedWorker)
         .gte('clocked_at', `${today}T00:00:00Z`)
         .lte('clocked_at', `${today}T23:59:59Z`);
 
@@ -82,16 +125,28 @@ export default function ClockInOut() {
     }
   };
 
+  const handleWorkerChange = (value: string) => {
+    setSelectedWorker(value);
+    checkTodayClockStatus();
+  };
+
   const handleClockInOut = async (action: 'clock_in' | 'clock_out') => {
+    if (!selectedWorker) {
+      toast.error('Please select a worker first');
+      return;
+    }
+
     setIsClocking(true);
 
     try {
+      const worker = workers.find(w => w.id === selectedWorker);
+      
       const { error } = await supabase
         .from('clock_records')
         .insert([{
           user_id: user?.id,
-          worker_id: user?.id,
-          worker_name: user?.email || 'Unknown User',
+          worker_id: selectedWorker,
+          worker_name: worker?.name || 'Unknown Worker',
           action,
           clocked_at: new Date().toISOString(),
         }]);
@@ -100,8 +155,8 @@ export default function ClockInOut() {
 
       toast.success(
         action === 'clock_in' 
-          ? 'Successfully clocked in' 
-          : 'Successfully clocked out'
+          ? `Successfully clocked in ${worker?.name}` 
+          : `Successfully clocked out ${worker?.name}`
       );
 
       checkTodayClockStatus();
@@ -114,6 +169,7 @@ export default function ClockInOut() {
     }
   };
 
+  const selectedWorkerData = workers.find(w => w.id === selectedWorker);
   const canClockIn = todayClockIn && !todayClockOut;
   const canClockOut = todayClockIn && !todayClockOut;
 
@@ -124,6 +180,44 @@ export default function ClockInOut() {
           <h1 className="text-2xl font-bold text-slate-900">Clock In/Out</h1>
           <p className="text-slate-500">Track your daily attendance</p>
         </div>
+
+        {/* Worker Selection */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <UserCheck className="w-5 h-5" />
+              Select Worker
+            </CardTitle>
+            <CardDescription>Choose which worker to clock in/out</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-4 items-center">
+              <Select value={selectedWorker} onValueChange={handleWorkerChange}>
+                <SelectTrigger className="w-full md:w-[400px]">
+                  <SelectValue placeholder="Select a worker" />
+                </SelectTrigger>
+                <SelectContent>
+                  {workers.map((worker) => (
+                    <SelectItem key={worker.id} value={worker.id}>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{worker.name}</span>
+                        <span className="text-xs text-slate-500">
+                          {worker.position} • {worker.ic_number}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedWorkerData && (
+                <div className="hidden md:flex items-center gap-2 text-sm text-slate-500">
+                  <span>Location:</span>
+                  <span className="font-medium">{selectedWorkerData.location || 'N/A'}</span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Today's Status */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -145,12 +239,15 @@ export default function ClockInOut() {
                   <p className="text-xs text-slate-500">
                     {format(new Date(todayClockIn), 'MMM dd, yyyy')}
                   </p>
+                  <p className="text-sm text-slate-600">
+                    {selectedWorkerData?.name}
+                  </p>
                 </div>
               ) : (
                 <Button 
                   className="gap-2" 
                   onClick={() => handleClockInOut('clock_in')}
-                  disabled={isClocking}
+                  disabled={isClocking || !selectedWorker}
                 >
                   <Clock className="w-4 h-4" />
                   {isClocking ? 'Clocking In...' : 'Clock In Now'}
@@ -177,12 +274,15 @@ export default function ClockInOut() {
                   <p className="text-xs text-slate-500">
                     {format(new Date(todayClockOut), 'MMM dd, yyyy')}
                   </p>
+                  <p className="text-sm text-slate-600">
+                    {selectedWorkerData?.name}
+                  </p>
                 </div>
               ) : (
                 <Button 
                   className="gap-2" 
                   onClick={() => handleClockInOut('clock_out')}
-                  disabled={!canClockOut || isClocking}
+                  disabled={!canClockOut || isClocking || !selectedWorker}
                 >
                   <Clock className="w-4 h-4" />
                   {isClocking ? 'Clocking Out...' : 'Clock Out Now'}
