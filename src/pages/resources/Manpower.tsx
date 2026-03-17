@@ -1,17 +1,17 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Plus, Search, UserCheck, UserX, UserMinus, Phone, Mail, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Users, Plus, Search, UserCheck, UserX, UserMinus, Phone, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export default function Manpower() {
   const workers = [
-    { id: 1, name: 'John Smith', icNumber: '850101-14-5678', position: 'Site Manager', contact: '+6012-3456789', email: 'john.smith@email.com', status: 'Active', location: 'Site A' },
-    { id: 2, name: 'Maria Garcia', icNumber: '900515-08-1234', position: 'Foreman', contact: '+6013-4567890', email: 'maria.garcia@email.com', status: 'Active', location: 'Site B' },
-    { id: 3, name: 'David Chen', icNumber: '880720-12-9876', position: 'Electrician', contact: '+6014-5678901', email: 'david.chen@email.com', status: 'On Leave', location: 'Site A' },
-    { id: 4, name: 'Sarah Johnson', icNumber: '920310-16-5432', position: 'Plumber', contact: '+6015-6789012', email: 'sarah.johnson@email.com', status: 'Active', location: 'Site C' },
-    { id: 5, name: 'Michael Brown', icNumber: '870905-14-8765', position: 'Carpenter', contact: '+6016-7890123', email: 'michael.brown@email.com', status: 'Active', location: 'Site B' },
+    { id: 1, name: 'John Smith', icNumber: '850101-14-5678', position: 'Site Manager', contact: '+6012-3456789', status: 'Active', location: 'Site A' },
+    { id: 2, name: 'Maria Garcia', icNumber: '900515-08-1234', position: 'Foreman', contact: '+6013-4567890', status: 'Active', location: 'Site B' },
+    { id: 3, name: 'David Chen', icNumber: '880720-12-9876', position: 'Electrician', contact: '+6014-5678901', status: 'On Leave', location: 'Site A' },
+    { id: 4, name: 'Sarah Johnson', icNumber: '920310-16-5432', position: 'Plumber', contact: '+6015-6789012', status: 'Active', location: 'Site C' },
+    { id: 5, name: 'Michael Brown', icNumber: '870905-14-8765', position: 'Carpenter', contact: '+6016-7890123', status: 'Active', location: 'Site B' },
   ];
 
   const totalStaff = workers.length;
@@ -122,15 +122,9 @@ export default function Manpower() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-1.5 text-sm text-slate-600">
-                            <Phone className="w-3.5 h-3.5 text-slate-400" />
-                            {worker.contact}
-                          </div>
-                          <div className="flex items-center gap-1.5 text-sm text-slate-600">
-                            <Mail className="w-3.5 h-3.5 text-slate-400" />
-                            {worker.email}
-                          </div>
+                        <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                          <Phone className="w-3.5 h-3.5 text-slate-400" />
+                          {worker.contact}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
