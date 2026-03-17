@@ -1,6 +1,6 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Plus, Search } from 'lucide-react';
+import { Users, Plus, Search, UserCheck, UserX, UserMinus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -12,6 +12,11 @@ export default function Manpower() {
     { id: 4, name: 'Sarah Johnson', number: 'EMP-004', position: 'Plumber', status: 'Active', location: 'Site C' },
     { id: 5, name: 'Michael Brown', number: 'EMP-005', position: 'Carpenter', status: 'Active', location: 'Site B' },
   ];
+
+  const totalStaff = workers.length;
+  const activeStaff = workers.filter(w => w.status === 'Active').length;
+  const inactiveStaff = workers.filter(w => w.status === 'Inactive').length;
+  const onLeaveStaff = workers.filter(w => w.status === 'On Leave').length;
 
   return (
     <DashboardLayout>
@@ -27,6 +32,53 @@ export default function Manpower() {
               Add Worker
             </Button>
           </div>
+        </div>
+
+        {/* Staff Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Staff</CardTitle>
+              <Users className="h-4 w-4 text-slate-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalStaff}</div>
+              <p className="text-xs text-slate-500">All workers</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active</CardTitle>
+              <UserCheck className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{activeStaff}</div>
+              <p className="text-xs text-slate-500">Currently working</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Inactive</CardTitle>
+              <UserX className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">{inactiveStaff}</div>
+              <p className="text-xs text-slate-500">Not currently working</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">On Leave</CardTitle>
+              <UserMinus className="h-4 w-4 text-amber-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-amber-600">{onLeaveStaff}</div>
+              <p className="text-xs text-slate-500">Currently on leave</p>
+            </CardContent>
+          </Card>
         </div>
 
         <Card className="mb-6">
