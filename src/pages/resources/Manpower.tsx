@@ -4,6 +4,7 @@ import { Users, Plus, Search, UserCheck, UserX, UserMinus, Phone, MoreVertical, 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function Manpower() {
   const workers = [
@@ -90,6 +91,17 @@ export default function Manpower() {
                 placeholder="Search workers by name, IC number, or position..."
                 className="flex-1"
               />
+              <Select defaultValue="all">
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="on-leave">On Leave</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
