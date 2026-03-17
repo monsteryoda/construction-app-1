@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Building2, Calendar, FileText, ImageIcon, Upload, X } from 'lucide-react';
+import { Plus, Building2, Calendar, FileText, ImageIcon, Upload, X, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Project {
@@ -96,13 +96,6 @@ export default function ProjectDetails() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
-      // Debug: Log image URLs
-      if (data) {
-        data.forEach(p => {
-          console.log(`Project "${p.project_name}" image URL:`, p.project_image_url);
-        });
-      }
       
       setProjects(data || []);
     } catch (error) {
@@ -406,48 +399,27 @@ export default function ProjectDetails() {
                     </span>
                   </div>
                 </div>
-                <CardHeader>
-                  <CardTitle className="text-xl">{project.project_name}</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-xl font-semibold text-slate-900">{project.project_name}</CardTitle>
                   <div className="flex items-center gap-2 text-sm text-slate-500">
                     <FileText className="w-4 h-4" />
                     <span>Contract: {project.contract_number || 'N/A'}</span>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-slate-500">Client</span>
-                      <p className="font-medium text-slate-900">{project.client || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <span className="text-slate-500">Contractor</span>
-                      <p className="font-medium text-slate-900">{project.contractor || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <span className="text-slate-500">Consultant</span>
-                      <p className="font-medium text-slate-900">{project.consultant || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <span className="text-slate-500">Contract Period</span>
-                      <p className="font-medium text-slate-900">{project.contract_period ? `${project.contract_period} months` : 'N/A'}</p>
-                    </div>
+                  <div className="text-sm">
+                    <span className="text-slate-500">Client: </span>
+                    <span className="text-slate-900">{project.client || 'N/A'}</span>
                   </div>
-                  <div className="flex items-center gap-4 text-sm pt-4 border-t border-slate-100">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-500">
-                        {project.date_of_commence ? new Date(project.date_of_commence).toLocaleDateString() : 'No start date'} 
-                        {' - '}
-                        {project.date_of_completion ? new Date(project.date_of_completion).toLocaleDateString() : 'No end date'}
-                      </span>
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <Calendar className="w-4 h-4" />
+                      <span>{project.date_of_commence ? new Date(project.date_of_commence).toLocaleDateString() : 'No start date'}</span>
                     </div>
+                    <Button variant="ghost" className="gap-1 text-slate-600">
+                      View <ArrowRight className="w-4 h-4" />
+                    </Button>
                   </div>
-                  {project.defect_liability_period > 0 && (
-                    <div className="text-sm">
-                      <span className="text-slate-500">Defect Liability Period: </span>
-                      <span className="font-medium text-slate-900">{project.defect_liability_period} months</span>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             ))}
