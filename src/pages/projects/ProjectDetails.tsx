@@ -358,7 +358,7 @@ export default function ProjectDetails() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {projects.map((project) => (
               <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="h-48 relative bg-slate-100">
+                <div className="aspect-[4/3] relative bg-slate-100">
                   <ProjectImage 
                     imageUrl={project.project_image_url} 
                     projectName={project.project_name} 
