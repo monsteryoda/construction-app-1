@@ -10,6 +10,7 @@ import Schedules from '@/pages/projects/Schedules';
 import Issues from '@/pages/projects/Issues';
 import Documents from '@/pages/projects/Documents';
 import Manpower from '@/pages/resources/Manpower';
+import ClockInOut from '@/pages/resources/ClockInOut';
 import Machinery from '@/pages/resources/Machinery';
 import Material from '@/pages/resources/Material';
 import Documentation from '@/pages/resources/Documentation';
@@ -33,6 +34,7 @@ function App() {
         <Route path="/projects/issues" element={<Issues />} />
         <Route path="/projects/documents" element={<Documents />} />
         <Route path="/resources/manpower" element={<Manpower />} />
+        <Route path="/resources/clock-in-out" element={<ClockInOut />} />
         <Route path="/resources/machinery" element={<Machinery />} />
         <Route path="/resources/material" element={<Material />} />
         <Route path="/resources/documentation" element={<Documentation />} />
