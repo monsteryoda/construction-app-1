@@ -54,12 +54,21 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
     const files = event.target.files;
     if (!files) return;
 
+    console.log('[IssueForm] Selected files:', files);
+    
     const newImages: {name: string, size: number, type: string, preview: string}[] = [];
     const validFiles: File[] = [];
 
     Array.from(files).forEach(file => {
+      console.log('[IssueForm] Processing file:', file.name, 'size:', file.size);
+      
       if (file.size > 10 * 1024 * 1024) {
         toast.error(`${file.name} exceeds 10MB limit`);
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        toast.error(`${file.name} is not an image file`);
         return;
       }
 
@@ -74,8 +83,10 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
         validFiles.push(file);
 
         if (newImages.length === Array.from(files).length) {
+          console.log('[IssueForm] Adding', validFiles.length, 'images');
           setSelectedImages(prev => [...prev, ...validFiles]);
           setImagePreviews(prev => [...prev, ...newImages]);
+          toast.success(`${validFiles.length} image(s) selected`);
         }
       };
       reader.readAsDataURL(file);
@@ -83,6 +94,7 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
   };
 
   const handleRemoveImage = (index: number) => {
+    console.log('[IssueForm] Removing image at index:', index);
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
@@ -96,6 +108,8 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
   };
 
   const handleSubmit = async () => {
+    console.log('[IssueForm] Submitting issue with', selectedImages.length, 'images');
+    
     // Validate required fields
     if (!formData.project_id) {
       toast.error('Please select a project');
@@ -107,8 +121,14 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
       return;
     }
 
+    if (selectedImages.length === 0) {
+      toast.error('Please attach at least one image');
+      return;
+    }
+
     try {
       setUploading(true);
+      console.log('[IssueForm] Calling onSubmit');
       await onSubmit(formData, selectedImages);
       
       // Reset form
@@ -131,7 +151,8 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
         imageInputRef.current.value = '';
       }
     } catch (error) {
-      console.error('Error submitting issue:', error);
+      console.error('[IssueForm] Error:', error);
+      toast.error('Failed to add issue');
     } finally {
       setUploading(false);
     }

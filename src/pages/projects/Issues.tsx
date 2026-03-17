@@ -76,6 +76,8 @@ export default function Issues() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      console.log('[handleAddIssue] Creating issue with', images.length, 'images');
+
       // First create the issue
       const { data: issueData, error: issueError } = await supabase
         .from('project_issues')
@@ -86,7 +88,12 @@ export default function Issues() {
         .select()
         .single();
 
-      if (issueError) throw issueError;
+      if (issueError) {
+        console.error('[handleAddIssue] Issue creation error:', issueError);
+        throw issueError;
+      }
+
+      console.log('[handleAddIssue] Issue created:', issueData.id);
 
       // Then upload images if any
       if (images.length > 0 && issueData) {
@@ -100,7 +107,8 @@ export default function Issues() {
       // Reset form
       fetchIssues();
     } catch (error) {
-      toast.error('Failed to add issue');
+      console.error('[handleAddIssue] Error:', error);
+      toast.error('Failed to add issue: ' + (error as Error).message);
     }
   };
 
