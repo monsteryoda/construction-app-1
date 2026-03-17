@@ -1,139 +1,31 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from '@/components/ui/sonner';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import Login from '@/pages/Login';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 import Index from '@/pages/Index';
-import Dashboard from '@/pages/Dashboard';
+import Projects from '@/pages/projects/Projects';
+import ProjectDetail from '@/pages/projects/ProjectDetail';
+import Activities from '@/pages/resources/Activities';
+import Deliveries from '@/pages/resources/Deliveries';
+import Schedules from '@/pages/resources/Schedules';
+import Issues from '@/pages/resources/Issues';
+import Documents from '@/pages/resources/Documents';
 import Manpower from '@/pages/resources/Manpower';
-import Machinery from '@/pages/resources/Machinery';
-import Material from '@/pages/resources/Material';
-import ProjectDetails from '@/pages/projects/ProjectDetails';
-import Activities from '@/pages/projects/Activities';
-import Deliveries from '@/pages/projects/Deliveries';
-import Schedules from '@/pages/projects/Schedules';
-import Documents from '@/pages/projects/Documents';
-import Issues from '@/pages/projects/Issues';
-import Settings from '@/pages/Settings';
-
-function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-      </div>
-    );
-  }
-  
-  return user ? <>{children}</> : <Navigate to="/login" />;
-}
+import AddWorker from '@/pages/resources/AddWorker';
 
 function App() {
   return (
-    <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
-      <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <Index />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/resources/manpower"
-            element={
-              <PrivateRoute>
-                <Manpower />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/resources/machinery"
-            element={
-              <PrivateRoute>
-                <Machinery />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/resources/material"
-            element={
-              <PrivateRoute>
-                <Material />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/projects/details"
-            element={
-              <PrivateRoute>
-                <ProjectDetails />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/projects/activities"
-            element={
-              <PrivateRoute>
-                <Activities />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/projects/deliveries"
-            element={
-              <PrivateRoute>
-                <Deliveries />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/projects/schedules"
-            element={
-              <PrivateRoute>
-                <Schedules />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/projects/documents"
-            element={
-              <PrivateRoute>
-                <Documents />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/projects/issues"
-            element={
-              <PrivateRoute>
-                <Issues />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <PrivateRoute>
-                <Settings />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
-        <Toaster position="top-right" />
-      </AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/projects/:id" element={<ProjectDetail />} />
+        <Route path="/resources/activities" element={<Activities />} />
+        <Route path="/resources/deliveries" element={<Deliveries />} />
+        <Route path="/resources/schedules" element={<Schedules />} />
+        <Route path="/resources/issues" element={<Issues />} />
+        <Route path="/resources/documents" element={<Documents />} />
+        <Route path="/resources/manpower" element={<Manpower />} />
+        <Route path="/resources/manpower/add" element={<AddWorker />} />
+      </Routes>
     </BrowserRouter>
   );
 }

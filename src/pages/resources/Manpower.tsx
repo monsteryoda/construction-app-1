@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Worker {
   id: string;
@@ -20,6 +21,7 @@ interface Worker {
 }
 
 export default function Manpower() {
+  const navigate = useNavigate();
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -58,7 +60,7 @@ export default function Manpower() {
               <h1 className="text-2xl font-bold text-slate-900">Manpower</h1>
               <p className="text-slate-500">Manage your construction workforce</p>
             </div>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={() => navigate('/resources/manpower/add')}>
               <Plus className="w-4 h-4" />
               Add Worker
             </Button>
