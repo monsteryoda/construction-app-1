@@ -24,6 +24,7 @@ import {
   Users,
   Hammer,
   Box,
+  Clock,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -62,6 +63,7 @@ const navItems: NavItem[] = [
     icon: <BookOpen className="w-5 h-5" />,
     children: [
       { label: 'Manpower', path: '/resources/manpower', icon: <Users className="w-4 h-4" /> },
+      { label: 'Clock In/Out', path: '/resources/clock-in-out', icon: <Clock className="w-4 h-4" /> },
       { label: 'Machinery', path: '/resources/machinery', icon: <Hammer className="w-4 h-4" /> },
       { label: 'Material', path: '/resources/material', icon: <Box className="w-4 h-4" /> },
     ],
