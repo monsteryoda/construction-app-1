@@ -5,12 +5,28 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Machinery {
+  id: string;
+  user_id: string;
+  ref: string;
+  no: string;
+  plant_machinery: string;
+  type: string;
+  status: string;
+  location: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export default function Machinery() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [machineryList, setMachineryList] = useState<Machinery[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     ref: '',
     plantMachinery: '',
@@ -36,20 +52,44 @@ export default function Machinery() {
     'Out of Service',
   ];
 
-  const equipment = [
-    { id: 1, ref: 'REF-001', plantMachinery: 'Excavator CAT 320', type: 'Heavy Equipment', status: 'In Use', location: 'Site A', no: '001' },
-    { id: 2, ref: 'REF-002', plantMachinery: 'Cranes 50T', type: 'Heavy Equipment', status: 'Maintenance', location: 'Workshop', no: '002' },
-    { id: 3, ref: 'REF-003', plantMachinery: 'Concrete Mixer', type: 'Mixing', status: 'In Use', location: 'Site B', no: '003' },
-    { id: 4, ref: 'REF-004', plantMachinery: 'Bulldozer D6', type: 'Heavy Equipment', status: 'Available', location: 'Site C', no: '004' },
-    { id: 5, ref: 'REF-005', plantMachinery: 'Generator 200kW', type: 'Power', status: 'In Use', location: 'Site A', no: '005' },
-  ];
+  // Fetch machinery data from database
+  useEffect(() => {
+    fetchMachinery();
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const fetchMachinery = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('machinery')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setMachineryList(data || []);
+    } catch (error) {
+      console.error('Error fetching machinery:', error);
+      toast.error('Failed to load machinery data');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      console.log('Equipment data:', formData);
+      const { error } = await supabase
+        .from('machinery')
+        .insert([{
+          ref: formData.ref,
+          no: formData.no,
+          plant_machinery: formData.plantMachinery,
+          type: formData.type,
+          status: formData.status,
+          location: formData.location,
+        }]);
+
+      if (error) throw error;
+
       toast.success('Equipment added successfully!');
       setShowAddModal(false);
       setFormData({
@@ -60,6 +100,7 @@ export default function Machinery() {
         location: '',
         no: '',
       });
+      fetchMachinery();
     } catch (error) {
       console.error('Error adding equipment:', error);
       toast.error('Failed to add equipment');
@@ -67,6 +108,13 @@ export default function Machinery() {
       setLoading(false);
     }
   };
+
+  // Filter machinery based on search term
+  const filteredMachinery = machineryList.filter(item =>
+    item.plant_machinery.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.ref.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <DashboardLayout>
@@ -91,6 +139,8 @@ export default function Machinery() {
               <Input
                 placeholder="Search equipment by name or type..."
                 className="flex-1"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </CardContent>
@@ -111,30 +161,38 @@ export default function Machinery() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
-                  {equipment.map((item) => (
-                    <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-600">{item.no}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{item.ref}</td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
-                            <Hammer className="w-5 h-5 text-white" />
-                          </div>
-                          <span className="text-sm font-medium text-slate-900">{item.plantMachinery}</span>
-                        </div>
+                  {filteredMachinery.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
+                        No equipment found. Add your first equipment!
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-600">{item.type}</td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          item.status === 'In Use' ? 'bg-blue-100 text-blue-800' :
-                          item.status === 'Maintenance' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                        }`}>
-                          {item.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-600">{item.location}</td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredMachinery.map((item) => (
+                      <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-600">{item.no}</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{item.ref}</td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
+                              <Hammer className="w-5 h-5 text-white" />
+                            </div>
+                            <span className="text-sm font-medium text-slate-900">{item.plant_machinery}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-600">{item.type}</td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            item.status === 'In Use' ? 'bg-blue-100 text-blue-800' :
+                            item.status === 'Maintenance' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                          }`}>
+                            {item.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-600">{item.location}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
