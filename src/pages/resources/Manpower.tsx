@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WorkerModal from '@/components/worker/WorkerModal';
+import { toast } from 'sonner';
 
 interface Worker {
   id: string;
@@ -39,10 +40,21 @@ export default function Manpower() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setWorkers(data || []);
+      if (error) {
+        console.error('Error fetching workers:', error);
+        if (error.code === 'PGRST205') {
+          toast.error('Workers table not found. Please create the workers table in Supabase.');
+        } else {
+          toast.error('Failed to fetch workers');
+        }
+        setWorkers([]);
+      } else {
+        setWorkers(data || []);
+      }
     } catch (error) {
       console.error('Error fetching workers:', error);
+      toast.error('Failed to fetch workers');
+      setWorkers([]);
     } finally {
       setLoading(false);
     }
