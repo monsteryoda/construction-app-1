@@ -139,6 +139,12 @@ export default function ProjectDetails() {
   };
 
   const handleAddProject = async () => {
+    // Validate required fields
+    if (!newProject.project_name.trim()) {
+      toast.error('Project name is required');
+      return;
+    }
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
