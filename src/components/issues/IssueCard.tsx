@@ -4,18 +4,20 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Calendar, User, Flag, MessageSquare, Image, X, Eye, Download } from 'lucide-react';
+import { AlertCircle, Calendar, User, Flag, MessageSquare, Image, X, Eye, Download, CheckCircle2 } from 'lucide-react';
 import { Issue } from './IssueTypes';
 import { deleteIssueImage } from './IssueActions';
 
 interface IssueCardProps {
   issue: Issue;
   onDeleteImage: (imageId: string) => Promise<void>;
+  onStatusChange?: (issueId: string, newStatus: string) => Promise<void>;
 }
 
-export default function IssueCard({ issue, onDeleteImage }: IssueCardProps) {
+export default function IssueCard({ issue, onDeleteImage, onStatusChange }: IssueCardProps) {
   const [showImageDialog, setShowImageDialog] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isChangingStatus, setIsChangingStatus] = useState(false);
 
   const getSeverityColor = (severity: string) => {
     switch (severity.toLowerCase()) {
@@ -74,6 +76,29 @@ export default function IssueCard({ issue, onDeleteImage }: IssueCardProps) {
     }
   };
 
+  const handleStatusChange = async (newStatus: string) => {
+    if (!onStatusChange || !issue.id) return;
+    
+    try {
+      setIsChangingStatus(true);
+      await onStatusChange(issue.id, newStatus);
+    } catch (error) {
+      console.error('Error changing status:', error);
+    } finally {
+      setIsChangingStatus(false);
+    }
+  };
+
+  const getStatusOptions = () => {
+    const options = [
+      { value: 'open', label: 'Open', icon: <div className="w-2 h-2 bg-red-500 rounded-full"></div> },
+      { value: 'in_progress', label: 'In Progress', icon: <div className="w-2 h-2 bg-blue-500 rounded-full"></div> },
+      { value: 'resolved', label: 'Resolved', icon: <CheckCircle2 className="w-4 h-4 text-green-600" /> },
+      { value: 'closed', label: 'Closed', icon: <div className="w-2 h-2 bg-slate-500 rounded-full"></div> },
+    ];
+    return options;
+  };
+
   return (
     <>
       <Card className="hover:shadow-md transition-shadow border-l-4" style={{ borderLeftColor: issue.severity === 'critical' ? '#ef4444' : issue.severity === 'high' ? '#f97316' : issue.severity === 'medium' ? '#eab308' : '#22c55e' }}>
@@ -87,6 +112,23 @@ export default function IssueCard({ issue, onDeleteImage }: IssueCardProps) {
                   {issue.projects?.project_name && (
                     <p className="text-sm text-blue-600">{issue.projects.project_name}</p>
                   )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* Status Change Dropdown */}
+                  <div className="relative">
+                    <select
+                      value={issue.status}
+                      onChange={(e) => handleStatusChange(e.target.value)}
+                      disabled={isChangingStatus}
+                      className="px-3 py-1 text-sm border border-slate-300 rounded-md bg-white cursor-pointer hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                    >
+                      {getStatusOptions().map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 mb-3">
