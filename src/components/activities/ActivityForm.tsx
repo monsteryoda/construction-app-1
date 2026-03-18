@@ -221,12 +221,21 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
 
             <div className="space-y-2">
               <Label>Assigned To</Label>
-              <Input
+              <select
                 name="assigned_to"
                 value={formData.assigned_to}
                 onChange={handleInputChange}
-                placeholder="Enter assigned person name"
-              />
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select assigned person</option>
+                <option value="John Doe">John Doe</option>
+                <option value="Jane Smith">Jane Smith</option>
+                <option value="Mike Johnson">Mike Johnson</option>
+                <option value="Sarah Williams">Sarah Williams</option>
+                <option value="David Brown">David Brown</option>
+                <option value="Emily Davis">Emily Davis</option>
+                <option value="Custom">Custom</option>
+              </select>
             </div>
           </div>
 
