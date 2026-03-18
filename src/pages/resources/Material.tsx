@@ -1,106 +1,86 @@
+import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Box, Plus, Search, X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState, useEffect } from 'react';
+import { Plus, Package, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-
-interface Material {
-  id: string;
-  user_id: string;
-  no: string;
-  type: string;
-  description: string;
-  quantity: string;
-  delivery_order_ref: string;
-  status: string;
-  location: string;
-  created_at: string;
-  updated_at: string;
-}
+import { Material } from '@/components/materials/MaterialTypes';
 
 export default function Material() {
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [materialsList, setMaterialsList] = useState<Material[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [materials, setMaterials] = useState<Material[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAddDialog, setShowAddDialog] = useState(false);
   const [formData, setFormData] = useState({
     no: '',
     type: '',
     description: '',
     quantity: '',
-    deliveryOrderRef: '',
+    delivery_order_ref: '',
     status: 'In Stock',
     location: '',
   });
 
-  const materialTypes = [
-    'Building Materials',
-    'Aggregates',
-    'Ready Mix',
-    'Finishing Materials',
-    'Electrical',
-    'Plumbing',
-    'Other',
-  ];
-
-  const materialStatus = [
-    'In Stock',
-    'Low Stock',
-    'Out of Stock',
-  ];
-
-  // Fetch materials data from database
   useEffect(() => {
     fetchMaterials();
   }, []);
 
   const fetchMaterials = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from('materials')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setMaterialsList(data || []);
+      setMaterials(data || []);
     } catch (error) {
       console.error('Error fetching materials:', error);
-      toast.error('Failed to load materials data');
+      toast.error('Failed to fetch materials');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
+  const handleAddMaterial = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('User not authenticated');
+        return;
+      }
+
+      if (!formData.no || !formData.type || !formData.description || !formData.quantity) {
+        toast.error('Please fill in all required fields');
+        return;
+      }
+
       const { error } = await supabase
         .from('materials')
         .insert([{
-          no: formData.no,
-          type: formData.type,
-          description: formData.description,
-          quantity: formData.quantity,
-          delivery_order_ref: formData.deliveryOrderRef,
-          status: formData.status,
-          location: formData.location,
+          user_id: user.id,
+          ...formData,
         }]);
 
       if (error) throw error;
 
-      toast.success('Material added successfully!');
-      setShowAddModal(false);
+      toast.success('Material added successfully');
+      setShowAddDialog(false);
       setFormData({
         no: '',
         type: '',
         description: '',
         quantity: '',
-        deliveryOrderRef: '',
+        delivery_order_ref: '',
         status: 'In Stock',
         location: '',
       });
@@ -108,225 +88,200 @@ export default function Material() {
     } catch (error) {
       console.error('Error adding material:', error);
       toast.error('Failed to add material');
-    } finally {
-      setLoading(false);
     }
   };
 
-  // Filter materials based on search term
-  const filteredMaterials = materialsList.filter(item =>
-    item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.no.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleDeleteMaterial = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('materials')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Material deleted successfully');
+      fetchMaterials();
+    } catch (error) {
+      console.error('Error deleting material:', error);
+      toast.error('Failed to delete material');
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'In Stock':
+        return 'bg-green-100 text-green-800';
+      case 'Low Stock':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Out of Stock':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <DashboardLayout>
-      <div className="p-6">
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">Material</h1>
-              <p className="text-slate-500">Manage construction materials and inventory</p>
-            </div>
-            <Button className="gap-2" onClick={() => setShowAddModal(true)}>
-              <Plus className="w-4 h-4" />
-              Add Material
-            </Button>
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Material Management</h1>
+            <p className="text-slate-500 mt-1">Track and manage construction materials</p>
           </div>
+          <Button onClick={() => setShowAddDialog(true)} className="gap-2">
+            <Plus className="w-4 h-4" />
+            Add Material
+          </Button>
         </div>
 
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Search className="w-5 h-5 text-slate-400" />
-              <Input
-                placeholder="Search materials by name or category..."
-                className="flex-1"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Material</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Material No *</Label>
+                <Input
+                  value={formData.no}
+                  onChange={(e) => setFormData(prev => ({ ...prev, no: e.target.value }))}
+                  placeholder="Enter material number"
+                />
+              </div>
 
-        <Card>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">No</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Type/Materials Description</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Quantity</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Delivery Order Ref</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Location</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {filteredMaterials.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
-                        No materials found. Add your first material!
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredMaterials.map((item) => (
-                      <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-600">{item.no}</td>
-                        <td className="px-4 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                              <Box className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-slate-900">{item.description}</p>
-                              <p className="text-xs text-slate-500">{item.type}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{item.quantity}</td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-600">{item.delivery_order_ref || '-'}</td>
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            item.status === 'In Stock' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
-                          }`}>
-                            {item.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-600">{item.location || '-'}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="space-y-2">
+                <Label>Type *</Label>
+                <Input
+                  value={formData.type}
+                  onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
+                  placeholder="Enter material type"
+                />
+              </div>
 
-        {/* Add Material Modal */}
-        {showAddModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900">Add Material</h2>
-                    <p className="text-slate-500">Add new material to your inventory</p>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => setShowAddModal(false)}>
-                    <X className="w-5 h-5" />
-                  </Button>
-                </div>
+              <div className="space-y-2">
+                <Label>Description *</Label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Enter material description"
+                  rows={3}
+                />
+              </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Material Number */}
-                    <div className="space-y-2">
-                      <Label htmlFor="no">Material Number *</Label>
-                      <Input
-                        id="no"
-                        placeholder="001"
-                        value={formData.no}
-                        onChange={(e) => setFormData({ ...formData, no: e.target.value })}
-                        required
-                      />
-                    </div>
+              <div className="space-y-2">
+                <Label>Quantity *</Label>
+                <Input
+                  value={formData.quantity}
+                  onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
+                  placeholder="Enter quantity"
+                />
+              </div>
 
-                    {/* Type */}
-                    <div className="space-y-2">
-                      <Label htmlFor="type">Type *</Label>
-                      <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {materialTypes.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+              <div className="space-y-2">
+                <Label>Delivery Order Ref</Label>
+                <Input
+                  value={formData.delivery_order_ref}
+                  onChange={(e) => setFormData(prev => ({ ...prev, delivery_order_ref: e.target.value }))}
+                  placeholder="Enter delivery order reference"
+                />
+              </div>
 
-                    {/* Description */}
-                    <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="description">Material Description *</Label>
-                      <Input
-                        id="description"
-                        placeholder="e.g., Cement, Steel Bars, Sand"
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        required
-                      />
-                    </div>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="In Stock">In Stock</SelectItem>
+                    <SelectItem value="Low Stock">Low Stock</SelectItem>
+                    <SelectItem value="Out of Stock">Out of Stock</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                    {/* Quantity */}
-                    <div className="space-y-2">
-                      <Label htmlFor="quantity">Quantity *</Label>
-                      <Input
-                        id="quantity"
-                        placeholder="e.g., 500 bags, 2000 kg, 50 tons"
-                        value={formData.quantity}
-                        onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                        required
-                      />
-                    </div>
-
-                    {/* Delivery Order Reference */}
-                    <div className="space-y-2">
-                      <Label htmlFor="deliveryOrderRef">Delivery Order Ref</Label>
-                      <Input
-                        id="deliveryOrderRef"
-                        placeholder="DO-2024-001"
-                        value={formData.deliveryOrderRef}
-                        onChange={(e) => setFormData({ ...formData, deliveryOrderRef: e.target.value })}
-                      />
-                    </div>
-
-                    {/* Status */}
-                    <div className="space-y-2">
-                      <Label htmlFor="status">Status *</Label>
-                      <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {materialStatus.map((status) => (
-                            <SelectItem key={status} value={status}>
-                              {status}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Location */}
-                    <div className="space-y-2">
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        id="location"
-                        placeholder="e.g., Warehouse A, Site B"
-                        value={formData.location}
-                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 pt-4 border-t">
-                    <Button type="button" variant="outline" onClick={() => setShowAddModal(false)}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" className="gap-2" disabled={loading}>
-                      <Box className="w-4 h-4" />
-                      {loading ? 'Saving...' : 'Save'}
-                    </Button>
-                  </div>
-                </form>
+              <div className="space-y-2">
+                <Label>Location</Label>
+                <Input
+                  value={formData.location}
+                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                  placeholder="Enter storage location"
+                />
               </div>
             </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAddMaterial}>
+                Add Material
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
+          </div>
+        ) : materials.length === 0 ? (
+          <Card className="text-center py-16">
+            <CardContent>
+              <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-slate-900 mb-2">No Materials Added</h3>
+              <p className="text-slate-500 mb-6">Start by adding your first material</p>
+              <Button onClick={() => setShowAddDialog(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Material
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {materials.map((material) => (
+              <Card key={material.id} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg text-slate-900">{material.no}</h3>
+                      <p className="text-sm text-slate-500">{material.type}</p>
+                    </div>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(material.status)}`}>
+                      {material.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-600 mb-3">{material.description}</p>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-slate-500">Quantity:</span>
+                      <span className="ml-1 font-medium">{material.quantity}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Location:</span>
+                      <span className="ml-1 font-medium">{material.location || 'N/A'}</span>
+                    </div>
+                  </div>
+                  {material.delivery_order_ref && (
+                    <div className="mt-2 text-sm">
+                      <span className="text-slate-500">Delivery Ref:</span>
+                      <span className="ml-1 font-medium">{material.delivery_order_ref}</span>
+                    </div>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mt-3 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => handleDeleteMaterial(material.id)}
+                  >
+                    Delete
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
       </div>
