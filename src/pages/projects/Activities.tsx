@@ -7,9 +7,10 @@ import ActivityCard from '@/components/activities/ActivityCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Plus, Search, Filter, LayoutDashboard, List, Settings, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function Activities() {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -19,8 +20,10 @@ export default function Activities() {
   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const location = useLocation();
 
   const [newActivity, setNewActivity] = useState({
     project_id: '',
@@ -222,6 +225,10 @@ export default function Activities() {
     return matchesSearch && matchesStatus;
   });
 
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -231,209 +238,318 @@ export default function Activities() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Activities</h1>
-        <Button onClick={() => setShowAddDialog(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Activity
-        </Button>
-      </div>
-
-      <div className="flex gap-4 mb-6">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-          <Input
-            placeholder="Search activities..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-slate-400" />
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="border rounded-md px-3 py-2"
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-            <option value="on_hold">On Hold</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {filteredActivities.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">
-            No activities found
+    <div className="flex h-screen bg-slate-50">
+      {/* Sidebar */}
+      <div 
+        className={`${
+          sidebarOpen ? 'w-64' : 'w-20'
+        } bg-white border-r border-slate-200 transition-all duration-300 flex flex-col`}
+      >
+        <div className="p-4 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <LayoutDashboard className="w-6 h-6 text-white" />
+            </div>
+            {sidebarOpen && (
+              <div>
+                <h1 className="font-bold text-slate-900">Project Manager</h1>
+                <p className="text-xs text-slate-500">Dashboard</p>
+              </div>
+            )}
           </div>
-        ) : (
-          filteredActivities.map((activity) => (
-            <ActivityCard
-              key={activity.id}
-              activity={activity}
-              onAddRemark={handleAddRemark}
-              onDeleteRemark={handleDeleteRemark}
-              onDeleteActivity={handleDeleteActivity}
-            />
-          ))
+        </div>
+
+        <nav className="flex-1 p-4 space-y-2">
+          <Link
+            to="/projects/activities"
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+              location.pathname === '/projects/activities'
+                ? 'bg-blue-50 text-blue-600'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <List className="w-5 h-5" />
+            {sidebarOpen && <span className="font-medium">Activities</span>}
+          </Link>
+          
+          <Link
+            to="/projects/schedules"
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+              location.pathname === '/projects/schedules'
+                ? 'bg-blue-50 text-blue-600'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <List className="w-5 h-5" />
+            {sidebarOpen && <span className="font-medium">Schedules</span>}
+          </Link>
+
+          <Link
+            to="/projects/deliveries"
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+              location.pathname === '/projects/deliveries'
+                ? 'bg-blue-50 text-blue-600'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <List className="w-5 h-5" />
+            {sidebarOpen && <span className="font-medium">Deliveries</span>}
+          </Link>
+
+          <Link
+            to="/projects/issues"
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+              location.pathname === '/projects/issues'
+                ? 'bg-blue-50 text-blue-600'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <List className="w-5 h-5" />
+            {sidebarOpen && <span className="font-medium">Issues</span>}
+          </Link>
+
+          <Link
+            to="/projects/documents"
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+              location.pathname === '/projects/documents'
+                ? 'bg-blue-50 text-blue-600'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <List className="w-5 h-5" />
+            {sidebarOpen && <span className="font-medium">Documents</span>}
+          </Link>
+        </nav>
+
+        <div className="p-4 border-t border-slate-200">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-colors"
+          >
+            <Filter className={`w-5 h-5 text-slate-600 transition-transform ${!sidebarOpen && 'rotate-180'}`} />
+          </button>
+        </div>
+
+        <div className="p-4 border-t border-slate-200">
+          <button
+            onClick={handleSignOut}
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors w-full ${
+              !sidebarOpen && 'justify-center'
+            }`}
+          >
+            <LogOut className="w-5 h-5" />
+            {sidebarOpen && <span className="font-medium">Sign Out</span>}
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="container mx-auto p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold">Activities</h1>
+            <Button onClick={() => setShowAddDialog(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Activity
+            </Button>
+          </div>
+
+          <div className="flex gap-4 mb-6">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <Input
+                placeholder="Search activities..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-slate-400" />
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="border rounded-md px-3 py-2"
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="on_hold">On Hold</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {filteredActivities.length === 0 ? (
+              <div className="text-center py-12 text-slate-500">
+                No activities found
+              </div>
+            ) : (
+              filteredActivities.map((activity) => (
+                <ActivityCard
+                  key={activity.id}
+                  activity={activity}
+                  onAddRemark={handleAddRemark}
+                  onDeleteRemark={handleDeleteRemark}
+                  onDeleteActivity={handleDeleteActivity}
+                />
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Add Activity Dialog */}
+        {showAddDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <h2 className="text-xl font-bold mb-4">Add New Activity</h2>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Project</label>
+                    <select
+                      value={newActivity.project_id}
+                      onChange={(e) => setNewActivity({ ...newActivity, project_id: e.target.value })}
+                      className="w-full border rounded-md px-3 py-2"
+                    >
+                      <option value="">Select Project</option>
+                      <option value="1">Project 1</option>
+                      <option value="2">Project 2</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Activity Name</label>
+                    <Input
+                      value={newActivity.activity_name}
+                      onChange={(e) => setNewActivity({ ...newActivity, activity_name: e.target.value })}
+                      placeholder="Enter activity name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Description</label>
+                    <Textarea
+                      value={newActivity.description}
+                      onChange={(e) => setNewActivity({ ...newActivity, description: e.target.value })}
+                      placeholder="Enter description"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Start Date</label>
+                      <Input
+                        type="date"
+                        value={newActivity.activity_date}
+                        onChange={(e) => setNewActivity({ ...newActivity, activity_date: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">End Date</label>
+                      <Input
+                        type="date"
+                        value={newActivity.end_date}
+                        onChange={(e) => setNewActivity({ ...newActivity, end_date: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Status</label>
+                      <select
+                        value={newActivity.status}
+                        onChange={(e) => setNewActivity({ ...newActivity, status: e.target.value })}
+                        className="w-full border rounded-md px-3 py-2"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="on_hold">On Hold</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Priority</label>
+                      <select
+                        value={newActivity.priority}
+                        onChange={(e) => setNewActivity({ ...newActivity, priority: e.target.value })}
+                        className="w-full border rounded-md px-3 py-2"
+                      >
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Assigned To</label>
+                    <Input
+                      value={newActivity.assigned_to}
+                      onChange={(e) => setNewActivity({ ...newActivity, assigned_to: e.target.value })}
+                      placeholder="Enter assigned person"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mt-6">
+                  <Button onClick={handleAddActivity} className="flex-1">
+                    Create Activity
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAddDialog(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Add Remark Dialog */}
+        {showRemarkDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full">
+              <div className="p-6">
+                <h2 className="text-xl font-bold mb-4">Add Remark</h2>
+                
+                <Textarea
+                  value={newRemark}
+                  onChange={(e) => setNewRemark(e.target.value)}
+                  placeholder="Enter remark..."
+                  rows={4}
+                  className="mb-4"
+                />
+
+                <div className="flex gap-2">
+                  <Button onClick={handleSaveRemark} className="flex-1">
+                    Save Remark
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowRemarkDialog(false);
+                      setNewRemark('');
+                      setSelectedActivityId(null);
+                    }}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
-
-      {/* Add Activity Dialog */}
-      {showAddDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <h2 className="text-xl font-bold mb-4">Add New Activity</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Project</label>
-                  <select
-                    value={newActivity.project_id}
-                    onChange={(e) => setNewActivity({ ...newActivity, project_id: e.target.value })}
-                    className="w-full border rounded-md px-3 py-2"
-                  >
-                    <option value="">Select Project</option>
-                    <option value="1">Project 1</option>
-                    <option value="2">Project 2</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Activity Name</label>
-                  <Input
-                    value={newActivity.activity_name}
-                    onChange={(e) => setNewActivity({ ...newActivity, activity_name: e.target.value })}
-                    placeholder="Enter activity name"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Description</label>
-                  <Textarea
-                    value={newActivity.description}
-                    onChange={(e) => setNewActivity({ ...newActivity, description: e.target.value })}
-                    placeholder="Enter description"
-                    rows={3}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Start Date</label>
-                    <Input
-                      type="date"
-                      value={newActivity.activity_date}
-                      onChange={(e) => setNewActivity({ ...newActivity, activity_date: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">End Date</label>
-                    <Input
-                      type="date"
-                      value={newActivity.end_date}
-                      onChange={(e) => setNewActivity({ ...newActivity, end_date: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Status</label>
-                    <select
-                      value={newActivity.status}
-                      onChange={(e) => setNewActivity({ ...newActivity, status: e.target.value })}
-                      className="w-full border rounded-md px-3 py-2"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="completed">Completed</option>
-                      <option value="on_hold">On Hold</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Priority</label>
-                    <select
-                      value={newActivity.priority}
-                      onChange={(e) => setNewActivity({ ...newActivity, priority: e.target.value })}
-                      className="w-full border rounded-md px-3 py-2"
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                      <option value="urgent">Urgent</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Assigned To</label>
-                  <Input
-                    value={newActivity.assigned_to}
-                    onChange={(e) => setNewActivity({ ...newActivity, assigned_to: e.target.value })}
-                    placeholder="Enter assigned person"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-2 mt-6">
-                <Button onClick={handleAddActivity} className="flex-1">
-                  Create Activity
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowAddDialog(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add Remark Dialog */}
-      {showRemarkDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full">
-            <div className="p-6">
-              <h2 className="text-xl font-bold mb-4">Add Remark</h2>
-              
-              <Textarea
-                value={newRemark}
-                onChange={(e) => setNewRemark(e.target.value)}
-                placeholder="Enter remark..."
-                rows={4}
-                className="mb-4"
-              />
-
-              <div className="flex gap-2">
-                <Button onClick={handleSaveRemark} className="flex-1">
-                  Save Remark
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowRemarkDialog(false);
-                    setNewRemark('');
-                    setSelectedActivityId(null);
-                  }}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
