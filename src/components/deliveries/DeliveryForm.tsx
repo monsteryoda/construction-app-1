@@ -21,7 +21,6 @@ export default function DeliveryForm({ isOpen, onClose, onSubmit, projects }: De
   const [formData, setFormData] = useState({
     project_id: '',
     delivery_item: '',
-    description: '',
     delivery_date: '',
     expected_date: '',
     status: 'pending',
@@ -117,7 +116,6 @@ export default function DeliveryForm({ isOpen, onClose, onSubmit, projects }: De
       setFormData({
         project_id: '',
         delivery_item: '',
-        description: '',
         delivery_date: '',
         expected_date: '',
         status: 'pending',
@@ -143,7 +141,6 @@ export default function DeliveryForm({ isOpen, onClose, onSubmit, projects }: De
         setFormData({
           project_id: '',
           delivery_item: '',
-          description: '',
           delivery_date: '',
           expected_date: '',
           status: 'pending',
@@ -185,17 +182,6 @@ export default function DeliveryForm({ isOpen, onClose, onSubmit, projects }: De
               value={formData.delivery_item}
               onChange={handleInputChange}
               placeholder="Enter delivery item name"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Description</Label>
-            <Textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="Enter delivery description"
-              rows={3}
             />
           </div>
 
