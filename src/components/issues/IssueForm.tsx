@@ -105,6 +105,12 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const handleAddMoreImages = () => {
+    if (imageInputRef.current) {
+      imageInputRef.current.click();
+    }
+  };
+
   const handleSubmit = async () => {
     console.log('[IssueForm] Submitting issue with', selectedImages.length, 'images');
     console.log('[IssueForm] Form data:', formData);
@@ -315,25 +321,36 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
             <Label>Attachments (Images) *</Label>
             <div className="mt-2">
               {imagePreviews.length > 0 ? (
-                <div className="grid grid-cols-3 gap-3">
-                  {imagePreviews.map((image, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={image.preview}
-                        alt={image.name}
-                        className="w-full h-24 object-cover rounded-lg border"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                      <p className="text-xs text-slate-500 mt-1 truncate">{image.name}</p>
-                      <p className="text-xs text-slate-400">{formatFileSize(image.size)}</p>
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  <div className="grid grid-cols-3 gap-3">
+                    {imagePreviews.map((image, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={image.preview}
+                          alt={image.name}
+                          className="w-full h-24 object-cover rounded-lg border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                        <p className="text-xs text-slate-500 mt-1 truncate">{image.name}</p>
+                        <p className="text-xs text-slate-400">{formatFileSize(image.size)}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddMoreImages}
+                    className="w-full gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add More Images
+                  </Button>
                 </div>
               ) : (
                 <div
