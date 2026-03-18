@@ -244,7 +244,12 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
                     type="text"
                     value={newRemark}
                     onChange={(e) => setNewRemark(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddRemark()}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddRemark();
+                      }
+                    }}
                     placeholder="Add a remark..."
                     className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     disabled={isAddingRemark}
