@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Plus, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Project } from './ScheduleTypes';
@@ -21,7 +20,6 @@ export default function ScheduleForm({ isOpen, onClose, onSubmit, projects }: Sc
   const [formData, setFormData] = useState({
     project_id: '',
     task_name: '',
-    description: '',
     start_date: '',
     end_date: '',
     progress: '0',
@@ -33,7 +31,7 @@ export default function ScheduleForm({ isOpen, onClose, onSubmit, projects }: Sc
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -99,7 +97,6 @@ export default function ScheduleForm({ isOpen, onClose, onSubmit, projects }: Sc
       setFormData({
         project_id: '',
         task_name: '',
-        description: '',
         start_date: '',
         end_date: '',
         progress: '0',
@@ -124,7 +121,6 @@ export default function ScheduleForm({ isOpen, onClose, onSubmit, projects }: Sc
         setFormData({
           project_id: '',
           task_name: '',
-          description: '',
           start_date: '',
           end_date: '',
           progress: '0',
@@ -165,17 +161,6 @@ export default function ScheduleForm({ isOpen, onClose, onSubmit, projects }: Sc
               value={formData.task_name}
               onChange={handleInputChange}
               placeholder="Enter task name"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Description</Label>
-            <Textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="Enter task description"
-              rows={3}
             />
           </div>
 
