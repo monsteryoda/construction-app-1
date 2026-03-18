@@ -89,16 +89,6 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange }: Issu
     }
   };
 
-  const getStatusOptions = () => {
-    const options = [
-      { value: 'open', label: 'Open', icon: <div className="w-2 h-2 bg-red-500 rounded-full"></div> },
-      { value: 'in_progress', label: 'In Progress', icon: <div className="w-2 h-2 bg-blue-500 rounded-full"></div> },
-      { value: 'resolved', label: 'Resolved', icon: <CheckCircle2 className="w-4 h-4 text-green-600" /> },
-      { value: 'closed', label: 'Closed', icon: <div className="w-2 h-2 bg-slate-500 rounded-full"></div> },
-    ];
-    return options;
-  };
-
   return (
     <>
       <Card className="hover:shadow-md transition-shadow border-l-4" style={{ borderLeftColor: issue.severity === 'critical' ? '#ef4444' : issue.severity === 'high' ? '#f97316' : issue.severity === 'medium' ? '#eab308' : '#22c55e' }}>
@@ -114,21 +104,17 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange }: Issu
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* Status Change Dropdown */}
-                  <div className="relative">
-                    <select
-                      value={issue.status}
-                      onChange={(e) => handleStatusChange(e.target.value)}
+                  {/* Mark as Resolved Button */}
+                  {issue.status !== 'resolved' && (
+                    <Button
+                      onClick={() => handleStatusChange('resolved')}
                       disabled={isChangingStatus}
-                      className="px-3 py-1 text-sm border border-slate-300 rounded-md bg-white cursor-pointer hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                      className="bg-green-600 hover:bg-green-700 text-white"
                     >
-                      {getStatusOptions().map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      {isChangingStatus ? 'Marking...' : 'Mark as Resolved'}
+                    </Button>
+                  )}
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 mb-3">
