@@ -256,21 +256,13 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
                     type="button"
                     variant="outline"
                     size="lg"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={handleAttachMoreFiles}
                     className="w-full h-32 flex-col gap-2"
                   >
                     <Paperclip className="w-8 h-8 text-slate-400" />
                     <span className="text-sm text-slate-500">Click to attach files</span>
                     <span className="text-xs text-slate-400">PDF, DOC, XLS, JPG, PNG up to 50MB each</span>
                   </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    onChange={handleFileSelect}
-                    className="hidden"
-                    disabled={uploading}
-                  />
                 </div>
               )}
               {uploading && (
@@ -291,6 +283,14 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
           </Button>
         </div>
       </DialogContent>
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        onChange={handleFileSelect}
+        className="hidden"
+        disabled={uploading}
+      />
     </Dialog>
   );
 }
