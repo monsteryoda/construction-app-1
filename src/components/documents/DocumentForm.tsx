@@ -196,17 +196,6 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
           </div>
 
           <div className="space-y-2">
-            <Label>Description</Label>
-            <Textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="Enter document description"
-              rows={3}
-            />
-          </div>
-
-          <div className="space-y-2">
             <Label>Version</Label>
             <Input
               name="version"
