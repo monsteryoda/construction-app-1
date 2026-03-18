@@ -243,7 +243,7 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
             <Label>Attach Images</Label>
             <div className="mt-2">
               {imagePreviews.length > 0 ? (
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4 gap-3">
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative group">
                       <img
@@ -264,11 +264,12 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
               ) : (
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full h-32 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-slate-50 transition-colors"
+                  className="w-full h-40 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-slate-50 transition-colors"
                 >
-                  <Upload className="w-10 h-10 text-slate-400 mb-2" />
+                  <Upload className="w-12 h-12 text-slate-400 mb-2" />
                   <p className="text-sm text-slate-500">Click to attach images</p>
                   <p className="text-xs text-slate-400 mt-1">PNG, JPG, GIF up to 5MB each</p>
+                  <p className="text-xs text-slate-400 mt-1">You can select multiple images at once</p>
                 </div>
               )}
               <input
