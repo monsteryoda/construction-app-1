@@ -3,16 +3,17 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Package, Calendar, Truck, Image as ImageIcon, X } from 'lucide-react';
+import { Package, Calendar, Truck, Image as ImageIcon, X, Trash2 } from 'lucide-react';
 import { Delivery } from './DeliveryTypes';
 import { deleteDeliveryImage } from './DeliveryActions';
 
 interface DeliveryCardProps {
   delivery: Delivery;
   onDeleteImage: (imageId: string) => Promise<void>;
+  onDelete: (deliveryId: string) => Promise<void>;
 }
 
-export default function DeliveryCard({ delivery, onDeleteImage }: DeliveryCardProps) {
+export default function DeliveryCard({ delivery, onDeleteImage, onDelete }: DeliveryCardProps) {
   const [showImageDialog, setShowImageDialog] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -37,6 +38,16 @@ export default function DeliveryCard({ delivery, onDeleteImage }: DeliveryCardPr
     }
   };
 
+  const handleDeleteDelivery = async () => {
+    if (window.confirm('Are you sure you want to delete this delivery?')) {
+      try {
+        await onDelete(delivery.id);
+      } catch (error) {
+        console.error('Error deleting delivery:', error);
+      }
+    }
+  };
+
   return (
     <>
       <Card className="hover:shadow-md transition-shadow">
@@ -53,9 +64,18 @@ export default function DeliveryCard({ delivery, onDeleteImage }: DeliveryCardPr
                 )}
               </div>
             </div>
-            <Badge className={getStatusColor(delivery.status)}>
-              {delivery.status.replace('_', ' ').toUpperCase()}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge className={getStatusColor(delivery.status)}>
+                {delivery.status.replace('_', ' ').toUpperCase()}
+              </Badge>
+              <button
+                onClick={handleDeleteDelivery}
+                className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors"
+                title="Delete delivery"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {delivery.description && (
