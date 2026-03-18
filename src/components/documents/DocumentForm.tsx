@@ -113,9 +113,12 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
       return;
     }
 
+    console.log('Submitting document:', { formData, selectedFiles });
+
     try {
       setUploading(true);
       await onSubmit(formData, selectedFiles);
+      toast.success('Document added successfully');
       
       // Reset form
       setFormData({
@@ -130,8 +133,10 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+      onClose();
     } catch (error) {
       console.error('Error submitting document:', error);
+      toast.error('Failed to add document');
     } finally {
       setUploading(false);
     }
@@ -202,6 +207,17 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Description</Label>
+            <Textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Enter document description"
+              rows={3}
+            />
           </div>
 
           <div className="space-y-2">
