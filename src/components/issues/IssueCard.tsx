@@ -224,9 +224,8 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
                           </div>
                           {onDeleteRemark && (
                             <button
-                              type="button"
                               onClick={() => handleDeleteRemark(remark.id)}
-                              className="p-1 hover:bg-red-100 rounded text-red-500 z-10"
+                              className="p-1 hover:bg-red-100 rounded text-red-500"
                               title="Delete remark"
                             >
                               <X className="w-4 h-4" />
@@ -250,7 +249,6 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
                     disabled={isAddingRemark}
                   />
                   <Button
-                    type="button"
                     onClick={handleAddRemark}
                     disabled={!newRemark.trim() || isAddingRemark}
                     className="bg-blue-600 hover:bg-blue-700"
@@ -282,15 +280,14 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
                           }}
                         />
                         <button
-                          type="button"
                           onClick={() => handleDeleteImage(image.id)}
-                          className="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                          className="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                           title="Delete image"
                         >
                           <X className="w-3 h-3" />
                         </button>
                         {/* Download button for each image */}
-                        <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Button
                             variant="secondary"
                             size="sm"
@@ -334,7 +331,6 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
                   Image {selectedImageIndex + 1} of {issue.images.length}
                 </span>
                 <button
-                  type="button"
                   onClick={() => setShowImageDialog(false)}
                   className="p-1 hover:bg-slate-100 rounded"
                 >
@@ -371,7 +367,6 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
               <div className="flex gap-2">
                 {selectedImageIndex > 0 && (
                   <button
-                    type="button"
                     onClick={() => setSelectedImageIndex(prev => prev - 1)}
                     className="px-3 py-1 bg-slate-200 rounded hover:bg-slate-300"
                   >
@@ -380,7 +375,6 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
                 )}
                 {selectedImageIndex < issue.images.length - 1 && (
                   <button
-                    type="button"
                     onClick={() => setSelectedImageIndex(prev => prev + 1)}
                     className="px-3 py-1 bg-slate-200 rounded hover:bg-slate-300"
                   >
