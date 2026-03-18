@@ -3,16 +3,18 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Download, Eye, Calendar, X, FileUp } from 'lucide-react';
+import { FileText, Download, Eye, Calendar, X, FileUp, Edit, Trash2 } from 'lucide-react';
 import { Document } from './DocumentTypes';
 import { deleteDocumentFile } from './DocumentActions';
 
 interface DocumentCardProps {
   document: Document;
   onDeleteFile: (fileId: string) => Promise<void>;
+  onEdit?: (document: Document) => void;
+  onDelete?: (documentId: string) => Promise<void>;
 }
 
-export default function DocumentCard({ document, onDeleteFile }: DocumentCardProps) {
+export default function DocumentCard({ document, onDeleteFile, onEdit, onDelete }: DocumentCardProps) {
   const [showFileDialog, setShowFileDialog] = useState(false);
   const [selectedFileIndex, setSelectedFileIndex] = useState(0);
 
@@ -42,6 +44,22 @@ export default function DocumentCard({ document, onDeleteFile }: DocumentCardPro
       await onDeleteFile(fileId);
     } catch (error) {
       console.error('Error deleting file:', error);
+    }
+  };
+
+  const handleDeleteDocument = async () => {
+    if (onDelete && document.id) {
+      try {
+        await onDelete(document.id);
+      } catch (error) {
+        console.error('Error deleting document:', error);
+      }
+    }
+  };
+
+  const handleEdit = () => {
+    if (onEdit) {
+      onEdit(document);
     }
   };
 
@@ -158,6 +176,31 @@ export default function DocumentCard({ document, onDeleteFile }: DocumentCardPro
                     </a>
                   </Button>
                 </div>
+              )}
+            </div>
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-2">
+              {onEdit && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleEdit}
+                  className="h-8 w-8 p-0"
+                  title="Edit document"
+                >
+                  <Edit className="w-4 h-4" />
+                </Button>
+              )}
+              {onDelete && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDeleteDocument}
+                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  title="Delete document"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               )}
             </div>
           </div>

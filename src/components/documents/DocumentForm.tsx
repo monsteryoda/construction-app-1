@@ -8,16 +8,17 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, Upload, X, FileText, Paperclip } from 'lucide-react';
 import { toast } from 'sonner';
-import { Project } from './DocumentTypes';
+import { Project, Document } from './DocumentTypes';
 
 interface DocumentFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (document: any, files: File[]) => Promise<void>;
   projects: Project[];
+  editingDocument?: Document | null;
 }
 
-export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: DocumentFormProps) {
+export default function DocumentForm({ isOpen, onClose, onSubmit, projects, editingDocument }: DocumentFormProps) {
   const [formData, setFormData] = useState({
     project_id: '',
     document_name: '',
@@ -118,7 +119,7 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
     try {
       setUploading(true);
       await onSubmit(formData, selectedFiles);
-      toast.success('Document added successfully');
+      toast.success(editingDocument ? 'Document updated successfully' : 'Document added successfully');
       
       // Reset form
       setFormData({
@@ -136,32 +137,53 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
       onClose();
     } catch (error) {
       console.error('Error submitting document:', error);
-      toast.error('Failed to add document');
+      toast.error('Failed to save document');
     } finally {
       setUploading(false);
     }
   };
 
+  // Reset form when editingDocument changes
+  const resetForm = () => {
+    setFormData({
+      project_id: '',
+      document_name: '',
+      document_type: '',
+      description: '',
+      version: '1.0',
+    });
+    setSelectedFiles([]);
+    setFilePreviews([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Load document data for editing
+  const loadDocumentForEdit = (document: Document) => {
+    setFormData({
+      project_id: document.project_id || '',
+      document_name: document.document_name || '',
+      document_type: document.document_type || '',
+      description: document.description || '',
+      version: document.version || '1.0',
+    });
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open) {
-        setFormData({
-          project_id: '',
-          document_name: '',
-          document_type: '',
-          description: '',
-          version: '1.0',
-        });
-        setSelectedFiles([]);
-        setFilePreviews([]);
+        resetForm();
         onClose();
       }
     }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Document</DialogTitle>
+          <DialogTitle>{editingDocument ? 'Edit Document' : 'Add New Document'}</DialogTitle>
           <DialogDescription>
-            Fill in the details below to add a new document to your project.
+            {editingDocument 
+              ? 'Update the document details below.' 
+              : 'Fill in the details below to add a new document to your project.'}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -295,7 +317,7 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={uploading}>
-            {uploading ? 'Adding...' : 'Add Document'}
+            {uploading ? 'Saving...' : (editingDocument ? 'Update Document' : 'Add Document')}
           </Button>
         </div>
       </DialogContent>
