@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Package, ClipboardList } from 'lucide-react';
+import { Plus, Package, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -18,9 +18,6 @@ export default function Deliveries() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showImageDialog, setShowImageDialog] = useState(false);
-  const [selectedDeliveryId, setSelectedDeliveryId] = useState<string>('');
-  const [newRemark, setNewRemark] = useState('');
 
   useEffect(() => {
     fetchProjects();
@@ -103,10 +100,55 @@ export default function Deliveries() {
       setShowAddDialog(false);
       
       // Reset form
-      setNewRemark('');
       fetchDeliveries();
     } catch (error) {
       toast.error('Failed to add delivery');
+    }
+  };
+
+  const handleDeleteDelivery = async (deliveryId: string) => {
+    try {
+      // Get all images for this delivery
+      const { data: images, error: fetchError } = await supabase
+        .from('delivery_images')
+        .select('image_url')
+        .eq('delivery_id', deliveryId);
+
+      if (fetchError) throw fetchError;
+
+      // Delete images from storage
+      if (images && images.length > 0) {
+        for (const image of images) {
+          if (image.image_url) {
+            const filePath = image.image_url.split('/storage/v1/object/public/delivery_images/')[1];
+            if (filePath) {
+              await supabase.storage
+                .from('delivery_images')
+                .remove([filePath]);
+            }
+          }
+        }
+      }
+
+      // Delete images from database
+      await supabase
+        .from('delivery_images')
+        .delete()
+        .eq('delivery_id', deliveryId);
+
+      // Delete delivery
+      const { error: deleteError } = await supabase
+        .from('project_deliveries')
+        .delete()
+        .eq('id', deliveryId);
+
+      if (deleteError) throw deleteError;
+
+      toast.success('Delivery deleted successfully');
+      fetchDeliveries();
+    } catch (error) {
+      console.error('Error deleting delivery:', error);
+      toast.error('Failed to delete delivery');
     }
   };
 
@@ -154,6 +196,7 @@ export default function Deliveries() {
                 key={delivery.id}
                 delivery={delivery}
                 onDeleteImage={deleteDeliveryImage}
+                onDelete={handleDeleteDelivery}
               />
             ))}
           </div>
