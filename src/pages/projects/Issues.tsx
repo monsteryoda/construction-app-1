@@ -178,7 +178,12 @@ export default function Issues() {
       toast.success('Remark added successfully');
       
       // Refresh issues to show the new remark
-      fetchIssues();
+      await fetchIssues();
+      
+      // Clear the input after a short delay to allow the UI to update
+      setTimeout(() => {
+        console.log('[handleAddRemark] Cleared remark input after refresh');
+      }, 500);
     } catch (error) {
       console.error('[handleAddRemark] Error:', error);
       toast.error('Failed to add remark: ' + (error as Error).message);

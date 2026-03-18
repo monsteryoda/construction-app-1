@@ -29,10 +29,12 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
   const [isChangingStatus, setIsChangingStatus] = useState(false);
   const [newRemark, setNewRemark] = useState('');
   const [isAddingRemark, setIsAddingRemark] = useState(false);
+  const [remarkAdded, setRemarkAdded] = useState(false);
 
   // Clear newRemark when issue changes
   useEffect(() => {
     setNewRemark('');
+    setRemarkAdded(false);
     console.log('[IssueCard] Issue changed, cleared newRemark');
   }, [issue.id]);
 
@@ -118,7 +120,8 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
     try {
       setIsAddingRemark(true);
       await onAddRemark(issue.id, newRemark.trim());
-      setNewRemark('');
+      setRemarkAdded(true);
+      // Don't clear newRemark here - let the refresh handle it
     } catch (error) {
       console.error('Error adding remark:', error);
     } finally {
