@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Upload, X, FileText } from 'lucide-react';
+import { Plus, Upload, X, FileText, Paperclip } from 'lucide-react';
 import { toast } from 'sonner';
 import { Project } from './DocumentTypes';
 
@@ -241,25 +241,40 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
                       </Button>
                     </div>
                   ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Attach More Files
+                  </Button>
                 </div>
               ) : (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full h-32 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-slate-50 transition-colors"
-                >
-                  <Upload className="w-10 h-10 text-slate-400 mb-2" />
-                  <p className="text-sm text-slate-500">Click to upload files or drag and drop</p>
-                  <p className="text-xs text-slate-400 mt-1">PDF, DOC, XLS, JPG, PNG up to 50MB each</p>
+                <div className="space-y-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full h-32 flex-col gap-2"
+                  >
+                    <Paperclip className="w-8 h-8 text-slate-400" />
+                    <span className="text-sm text-slate-500">Click to attach files</span>
+                    <span className="text-xs text-slate-400">PDF, DOC, XLS, JPG, PNG up to 50MB each</span>
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    disabled={uploading}
+                  />
                 </div>
               )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                onChange={handleFileSelect}
-                className="hidden"
-                disabled={uploading}
-              />
               {uploading && (
                 <p className="text-sm text-blue-600 mt-2 flex items-center gap-2">
                   <span className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full inline-block"></span>
