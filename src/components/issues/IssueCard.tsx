@@ -130,7 +130,7 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
 
   return (
     <>
-      <Card className="hover:shadow-md transition-shadow border-l-4" style={{ borderLeftColor: issue.severity === 'critical' ? '#ef4444' : issue.severity === 'high' ? '#f97316' : issue.severity === 'medium' ? '#eab308' : '#22c55e' }}>
+      <Card key={issue.id} className="hover:shadow-md transition-shadow border-l-4" style={{ borderLeftColor: issue.severity === 'critical' ? '#ef4444' : issue.severity === 'high' ? '#f97316' : issue.severity === 'medium' ? '#eab308' : '#22c55e' }}>
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
             {getTypeIcon(issue.issue_type)}
