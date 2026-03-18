@@ -141,6 +141,23 @@ export default function Activities() {
     }
   };
 
+  const handleDeleteActivity = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('project_activities')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Activity deleted successfully');
+      fetchActivities();
+    } catch (error) {
+      console.error('[handleDeleteActivity] Error:', error);
+      toast.error('Failed to delete activity');
+    }
+  };
+
   const handleAddRemark = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -215,6 +232,7 @@ export default function Activities() {
                   setShowRemarkDialog(true);
                 }}
                 onDeleteRemark={deleteRemark}
+                onDeleteActivity={handleDeleteActivity}
               />
             ))}
           </div>
