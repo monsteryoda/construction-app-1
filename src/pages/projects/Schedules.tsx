@@ -106,6 +106,52 @@ export default function Schedules() {
     }
   };
 
+  const handleDeleteSchedule = async (scheduleId: string) => {
+    try {
+      // Get all images for this schedule
+      const { data: images, error: fetchError } = await supabase
+        .from('schedule_images')
+        .select('image_url')
+        .eq('schedule_id', scheduleId);
+
+      if (fetchError) throw fetchError;
+
+      // Delete images from storage
+      if (images && images.length > 0) {
+        for (const image of images) {
+          if (image.image_url) {
+            const filePath = image.image_url.split('/storage/v1/object/public/schedule_images/')[1];
+            if (filePath) {
+              await supabase.storage
+                .from('schedule_images')
+                .remove([filePath]);
+            }
+          }
+        }
+      }
+
+      // Delete images from database
+      await supabase
+        .from('schedule_images')
+        .delete()
+        .eq('schedule_id', scheduleId);
+
+      // Delete schedule
+      const { error: deleteError } = await supabase
+        .from('project_schedules')
+        .delete()
+        .eq('id', scheduleId);
+
+      if (deleteError) throw deleteError;
+
+      toast.success('Schedule deleted successfully');
+      fetchSchedules();
+    } catch (error) {
+      console.error('Error deleting schedule:', error);
+      toast.error('Failed to delete schedule');
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6">
@@ -150,6 +196,7 @@ export default function Schedules() {
                 key={schedule.id}
                 schedule={schedule}
                 onDeleteImage={deleteScheduleImage}
+                onDelete={() => handleDeleteSchedule(schedule.id)}
               />
             ))}
           </div>
