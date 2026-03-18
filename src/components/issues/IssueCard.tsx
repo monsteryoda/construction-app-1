@@ -33,7 +33,14 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
   // Clear newRemark when issue changes
   useEffect(() => {
     setNewRemark('');
+    console.log('[IssueCard] Issue changed, cleared newRemark');
   }, [issue.id]);
+
+  // Debug: Log when component renders
+  useEffect(() => {
+    console.log('[IssueCard] Rendering for issue:', issue.id);
+    console.log('[IssueCard] Activity remarks:', issue.activity_remarks);
+  }, [issue.id, issue.activity_remarks]);
 
   const getSeverityColor = (severity: string) => {
     switch (severity.toLowerCase()) {
@@ -213,7 +220,7 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
                 </div>
                 
                 {/* Remarks List */}
-                {issue.activity_remarks && issue.activity_remarks.length > 0 && (
+                {issue.activity_remarks && issue.activity_remarks.length > 0 ? (
                   <div className="space-y-2 mb-4">
                     {issue.activity_remarks.map((remark: Remark) => (
                       <div key={remark.id} className="bg-slate-50 rounded-lg p-3">
@@ -241,6 +248,8 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <p className="text-sm text-slate-500 italic mb-4">No remarks yet</p>
                 )}
 
                 {/* Add Remark Input */}

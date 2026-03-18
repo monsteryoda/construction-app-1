@@ -67,16 +67,25 @@ export default function Issues() {
       // Fetch remarks for each issue
       const issuesWithRemarks = await Promise.all(
         issuesWithImages.map(async (issue) => {
-          const { data: remarks } = await supabase
+          const { data: remarks, error: remarksError } = await supabase
             .from('activity_remarks')
             .select('*')
             .eq('activity_id', issue.id)
             .order('created_at', { ascending: true });
+          
+          if (remarksError) {
+            console.error(`[fetchIssues] Error fetching remarks for issue ${issue.id}:`, remarksError);
+          }
+          
           return { ...issue, activity_remarks: remarks || [] };
         })
       );
 
       console.log('[fetchIssues] Fetched issues with remarks:', issuesWithRemarks.length);
+      issuesWithRemarks.forEach(issue => {
+        console.log(`[fetchIssues] Issue ${issue.id} has ${issue.activity_remarks?.length || 0} remarks`);
+      });
+      
       setIssues(issuesWithRemarks);
     } catch (error) {
       console.error('[fetchIssues] Error:', error);
