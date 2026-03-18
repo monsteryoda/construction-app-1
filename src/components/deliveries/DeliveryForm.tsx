@@ -61,23 +61,40 @@ export default function DeliveryForm({ isOpen, onClose, onSubmit, projects }: De
       }
 
       validFiles.push(file);
+    });
 
-      // Create preview
+    if (validFiles.length === 0) return;
+
+    // Create previews for all valid files
+    let previewsLoaded = 0;
+    validFiles.forEach((file, index) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         validPreviews.push(e.target?.result as string);
-        if (validPreviews.length === validFiles.length) {
+        previewsLoaded++;
+        
+        if (previewsLoaded === validFiles.length) {
           setSelectedImages(prev => [...prev, ...validFiles]);
           setImagePreviews(prev => [...prev, ...validPreviews]);
+          toast.success(`Added ${validFiles.length} image(s)`);
         }
       };
       reader.readAsDataURL(file);
     });
+
+    // Clear the input so the same files can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleRemoveImage = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddMoreImages = () => {
+    fileInputRef.current?.click();
   };
 
   const handleSubmit = async () => {
@@ -256,7 +273,7 @@ export default function DeliveryForm({ isOpen, onClose, onSubmit, projects }: De
             <Label>Attach Images</Label>
             <div className="mt-2">
               {imagePreviews.length > 0 ? (
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4 gap-3">
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative group">
                       <img
@@ -277,11 +294,12 @@ export default function DeliveryForm({ isOpen, onClose, onSubmit, projects }: De
               ) : (
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full h-32 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-slate-50 transition-colors"
+                  className="w-full h-40 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-slate-50 transition-colors"
                 >
-                  <Upload className="w-10 h-10 text-slate-400 mb-2" />
+                  <Upload className="w-12 h-12 text-slate-400 mb-2" />
                   <p className="text-sm text-slate-500">Click to attach images</p>
                   <p className="text-xs text-slate-400 mt-1">PNG, JPG, GIF up to 5MB each</p>
+                  <p className="text-xs text-slate-400 mt-1">You can select multiple images at once</p>
                 </div>
               )}
               <input
@@ -298,6 +316,17 @@ export default function DeliveryForm({ isOpen, onClose, onSubmit, projects }: De
                   <span className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full inline-block"></span>
                   Uploading images...
                 </p>
+              )}
+              {imagePreviews.length > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddMoreImages}
+                  className="w-full mt-3 gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add More Images
+                </Button>
               )}
             </div>
           </div>
