@@ -91,6 +91,10 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleAddMoreImages = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleSubmit = async () => {
     // Validate required fields
     if (!formData.project_id) {
@@ -299,6 +303,17 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
                   <span className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full inline-block"></span>
                   Uploading images...
                 </p>
+              )}
+              {imagePreviews.length > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddMoreImages}
+                  className="w-full mt-3 gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add More Images
+                </Button>
               )}
             </div>
           </div>
