@@ -32,19 +32,6 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark, on
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent':
-        return 'bg-red-100 text-red-700';
-      case 'high':
-        return 'bg-orange-100 text-orange-700';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-700';
-      default:
-        return 'bg-green-100 text-green-700';
-    }
-  };
-
   const handleDeleteRemark = async (remarkId: string) => {
     try {
       await onDeleteRemark(remarkId);
@@ -75,9 +62,6 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark, on
                 <h3 className="text-lg font-semibold text-slate-900">{activity.activity_name}</h3>
                 <Badge className={getStatusColor(activity.status)}>
                   {activity.status}
-                </Badge>
-                <Badge className={getPriorityColor(activity.priority)}>
-                  {activity.priority}
                 </Badge>
               </div>
               
@@ -163,7 +147,7 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark, on
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDeleteRemark(remark.id)}
-                            className="h-6 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="h-6 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
                             <X className="w-3 h-3 mr-1" />
                             Delete

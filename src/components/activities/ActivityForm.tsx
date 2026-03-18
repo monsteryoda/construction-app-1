@@ -25,7 +25,6 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
     activity_date: '',
     end_date: '',
     status: 'pending',
-    priority: 'medium',
     assigned_to: '',
   });
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -108,7 +107,6 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
         activity_date: '',
         end_date: '',
         status: 'pending',
-        priority: 'medium',
         assigned_to: '',
       });
       setSelectedImages([]);
@@ -133,7 +131,6 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
           activity_date: '',
           end_date: '',
           status: 'pending',
-          priority: 'medium',
           assigned_to: '',
         });
         setSelectedImages([]);
@@ -223,29 +220,14 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
             </div>
 
             <div className="space-y-2">
-              <Label>Priority</Label>
-              <select
-                name="priority"
-                value={formData.priority}
+              <Label>Assigned To</Label>
+              <Input
+                name="assigned_to"
+                value={formData.assigned_to}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
-              </select>
+                placeholder="Enter assigned person name"
+              />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Assigned To</Label>
-            <Input
-              name="assigned_to"
-              value={formData.assigned_to}
-              onChange={handleInputChange}
-              placeholder="Enter assigned person name"
-            />
           </div>
 
           <div className="space-y-2">
