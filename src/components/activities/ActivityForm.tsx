@@ -59,18 +59,31 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
       }
 
       validFiles.push(file);
+    });
 
-      // Create preview
+    if (validFiles.length === 0) return;
+
+    // Create previews for all valid files
+    let previewsLoaded = 0;
+    validFiles.forEach((file, index) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         validPreviews.push(e.target?.result as string);
-        if (validPreviews.length === validFiles.length) {
+        previewsLoaded++;
+        
+        if (previewsLoaded === validFiles.length) {
           setSelectedImages(prev => [...prev, ...validFiles]);
           setImagePreviews(prev => [...prev, ...validPreviews]);
+          toast.success(`Added ${validFiles.length} image(s)`);
         }
       };
       reader.readAsDataURL(file);
     });
+
+    // Clear the input so the same files can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleRemoveImage = (index: number) => {
