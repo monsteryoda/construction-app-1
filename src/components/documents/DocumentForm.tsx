@@ -90,6 +90,12 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const handleAttachMoreFiles = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   const handleSubmit = async () => {
     // Validate required fields
     if (!formData.project_id) {
@@ -234,7 +240,7 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={handleAttachMoreFiles}
                     className="w-full gap-2"
                   >
                     <Plus className="w-4 h-4" />
