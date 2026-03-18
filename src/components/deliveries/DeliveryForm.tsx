@@ -22,7 +22,6 @@ export default function DeliveryForm({ isOpen, onClose, onSubmit, projects }: De
     project_id: '',
     delivery_item: '',
     delivery_date: '',
-    expected_date: '',
     status: 'pending',
     quantity: '',
     unit: '',
@@ -117,7 +116,6 @@ export default function DeliveryForm({ isOpen, onClose, onSubmit, projects }: De
         project_id: '',
         delivery_item: '',
         delivery_date: '',
-        expected_date: '',
         status: 'pending',
         quantity: '',
         unit: '',
@@ -142,7 +140,6 @@ export default function DeliveryForm({ isOpen, onClose, onSubmit, projects }: De
           project_id: '',
           delivery_item: '',
           delivery_date: '',
-          expected_date: '',
           status: 'pending',
           quantity: '',
           unit: '',
@@ -185,26 +182,14 @@ export default function DeliveryForm({ isOpen, onClose, onSubmit, projects }: De
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Expected Date</Label>
-              <Input
-                type="date"
-                name="expected_date"
-                value={formData.expected_date}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Delivery Date</Label>
-              <Input
-                type="date"
-                name="delivery_date"
-                value={formData.delivery_date}
-                onChange={handleInputChange}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label>Delivery Date</Label>
+            <Input
+              type="date"
+              name="delivery_date"
+              value={formData.delivery_date}
+              onChange={handleInputChange}
+            />
           </div>
 
           <div className="space-y-2">
