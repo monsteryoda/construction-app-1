@@ -29,8 +29,6 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
     reported_by: '',
     assigned_to: '',
     reported_date: '',
-    resolved_date: '',
-    resolution_notes: '',
   });
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<{name: string, size: number, type: string, preview: string}[]>([]);
@@ -144,8 +142,6 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
         reported_by: '',
         assigned_to: '',
         reported_date: '',
-        resolved_date: '',
-        resolution_notes: '',
       });
       setSelectedImages([]);
       setImagePreviews([]);
@@ -173,8 +169,6 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
           reported_by: '',
           assigned_to: '',
           reported_date: '',
-          resolved_date: '',
-          resolution_notes: '',
         });
         setSelectedImages([]);
         setImagePreviews([]);
@@ -307,36 +301,13 @@ export default function IssueForm({ isOpen, onClose, onSubmit, projects }: Issue
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Reported Date</Label>
-              <Input
-                type="date"
-                name="reported_date"
-                value={formData.reported_date}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Resolved Date</Label>
-              <Input
-                type="date"
-                name="resolved_date"
-                value={formData.resolved_date}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-
           <div className="space-y-2">
-            <Label>Resolution Notes</Label>
-            <Textarea
-              name="resolution_notes"
-              value={formData.resolution_notes}
+            <Label>Reported Date</Label>
+            <Input
+              type="date"
+              name="reported_date"
+              value={formData.reported_date}
               onChange={handleInputChange}
-              placeholder="Enter resolution notes"
-              rows={2}
             />
           </div>
 
