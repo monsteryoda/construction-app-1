@@ -36,6 +36,7 @@ function App() {
           <Route path="/material" element={<Material />} />
           <Route path="/resources/manpower" element={<Manpower />} />
           <Route path="/resources/clock-in-out" element={<ClockInOut />} />
+          <Route path="/resources/material" element={<Material />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </BrowserRouter>
