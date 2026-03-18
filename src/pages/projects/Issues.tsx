@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Plus, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import IssueCard from '@/components/issues/IssueCard';
 import IssueForm from '@/components/issues/IssueForm';
@@ -54,21 +56,28 @@ export default function Issues() {
       // Fetch images for each issue
       const issuesWithImages = await Promise.all(
         (data || []).map(async (issue) => {
-          const { data: images, error: imagesError } = await supabase
+          const { data: images } = await supabase
             .from('issue_images')
             .select('*')
             .eq('issue_id', issue.id);
-
-          if (imagesError) {
-            console.error(`[fetchIssues] Error fetching images for issue ${issue.id}:`, imagesError);
-          }
-
           return { ...issue, images: images || [] };
         })
       );
 
-      console.log('[fetchIssues] Fetched issues with images:', issuesWithImages.length);
-      setIssues(issuesWithImages);
+      // Fetch remarks for each issue
+      const issuesWithRemarks = await Promise.all(
+        issuesWithImages.map(async (issue) => {
+          const { data: remarks } = await supabase
+            .from('activity_remarks')
+            .select('*')
+            .eq('activity_id', issue.id)
+            .order('created_at', { ascending: true });
+          return { ...issue, activity_remarks: remarks || [] };
+        })
+      );
+
+      console.log('[fetchIssues] Fetched issues with remarks:', issuesWithRemarks.length);
+      setIssues(issuesWithRemarks);
     } catch (error) {
       console.error('[fetchIssues] Error:', error);
       toast.error('Failed to fetch issues');
@@ -131,6 +140,61 @@ export default function Issues() {
     }
   };
 
+  const handleAddRemark = async (issueId: string, remark: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('User not authenticated');
+        return;
+      }
+
+      console.log('[handleAddRemark] Adding remark to issue:', issueId);
+      console.log('[handleAddRemark] Remark:', remark);
+      console.log('[handleAddRemark] User ID:', user.id);
+
+      const { error } = await supabase
+        .from('activity_remarks')
+        .insert([{
+          activity_id: issueId,
+          remark: remark,
+          created_by: user.id, // Use user ID instead of email
+        }]);
+
+      if (error) {
+        console.error('[handleAddRemark] Error:', error);
+        throw error;
+      }
+
+      console.log('[handleAddRemark] Remark added successfully');
+      toast.success('Remark added successfully');
+      
+      // Refresh issues to show the new remark
+      fetchIssues();
+    } catch (error) {
+      console.error('[handleAddRemark] Error:', error);
+      toast.error('Failed to add remark: ' + (error as Error).message);
+    }
+  };
+
+  const handleDeleteRemark = async (remarkId: string) => {
+    try {
+      console.log('[handleDeleteRemark] Deleting remark:', remarkId);
+      const { error } = await supabase
+        .from('activity_remarks')
+        .delete()
+        .eq('id', remarkId);
+
+      if (error) throw error;
+
+      console.log('[handleDeleteRemark] Remark deleted successfully');
+      toast.success('Remark deleted successfully');
+      fetchIssues();
+    } catch (error) {
+      console.error('[handleDeleteRemark] Error:', error);
+      toast.error('Failed to delete remark');
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6">
@@ -175,6 +239,8 @@ export default function Issues() {
                 key={issue.id}
                 issue={issue}
                 onDeleteImage={deleteIssueImage}
+                onAddRemark={handleAddRemark}
+                onDeleteRemark={handleDeleteRemark}
               />
             ))}
           </div>
