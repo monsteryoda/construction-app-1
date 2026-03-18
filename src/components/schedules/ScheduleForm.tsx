@@ -245,23 +245,33 @@ export default function ScheduleForm({ isOpen, onClose, onSubmit, projects }: Sc
             <Label>Attach Images</Label>
             <div className="mt-2">
               {imagePreviews.length > 0 ? (
-                <div className="grid grid-cols-3 gap-4">
-                  {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={preview}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg border border-slate-200"
-                      />
-                      <button
-                        onClick={() => handleRemoveImage(index)}
-                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                        type="button"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  <div className="grid grid-cols-3 gap-4">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border border-slate-200"
+                        />
+                        <button
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                          type="button"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="w-full border-dashed"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add More Images
+                  </Button>
                 </div>
               ) : (
                 <div
