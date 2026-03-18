@@ -4,20 +4,31 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Calendar, User, Flag, MessageSquare, Image, X, Eye, Download, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, Calendar, User, Flag, MessageSquare, Image, X, Eye, Download, CheckCircle2, MessageSquare as MessageIcon } from 'lucide-react';
 import { Issue } from './IssueTypes';
 import { deleteIssueImage } from './IssueActions';
+
+interface Remark {
+  id: string;
+  remark: string;
+  created_by: string;
+  created_at: string;
+}
 
 interface IssueCardProps {
   issue: Issue;
   onDeleteImage: (imageId: string) => Promise<void>;
   onStatusChange?: (issueId: string, newStatus: string) => Promise<void>;
+  onAddRemark?: (issueId: string, remark: string) => Promise<void>;
+  onDeleteRemark?: (remarkId: string) => Promise<void>;
 }
 
-export default function IssueCard({ issue, onDeleteImage, onStatusChange }: IssueCardProps) {
+export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddRemark, onDeleteRemark }: IssueCardProps) {
   const [showImageDialog, setShowImageDialog] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isChangingStatus, setIsChangingStatus] = useState(false);
+  const [newRemark, setNewRemark] = useState('');
+  const [isAddingRemark, setIsAddingRemark] = useState(false);
 
   const getSeverityColor = (severity: string) => {
     switch (severity.toLowerCase()) {
@@ -89,6 +100,34 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange }: Issu
     }
   };
 
+  const handleAddRemark = async () => {
+    if (!newRemark.trim() || !onAddRemark || !issue.id) return;
+    
+    try {
+      setIsAddingRemark(true);
+      await onAddRemark(issue.id, newRemark.trim());
+      setNewRemark('');
+    } catch (error) {
+      console.error('Error adding remark:', error);
+    } finally {
+      setIsAddingRemark(false);
+    }
+  };
+
+  const handleDeleteRemark = async (remarkId: string) => {
+    if (!onDeleteRemark) return;
+    
+    try {
+      await onDeleteRemark(remarkId);
+    } catch (error) {
+      console.error('Error deleting remark:', error);
+    }
+  };
+
+  const formatRemarkDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString();
+  };
+
   return (
     <>
       <Card className="hover:shadow-md transition-shadow border-l-4" style={{ borderLeftColor: issue.severity === 'critical' ? '#ef4444' : issue.severity === 'high' ? '#f97316' : issue.severity === 'medium' ? '#eab308' : '#22c55e' }}>
@@ -157,6 +196,67 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange }: Issu
                   </p>
                 </div>
               )}
+
+              {/* Remarks Section */}
+              <div className="mt-6 border-t pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <MessageIcon className="w-5 h-5 text-slate-500" />
+                  <h4 className="font-semibold text-slate-900">Remarks</h4>
+                  <Badge variant="outline" className="ml-auto">
+                    {issue.activity_remarks?.length || 0}
+                  </Badge>
+                </div>
+                
+                {/* Remarks List */}
+                {issue.activity_remarks && issue.activity_remarks.length > 0 && (
+                  <div className="space-y-2 mb-4">
+                    {issue.activity_remarks.map((remark: Remark) => (
+                      <div key={remark.id} className="bg-slate-50 rounded-lg p-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="text-sm text-slate-700">{remark.remark}</p>
+                            <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                              <User className="w-3 h-3" />
+                              <span>{remark.created_by}</span>
+                              <span>•</span>
+                              <span>{formatRemarkDate(remark.created_at)}</span>
+                            </div>
+                          </div>
+                          {onDeleteRemark && (
+                            <button
+                              onClick={() => handleDeleteRemark(remark.id)}
+                              className="p-1 hover:bg-red-100 rounded text-red-500"
+                              title="Delete remark"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add Remark Input */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newRemark}
+                    onChange={(e) => setNewRemark(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddRemark()}
+                    placeholder="Add a remark..."
+                    className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={isAddingRemark}
+                  />
+                  <Button
+                    onClick={handleAddRemark}
+                    disabled={!newRemark.trim() || isAddingRemark}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {isAddingRemark ? 'Adding...' : 'Add'}
+                  </Button>
+                </div>
+              </div>
 
               {/* Display Multiple Images */}
               {issue.images && issue.images.length > 0 && (

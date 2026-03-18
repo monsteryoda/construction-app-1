@@ -37,17 +37,24 @@ export default function Issues() {
             image_url,
             file_name,
             created_at
+          ),
+          activity_remarks (
+            id,
+            remark,
+            created_by,
+            created_at
           )
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Group images by issue_id
+      // Group images and remarks by issue_id
       const issuesWithImages = (data || []).map((issue: any) => ({
         ...issue,
         images: issue.issue_images || [],
-      })).map(({ issue_images, ...issue }) => issue);
+        activity_remarks: issue.activity_remarks || [],
+      })).map(({ issue_images, activity_remarks, ...issue }) => issue);
 
       setIssues(issuesWithImages || []);
     } catch (error) {
@@ -145,6 +152,43 @@ export default function Issues() {
     }
   };
 
+  const handleAddRemark = async (issueId: string, remark: string) => {
+    try {
+      const { error } = await supabase
+        .from('activity_remarks')
+        .insert({
+          activity_id: issueId,
+          remark: remark,
+          created_by: (await supabase.auth.getUser()).data.user?.email || 'Anonymous',
+        });
+
+      if (error) throw error;
+
+      toast.success('Remark added successfully');
+      fetchIssues();
+    } catch (error) {
+      console.error('Error adding remark:', error);
+      toast.error('Failed to add remark');
+    }
+  };
+
+  const handleDeleteRemark = async (remarkId: string) => {
+    try {
+      const { error } = await supabase
+        .from('activity_remarks')
+        .delete()
+        .eq('id', remarkId);
+
+      if (error) throw error;
+
+      toast.success('Remark deleted successfully');
+      fetchIssues();
+    } catch (error) {
+      console.error('Error deleting remark:', error);
+      toast.error('Failed to delete remark');
+    }
+  };
+
   const handleDeleteImage = async (imageId: string) => {
     try {
       const { error } = await supabase
@@ -208,6 +252,8 @@ export default function Issues() {
               issue={issue}
               onDeleteImage={handleDeleteImage}
               onStatusChange={handleStatusChange}
+              onAddRemark={handleAddRemark}
+              onDeleteRemark={handleDeleteRemark}
             />
           ))}
         </div>
