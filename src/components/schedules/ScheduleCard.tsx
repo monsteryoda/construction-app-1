@@ -4,16 +4,16 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Image as ImageIcon, X } from 'lucide-react';
+import { Calendar, Image as ImageIcon, X, Trash2 } from 'lucide-react';
 import { Schedule } from './ScheduleTypes';
-import { deleteScheduleImage } from './ScheduleActions';
 
 interface ScheduleCardProps {
   schedule: Schedule;
   onDeleteImage: (imageId: string) => Promise<void>;
+  onDelete?: () => Promise<void>;
 }
 
-export default function ScheduleCard({ schedule, onDeleteImage }: ScheduleCardProps) {
+export default function ScheduleCard({ schedule, onDeleteImage, onDelete }: ScheduleCardProps) {
   const [showImageDialog, setShowImageDialog] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -38,6 +38,16 @@ export default function ScheduleCard({ schedule, onDeleteImage }: ScheduleCardPr
     }
   };
 
+  const handleDeleteSchedule = async () => {
+    if (window.confirm('Are you sure you want to delete this schedule?')) {
+      try {
+        await onDelete?.();
+      } catch (error) {
+        console.error('Error deleting schedule:', error);
+      }
+    }
+  };
+
   return (
     <>
       <Card className="hover:shadow-md transition-shadow">
@@ -54,9 +64,20 @@ export default function ScheduleCard({ schedule, onDeleteImage }: ScheduleCardPr
                 )}
               </div>
             </div>
-            <Badge className={getStatusColor(schedule.status)}>
-              {schedule.status.replace('_', ' ').toUpperCase()}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge className={getStatusColor(schedule.status)}>
+                {schedule.status.replace('_', ' ').toUpperCase()}
+              </Badge>
+              {onDelete && (
+                <button
+                  onClick={handleDeleteSchedule}
+                  className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors"
+                  title="Delete schedule"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
 
           {schedule.description && (
