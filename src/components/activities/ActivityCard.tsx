@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Plus, Image as ImageIcon, X } from 'lucide-react';
+import { MessageSquare, Plus, Image as ImageIcon, X, Trash2 } from 'lucide-react';
 import { Activity } from './ActivityTypes';
 import { deleteRemark } from './ActivityActions';
 
@@ -12,9 +12,10 @@ interface ActivityCardProps {
   activity: Activity;
   onAddRemark: (id: string) => void;
   onDeleteRemark: (remarkId: string) => Promise<void>;
+  onDeleteActivity?: (id: string) => Promise<void>;
 }
 
-export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: ActivityCardProps) {
+export default function ActivityCard({ activity, onAddRemark, onDeleteRemark, onDeleteActivity }: ActivityCardProps) {
   const [showImageDialog, setShowImageDialog] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -49,6 +50,18 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
       await onDeleteRemark(remarkId);
     } catch (error) {
       console.error('Error deleting remark:', error);
+    }
+  };
+
+  const handleDeleteActivity = async () => {
+    if (!onDeleteActivity) return;
+    
+    if (window.confirm('Are you sure you want to delete this activity? This action cannot be undone.')) {
+      try {
+        await onDeleteActivity(activity.id);
+      } catch (error) {
+        console.error('Error deleting activity:', error);
+      }
     }
   };
 
@@ -163,15 +176,28 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark }: 
               )}
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onAddRemark(activity.id)}
-              className="gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add Remark
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onAddRemark(activity.id)}
+                className="gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Add Remark
+              </Button>
+              
+              {onDeleteActivity && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDeleteActivity}
+                  className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
