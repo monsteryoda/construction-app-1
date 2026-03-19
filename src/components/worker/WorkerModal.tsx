@@ -22,8 +22,7 @@ export default function WorkerModal({ isOpen, onClose, onSuccess }: WorkerModalP
     ic_number: '',
     position: '',
     contact: '',
-    status: 'Active',
-    location: ''
+    status: 'Active'
   });
   const { toast } = useToast();
 
@@ -48,8 +47,7 @@ export default function WorkerModal({ isOpen, onClose, onSuccess }: WorkerModalP
         ic_number: '',
         position: '',
         contact: '',
-        status: 'Active',
-        location: ''
+        status: 'Active'
       });
       onClose();
       onSuccess();
@@ -124,16 +122,6 @@ export default function WorkerModal({ isOpen, onClose, onSuccess }: WorkerModalP
                   onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
                   placeholder="e.g., +6012-3456789"
                   required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="e.g., Site A, Site B"
                 />
               </div>
 
