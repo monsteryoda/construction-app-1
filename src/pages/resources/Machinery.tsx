@@ -38,9 +38,16 @@ export default function Machinery() {
 
   const fetchMachinery = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Please log in to view machinery');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('machinery')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -56,9 +63,16 @@ export default function Machinery() {
     setLoading(true);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Please log in to add equipment');
+        return;
+      }
+
       const { error } = await supabase
         .from('machinery')
         .insert([{
+          user_id: user.id,
           ref: formData.ref,
           no: formData.no,
           plant_machinery: formData.plantMachinery,
