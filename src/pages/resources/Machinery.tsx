@@ -16,6 +16,7 @@ interface Machinery {
   ref: string;
   no: string;
   plant_machinery: string;
+  status: string;
   created_at: string;
   updated_at: string;
 }
@@ -76,6 +77,7 @@ export default function Machinery() {
           ref: formData.ref,
           no: formData.no,
           plant_machinery: formData.plantMachinery,
+          status: 'Available',
         }]);
 
       if (error) throw error;
@@ -96,11 +98,41 @@ export default function Machinery() {
     }
   };
 
+  const updateStatus = async (id: string, status: string) => {
+    try {
+      const { error } = await supabase
+        .from('machinery')
+        .update({ status })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Status updated successfully!');
+      fetchMachinery();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast.error('Failed to update status');
+    }
+  };
+
   // Filter machinery based on search term
   const filteredMachinery = machineryList.filter(item =>
     item.plant_machinery.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.ref.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const getStatusBadge = (status: string) => {
+    const isAvailable = status === 'Available';
+    return (
+      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+        isAvailable 
+          ? 'bg-green-100 text-green-800' 
+          : 'bg-red-100 text-red-800'
+      }`}>
+        {status}
+      </span>
+    );
+  };
 
   return (
     <DashboardLayout>
@@ -141,12 +173,13 @@ export default function Machinery() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">No</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Ref</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Plant & Machinery</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
                   {filteredMachinery.length === 0 ? (
                     <tr>
-                      <td colSpan={3} className="px-4 py-8 text-center text-slate-500">
+                      <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
                         No equipment found. Add your first equipment!
                       </td>
                     </tr>
@@ -161,6 +194,33 @@ export default function Machinery() {
                               <Hammer className="w-5 h-5 text-white" />
                             </div>
                             <span className="text-sm font-medium text-slate-900">{item.plant_machinery}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-4">
+                            {getStatusBadge(item.status)}
+                            <div className="flex items-center gap-2">
+                              <label className="flex items-center gap-1 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name={`status-${item.id}`}
+                                  checked={item.status === 'Available'}
+                                  onChange={() => updateStatus(item.id, 'Available')}
+                                  className="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+                                />
+                                <span className="text-sm text-slate-600">Have</span>
+                              </label>
+                              <label className="flex items-center gap-1 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name={`status-${item.id}`}
+                                  checked={item.status === 'Not Available'}
+                                  onChange={() => updateStatus(item.id, 'Not Available')}
+                                  className="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500"
+                                />
+                                <span className="text-sm text-slate-600">Not Have</span>
+                              </label>
+                            </div>
                           </div>
                         </td>
                       </tr>
