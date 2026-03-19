@@ -344,7 +344,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) => setFormData({ ...formData, date_of_completion: e.target.value })}
                   />
                 </div>
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
                   <Label htmlFor="defect_liability_period">Defect Liability Period (months)</Label>
                   <Input
                     id="defect_liability_period"
