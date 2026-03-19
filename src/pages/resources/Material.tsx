@@ -21,6 +21,8 @@ export default function Material() {
     materialName: '',
     quantity: '',
     unit: '',
+    unitPrice: '',
+    supplier: '',
     status: 'In Stock',
     location: '',
   });
@@ -79,6 +81,8 @@ export default function Material() {
         materialName: '',
         quantity: '',
         unit: '',
+        unitPrice: '',
+        supplier: '',
         status: 'In Stock',
         location: '',
       });
@@ -181,6 +185,28 @@ export default function Material() {
                         value={formData.unit}
                         onChange={(e) => setFormData(prev => ({ ...prev, unit: e.target.value }))}
                         placeholder="Enter unit (e.g., kg, pcs, m)"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Unit Price (RM)</Label>
+                      <Input
+                        value={formData.unitPrice}
+                        onChange={(e) => setFormData(prev => ({ ...prev, unitPrice: e.target.value }))}
+                        placeholder="Enter unit price"
+                        type="number"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Supplier</Label>
+                      <Input
+                        value={formData.supplier}
+                        onChange={(e) => setFormData(prev => ({ ...prev, supplier: e.target.value }))}
+                        placeholder="Enter supplier name"
                       />
                     </div>
                   </div>
