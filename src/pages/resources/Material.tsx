@@ -20,6 +20,7 @@ export default function Material() {
     no: '',
     materialName: '',
     quantity: '',
+    unit: '',
     status: 'In Stock',
     location: '',
   });
@@ -57,7 +58,7 @@ export default function Material() {
         return;
       }
 
-      if (!formData.no || !formData.materialName || !formData.quantity) {
+      if (!formData.no || !formData.materialName || !formData.quantity || !formData.unit) {
         toast.error('Please fill in all required fields');
         return;
       }
@@ -77,6 +78,7 @@ export default function Material() {
         no: '',
         materialName: '',
         quantity: '',
+        unit: '',
         status: 'In Stock',
         location: '',
       });
@@ -163,13 +165,24 @@ export default function Material() {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Quantity *</Label>
-                    <Input
-                      value={formData.quantity}
-                      onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
-                      placeholder="Enter quantity"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Quantity *</Label>
+                      <Input
+                        value={formData.quantity}
+                        onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
+                        placeholder="Enter quantity"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Unit *</Label>
+                      <Input
+                        value={formData.unit}
+                        onChange={(e) => setFormData(prev => ({ ...prev, unit: e.target.value }))}
+                        placeholder="Enter unit (e.g., kg, pcs, m)"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -241,10 +254,14 @@ export default function Material() {
                       {material.status}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="grid grid-cols-3 gap-2 text-sm">
                     <div>
                       <span className="text-slate-500">Quantity:</span>
                       <span className="ml-1 font-medium">{material.quantity}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Unit:</span>
+                      <span className="ml-1 font-medium">{material.unit || 'N/A'}</span>
                     </div>
                     <div>
                       <span className="text-slate-500">Location:</span>
