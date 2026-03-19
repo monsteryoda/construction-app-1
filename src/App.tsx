@@ -37,11 +37,10 @@ function App() {
           <Route path="/projects/schedules" element={<Schedules />} />
           <Route path="/projects/documents" element={<Documents />} />
           <Route path="/projects/issues" element={<Issues />} />
-          <Route path="/machinery" element={<Machinery />} />
-          <Route path="/material" element={<Material />} />
+          <Route path="/resources/machinery" element={<Machinery />} />
+          <Route path="/resources/material" element={<Material />} />
           <Route path="/resources/manpower" element={<Manpower />} />
           <Route path="/resources/clock-in-out" element={<ClockInOut />} />
-          <Route path="/resources/material" element={<Material />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </BrowserRouter>
