@@ -19,7 +19,7 @@ export default function Material() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [formData, setFormData] = useState({
     no: '',
-    type: '',
+    materialName: '',
     description: '',
     quantity: '',
     status: 'In Stock',
@@ -59,7 +59,7 @@ export default function Material() {
         return;
       }
 
-      if (!formData.no || !formData.type || !formData.description || !formData.quantity) {
+      if (!formData.no || !formData.materialName || !formData.description || !formData.quantity) {
         toast.error('Please fill in all required fields');
         return;
       }
@@ -77,7 +77,7 @@ export default function Material() {
       setShowAddDialog(false);
       setFormData({
         no: '',
-        type: '',
+        materialName: '',
         description: '',
         quantity: '',
         status: 'In Stock',
@@ -158,11 +158,11 @@ export default function Material() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Type *</Label>
+                    <Label>Material Name *</Label>
                     <Input
-                      value={formData.type}
-                      onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
-                      placeholder="Enter material type"
+                      value={formData.materialName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, materialName: e.target.value }))}
+                      placeholder="Enter material name"
                     />
                   </div>
 
@@ -248,7 +248,7 @@ export default function Material() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg text-slate-900">{material.no}</h3>
-                      <p className="text-sm text-slate-500">{material.type}</p>
+                      <p className="text-sm text-slate-500">{material.materialName}</p>
                     </div>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(material.status)}`}>
                       {material.status}
