@@ -8,7 +8,6 @@ import { Plus, Package, AlertCircle, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { Material } from '@/components/materials/MaterialTypes';
@@ -20,7 +19,6 @@ export default function Material() {
   const [formData, setFormData] = useState({
     no: '',
     materialName: '',
-    description: '',
     quantity: '',
     status: 'In Stock',
     location: '',
@@ -59,7 +57,7 @@ export default function Material() {
         return;
       }
 
-      if (!formData.no || !formData.materialName || !formData.description || !formData.quantity) {
+      if (!formData.no || !formData.materialName || !formData.quantity) {
         toast.error('Please fill in all required fields');
         return;
       }
@@ -78,7 +76,6 @@ export default function Material() {
       setFormData({
         no: '',
         materialName: '',
-        description: '',
         quantity: '',
         status: 'In Stock',
         location: '',
@@ -167,16 +164,6 @@ export default function Material() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Description *</Label>
-                    <Textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Enter material description"
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
                     <Label>Quantity *</Label>
                     <Input
                       value={formData.quantity}
@@ -254,7 +241,6 @@ export default function Material() {
                       {material.status}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-600 mb-3">{material.description}</p>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <span className="text-slate-500">Quantity:</span>
