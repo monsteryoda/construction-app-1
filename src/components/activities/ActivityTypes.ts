@@ -1,9 +1,8 @@
-export interface Remark {
+"use client";
+
+export interface Project {
   id: string;
-  activity_id: string;
-  remark: string;
-  created_by: string;
-  created_at: string;
+  project_name: string;
 }
 
 export interface ActivityImage {
@@ -14,8 +13,17 @@ export interface ActivityImage {
   created_at: string;
 }
 
+export interface ActivityRemark {
+  id: string;
+  activity_id: string;
+  remark: string;
+  created_by: string;
+  created_at: string;
+}
+
 export interface Activity {
   id: string;
+  user_id: string;
   project_id: string;
   activity_name: string;
   description: string;
@@ -24,11 +32,10 @@ export interface Activity {
   status: string;
   priority: string;
   assigned_to: string;
-  remarks?: Remark[];
+  progress: number;
+  created_at: string;
+  updated_at: string;
+  projects?: Project;
   images?: ActivityImage[];
-}
-
-export interface Project {
-  id: string;
-  project_name: string;
+  remarks?: ActivityRemark[];
 }

@@ -92,6 +92,12 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark, on
                     <span>{activity.assigned_to}</span>
                   </div>
                 )}
+                {activity.progress !== undefined && activity.progress !== null && (
+                  <div className="flex items-center gap-1">
+                    <span className="font-medium">Progress:</span>
+                    <span>{activity.progress}%</span>
+                  </div>
+                )}
               </div>
 
               {/* Images Section */}

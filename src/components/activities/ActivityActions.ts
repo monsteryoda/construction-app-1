@@ -3,54 +3,56 @@
 import { supabase } from '@/integrations/supabase/client';
 
 export const uploadImages = async (activityId: string, userId: string, files: File[]): Promise<number> => {
-  try {
-    const imageUrls: string[] = [];
+  let uploadedCount = 0;
 
-    for (const file of files) {
-      // Convert image to base64
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+  for (const file of files) {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${userId}/activities/${activityId}/${fileName}`;
 
-      // Store image URL in database
-      const { data, error } = await supabase
+      const { error: uploadError } = await supabase.storage
+        .from('activity_images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('[uploadImages] Error uploading file:', uploadError);
+        continue;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('activity_images')
+        .getPublicUrl(filePath);
+
+      const { error: insertError } = await supabase
         .from('activity_images')
         .insert([{
           activity_id: activityId,
-          image_url: base64,
-          file_name: file.name,
-        }])
-        .select()
-        .single();
+          image_url: publicUrl,
+          file_name: fileName,
+        }]);
 
-      if (error) {
-        console.error('Error storing image:', error);
-        throw error;
+      if (insertError) {
+        console.error('[uploadImages] Error inserting image record:', insertError);
+        continue;
       }
 
-      imageUrls.push(base64);
+      uploadedCount++;
+    } catch (error) {
+      console.error('[uploadImages] Error processing file:', error);
     }
-
-    return imageUrls.length;
-  } catch (error) {
-    console.error('[uploadImages] Error:', error);
-    throw error;
   }
+
+  return uploadedCount;
 };
 
 export const deleteRemark = async (remarkId: string): Promise<void> => {
-  try {
-    const { error } = await supabase
-      .from('activity_remarks')
-      .delete()
-      .eq('id', remarkId);
+  const { error } = await supabase
+    .from('activity_remarks')
+    .delete()
+    .eq('id', remarkId);
 
-    if (error) throw error;
-  } catch (error) {
-    console.error('[deleteRemark] Error:', error);
+  if (error) {
     throw error;
   }
 };
