@@ -64,13 +64,13 @@ export default function Issues() {
         })
       );
 
-      // Fetch remarks for each issue from issue_remarks table
+      // Fetch remarks for each issue from activity_remarks table (using activity_id as issue_id)
       const issuesWithRemarks = await Promise.all(
         issuesWithImages.map(async (issue) => {
           const { data: remarks, error: remarksError } = await supabase
-            .from('issue_remarks')
+            .from('activity_remarks')
             .select('*')
-            .eq('issue_id', issue.id)
+            .eq('activity_id', issue.id)  // Using activity_id to reference issue.id
             .order('created_at', { ascending: true });
           
           if (remarksError) {
@@ -161,10 +161,11 @@ export default function Issues() {
       console.log('[handleAddRemark] Remark:', remark);
       console.log('[handleAddRemark] User ID:', user.id);
 
+      // Use activity_remarks table with activity_id = issue.id
       const { error } = await supabase
-        .from('issue_remarks')
+        .from('activity_remarks')
         .insert([{
-          issue_id: issueId,
+          activity_id: issueId,  // Using activity_id to reference issue.id
           remark: remark,
           created_by: user.id,
         }]);
@@ -194,7 +195,7 @@ export default function Issues() {
     try {
       console.log('[handleDeleteRemark] Deleting remark:', remarkId);
       const { error } = await supabase
-        .from('issue_remarks')
+        .from('activity_remarks')
         .delete()
         .eq('id', remarkId);
 
