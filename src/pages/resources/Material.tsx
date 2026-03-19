@@ -18,10 +18,10 @@ export default function Material() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [formData, setFormData] = useState({
     no: '',
-    materialName: '',
+    material_name: '',
     quantity: '',
     unit: '',
-    unitPrice: '',
+    unit_price: '',
     supplier: '',
     status: 'In Stock',
     location: '',
@@ -60,7 +60,7 @@ export default function Material() {
         return;
       }
 
-      if (!formData.no || !formData.materialName || !formData.quantity || !formData.unit) {
+      if (!formData.no || !formData.material_name || !formData.quantity || !formData.unit) {
         toast.error('Please fill in all required fields');
         return;
       }
@@ -78,10 +78,10 @@ export default function Material() {
       setShowAddDialog(false);
       setFormData({
         no: '',
-        materialName: '',
+        material_name: '',
         quantity: '',
         unit: '',
-        unitPrice: '',
+        unit_price: '',
         supplier: '',
         status: 'In Stock',
         location: '',
@@ -163,8 +163,8 @@ export default function Material() {
                   <div className="space-y-2">
                     <Label>Material Name *</Label>
                     <Input
-                      value={formData.materialName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, materialName: e.target.value }))}
+                      value={formData.material_name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, material_name: e.target.value }))}
                       placeholder="Enter material name"
                     />
                   </div>
@@ -193,8 +193,8 @@ export default function Material() {
                     <div className="space-y-2">
                       <Label>Unit Price (RM)</Label>
                       <Input
-                        value={formData.unitPrice}
-                        onChange={(e) => setFormData(prev => ({ ...prev, unitPrice: e.target.value }))}
+                        value={formData.unit_price}
+                        onChange={(e) => setFormData(prev => ({ ...prev, unit_price: e.target.value }))}
                         placeholder="Enter unit price"
                         type="number"
                         step="0.01"
@@ -274,7 +274,7 @@ export default function Material() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg text-slate-900">{material.no}</h3>
-                      <p className="text-sm text-slate-500">{material.materialName}</p>
+                      <p className="text-sm text-slate-500">{material.material_name}</p>
                     </div>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(material.status)}`}>
                       {material.status}
