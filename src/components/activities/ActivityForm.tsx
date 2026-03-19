@@ -26,6 +26,7 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
     end_date: '',
     status: '',
     assigned_to: '',
+    progress: 0,
   });
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -34,7 +35,7 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: name === 'progress' ? parseInt(value) || 0 : value }));
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,6 +131,7 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
         end_date: '',
         status: '',
         assigned_to: '',
+        progress: 0,
       });
       setSelectedImages([]);
       setImagePreviews([]);
@@ -154,6 +156,7 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
           end_date: '',
           status: '',
           assigned_to: '',
+          progress: 0,
         });
         setSelectedImages([]);
         setImagePreviews([]);
@@ -242,23 +245,36 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
             </div>
 
             <div className="space-y-2">
-              <Label>Assigned To</Label>
-              <select
-                name="assigned_to"
-                value={formData.assigned_to}
+              <Label>Progress (%)</Label>
+              <Input
+                type="number"
+                name="progress"
+                value={formData.progress}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select assigned person</option>
-                <option value="John Doe">John Doe</option>
-                <option value="Jane Smith">Jane Smith</option>
-                <option value="Mike Johnson">Mike Johnson</option>
-                <option value="Sarah Williams">Sarah Williams</option>
-                <option value="David Brown">David Brown</option>
-                <option value="Emily Davis">Emily Davis</option>
-                <option value="Custom">Custom</option>
-              </select>
+                min="0"
+                max="100"
+                placeholder="0-100"
+              />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Assigned To</Label>
+            <select
+              name="assigned_to"
+              value={formData.assigned_to}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select assigned person</option>
+              <option value="John Doe">John Doe</option>
+              <option value="Jane Smith">Jane Smith</option>
+              <option value="Mike Johnson">Mike Johnson</option>
+              <option value="Sarah Williams">Sarah Williams</option>
+              <option value="David Brown">David Brown</option>
+              <option value="Emily Davis">Emily Davis</option>
+              <option value="Custom">Custom</option>
+            </select>
           </div>
 
           <div className="space-y-2">
