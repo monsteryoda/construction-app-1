@@ -1,10 +1,11 @@
+"use client";
+
 import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Package, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,7 +22,6 @@ export default function Material() {
     type: '',
     description: '',
     quantity: '',
-    delivery_order_ref: '',
     status: 'In Stock',
     location: '',
   });
@@ -80,7 +80,6 @@ export default function Material() {
         type: '',
         description: '',
         quantity: '',
-        delivery_order_ref: '',
         status: 'In Stock',
         location: '',
       });
@@ -135,94 +134,95 @@ export default function Material() {
           </Button>
         </div>
 
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Material</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>Material No *</Label>
-                <Input
-                  value={formData.no}
-                  onChange={(e) => setFormData(prev => ({ ...prev, no: e.target.value }))}
-                  placeholder="Enter material number"
-                />
-              </div>
+        {showAddDialog && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">Add New Material</h2>
+                    <p className="text-slate-500">Add a new material to your inventory</p>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => setShowAddDialog(false)}>
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label>Material No *</Label>
+                    <Input
+                      value={formData.no}
+                      onChange={(e) => setFormData(prev => ({ ...prev, no: e.target.value }))}
+                      placeholder="Enter material number"
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label>Type *</Label>
-                <Input
-                  value={formData.type}
-                  onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
-                  placeholder="Enter material type"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label>Type *</Label>
+                    <Input
+                      value={formData.type}
+                      onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
+                      placeholder="Enter material type"
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label>Description *</Label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Enter material description"
-                  rows={3}
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label>Description *</Label>
+                    <Textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Enter material description"
+                      rows={3}
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label>Quantity *</Label>
-                <Input
-                  value={formData.quantity}
-                  onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
-                  placeholder="Enter quantity"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label>Quantity *</Label>
+                    <Input
+                      value={formData.quantity}
+                      onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
+                      placeholder="Enter quantity"
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label>Delivery Order Ref</Label>
-                <Input
-                  value={formData.delivery_order_ref}
-                  onChange={(e) => setFormData(prev => ({ ...prev, delivery_order_ref: e.target.value }))}
-                  placeholder="Enter delivery order reference"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label>Status</Label>
+                    <Select
+                      value={formData.status}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="In Stock">In Stock</SelectItem>
+                        <SelectItem value="Low Stock">Low Stock</SelectItem>
+                        <SelectItem value="Out of Stock">Out of Stock</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="In Stock">In Stock</SelectItem>
-                    <SelectItem value="Low Stock">Low Stock</SelectItem>
-                    <SelectItem value="Out of Stock">Out of Stock</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Location</Label>
-                <Input
-                  value={formData.location}
-                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="Enter storage location"
-                />
+                  <div className="space-y-2">
+                    <Label>Location</Label>
+                    <Input
+                      value={formData.location}
+                      onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                      placeholder="Enter storage location"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddMaterial}>
+                    Add Material
+                  </Button>
+                </div>
               </div>
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddMaterial}>
-                Add Material
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+          </div>
+        )}
 
         {loading ? (
           <div className="text-center py-12">
@@ -265,12 +265,6 @@ export default function Material() {
                       <span className="ml-1 font-medium">{material.location || 'N/A'}</span>
                     </div>
                   </div>
-                  {material.delivery_order_ref && (
-                    <div className="mt-2 text-sm">
-                      <span className="text-slate-500">Delivery Ref:</span>
-                      <span className="ml-1 font-medium">{material.delivery_order_ref}</span>
-                    </div>
-                  )}
                   <Button
                     variant="ghost"
                     size="sm"
