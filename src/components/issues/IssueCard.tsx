@@ -121,7 +121,6 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
       setIsAddingRemark(true);
       await onAddRemark(issue.id, newRemark.trim());
       setRemarkAdded(true);
-      // Don't clear newRemark here - let the refresh handle it
     } catch (error) {
       console.error('Error adding remark:', error);
     } finally {
@@ -241,7 +240,7 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
                             <button
                               type="button"
                               onClick={() => handleDeleteRemark(remark.id)}
-                              className="p-1 hover:bg-red-100 rounded text-red-500 z-10"
+                              className="p-1 hover:bg-red-100 rounded text-red-500"
                               title="Delete remark"
                             >
                               <X className="w-4 h-4" />
@@ -268,14 +267,14 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
                       }
                     }}
                     placeholder="Add a remark..."
-                    className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 z-20 relative"
+                    className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     disabled={isAddingRemark}
                   />
                   <Button
                     type="button"
                     onClick={handleAddRemark}
                     disabled={!newRemark.trim() || isAddingRemark}
-                    className="bg-blue-600 hover:bg-blue-700 z-20 relative"
+                    className="bg-blue-600 hover:bg-blue-700"
                   >
                     {isAddingRemark ? 'Adding...' : 'Add'}
                   </Button>
@@ -306,13 +305,13 @@ export default function IssueCard({ issue, onDeleteImage, onStatusChange, onAddR
                         <button
                           type="button"
                           onClick={() => handleDeleteImage(image.id)}
-                          className="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                          className="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                           title="Delete image"
                         >
                           <X className="w-3 h-3" />
                         </button>
                         {/* Download button for each image */}
-                        <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Button
                             type="button"
                             variant="secondary"
