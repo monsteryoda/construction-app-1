@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { MessageSquare, Plus, Image as ImageIcon, X, Trash2 } from 'lucide-react';
 import { Activity } from './ActivityTypes';
 import { deleteRemark } from './ActivityActions';
@@ -93,9 +94,10 @@ export default function ActivityCard({ activity, onAddRemark, onDeleteRemark, on
                   </div>
                 )}
                 {activity.progress !== undefined && activity.progress !== null && (
-                  <div className="flex items-center gap-1">
-                    <span className="font-medium">Progress:</span>
-                    <span>{activity.progress}%</span>
+                  <div className="flex items-center gap-2 w-full max-w-xs">
+                    <span className="font-medium text-slate-700">Progress:</span>
+                    <Progress value={activity.progress} className="flex-1 h-2" />
+                    <span className="text-sm font-medium text-slate-700 w-12 text-right">{activity.progress}%</span>
                   </div>
                 )}
               </div>
