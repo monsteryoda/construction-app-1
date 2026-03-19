@@ -95,7 +95,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <div className="p-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
+            <div className="w-16 h-16 flex items-center justify-center flex-shrink-0">
               <img src="/logo.png" alt="BEENA Logo" className="w-full h-full object-contain" />
             </div>
             <div className="overflow-hidden whitespace-nowrap">
