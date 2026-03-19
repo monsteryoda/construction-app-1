@@ -24,7 +24,6 @@ export default function Material() {
     unit_price: '',
     supplier: '',
     status: 'In Stock',
-    location: '',
   });
 
   useEffect(() => {
@@ -84,7 +83,6 @@ export default function Material() {
         unit_price: '',
         supplier: '',
         status: 'In Stock',
-        location: '',
       });
       fetchMaterials();
     } catch (error) {
@@ -227,15 +225,6 @@ export default function Material() {
                       </SelectContent>
                     </Select>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label>Location</Label>
-                    <Input
-                      value={formData.location}
-                      onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                      placeholder="Enter storage location"
-                    />
-                  </div>
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setShowAddDialog(false)}>
@@ -290,8 +279,8 @@ export default function Material() {
                       <span className="ml-1 font-medium">{material.unit || 'N/A'}</span>
                     </div>
                     <div>
-                      <span className="text-slate-500">Location:</span>
-                      <span className="ml-1 font-medium">{material.location || 'N/A'}</span>
+                      <span className="text-slate-500">Price:</span>
+                      <span className="ml-1 font-medium">RM {material.unit_price || 'N/A'}</span>
                     </div>
                   </div>
                   <Button
