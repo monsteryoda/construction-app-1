@@ -27,6 +27,7 @@ import {
   Hammer,
   Box,
   Clock,
+  ClipboardCheck,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -58,6 +59,7 @@ const navItems: NavItem[] = [
       { label: 'Schedules', path: '/projects/schedules', icon: <Calendar className="w-4 h-4" /> },
       { label: 'Documents', path: '/projects/documents', icon: <FileText className="w-4 h-4" /> },
       { label: 'Issues', path: '/projects/issues', icon: <AlertCircle className="w-4 h-4" /> },
+      { label: 'Inspection', path: '/projects/inspection', icon: <ClipboardCheck className="w-4 h-4" /> },
     ],
   },
   {
