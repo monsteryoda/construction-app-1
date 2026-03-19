@@ -35,7 +35,6 @@ export default function ProjectDetailPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     project_name: '',
-    contract_number: '',
     client: '',
     consultant: '',
     contractor: '',
@@ -70,7 +69,6 @@ export default function ProjectDetailPage() {
         setProject(data);
         setFormData({
           project_name: data.project_name || '',
-          contract_number: data.contract_number || '',
           client: data.client || '',
           consultant: data.consultant || '',
           contractor: data.contractor || '',
@@ -293,14 +291,6 @@ export default function ProjectDetailPage() {
                     id="project_name"
                     value={formData.project_name}
                     onChange={(e) => setFormData({ ...formData, project_name: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contract_number">Contract Number</Label>
-                  <Input
-                    id="contract_number"
-                    value={formData.contract_number}
-                    onChange={(e) => setFormData({ ...formData, contract_number: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
