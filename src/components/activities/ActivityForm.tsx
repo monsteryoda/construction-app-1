@@ -24,7 +24,7 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
     description: '',
     activity_date: '',
     end_date: '',
-    status: 'in_progress',
+    status: '',
     assigned_to: '',
   });
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -112,6 +112,11 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
       return;
     }
 
+    if (!formData.status) {
+      toast.error('Please select a status');
+      return;
+    }
+
     try {
       setUploading(true);
       await onSubmit(formData, selectedImages);
@@ -123,7 +128,7 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
         description: '',
         activity_date: '',
         end_date: '',
-        status: 'in_progress',
+        status: '',
         assigned_to: '',
       });
       setSelectedImages([]);
@@ -147,7 +152,7 @@ export default function ActivityForm({ isOpen, onClose, onSubmit, projects }: Ac
           description: '',
           activity_date: '',
           end_date: '',
-          status: 'in_progress',
+          status: '',
           assigned_to: '',
         });
         setSelectedImages([]);
