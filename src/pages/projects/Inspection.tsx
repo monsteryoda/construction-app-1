@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +30,9 @@ interface Inspection {
 interface Project {
   id: string;
   project_name: string;
+  contractor?: string;
+  client?: string;
+  consultant?: string;
 }
 
 export default function Inspection() {
@@ -41,8 +44,15 @@ export default function Inspection() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [formData, setFormData] = useState({
     project_id: '',
-    inspection_type: '',
+    work_category: '',
+    contractor: '',
+    description: '',
+    zone: '',
+    location: '',
     inspection_date: '',
+    inspection_time: '10:00',
+    intended_date: '',
+    intended_time: '10:00',
     inspector_name: '',
     status: 'pending',
     findings: '',
@@ -63,7 +73,7 @@ export default function Inspection() {
 
       const { data } = await supabase
         .from('projects')
-        .select('id, project_name')
+        .select('id, project_name, contractor, client, consultant')
         .eq('user_id', user.id);
 
       setProjects(data || []);
@@ -145,8 +155,8 @@ export default function Inspection() {
       return;
     }
 
-    if (!formData.inspection_type) {
-      toast.error('Please select inspection type');
+    if (!formData.work_category) {
+      toast.error('Please select work category');
       return;
     }
 
@@ -169,7 +179,7 @@ export default function Inspection() {
         .insert([{
           user_id: user.id,
           project_id: formData.project_id,
-          inspection_type: formData.inspection_type,
+          inspection_type: formData.work_category,
           inspection_date: formData.inspection_date,
           inspector_name: formData.inspector_name,
           status: formData.status,
@@ -183,8 +193,15 @@ export default function Inspection() {
       setShowAddDialog(false);
       setFormData({
         project_id: '',
-        inspection_type: '',
+        work_category: '',
+        contractor: '',
+        description: '',
+        zone: '',
+        location: '',
         inspection_date: '',
+        inspection_time: '10:00',
+        intended_date: '',
+        intended_time: '10:00',
         inspector_name: '',
         status: 'pending',
         findings: '',
@@ -218,6 +235,15 @@ export default function Inspection() {
       default:
         return 'bg-slate-100 text-slate-700';
     }
+  };
+
+  const handleProjectSelect = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    setFormData(prev => ({
+      ...prev,
+      project_id: projectId,
+      contractor: project?.contractor || '',
+    }));
   };
 
   return (
@@ -264,138 +290,242 @@ export default function Inspection() {
 
         {/* Add Inspection Dialog */}
         <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Add New Inspection</DialogTitle>
+              <DialogTitle className="text-center text-lg font-semibold">REQUEST FOR WORK INSPECTION (RWI) FORM</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>Project *</Label>
-                <select
-                  value={formData.project_id}
-                  onChange={(e) => setFormData({ ...formData, project_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select a project</option>
-                  {projects.map(project => (
-                    <option key={project.id} value={project.id}>
-                      {project.project_name}
-                    </option>
-                  ))}
-                </select>
+            <div className="space-y-6 py-4">
+              {/* Company Header */}
+              <div className="text-center border-b-2 border-slate-900 pb-4">
+                <h2 className="text-xl font-bold text-slate-900">UBBIM RESOURCES SDN BHD</h2>
               </div>
 
-              <div className="space-y-2">
-                <Label>Inspection Type *</Label>
-                <select
-                  value={formData.inspection_type}
-                  onChange={(e) => setFormData({ ...formData, inspection_type: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select type</option>
-                  <option value="Safety">Safety Inspection</option>
-                  <option value="Quality">Quality Inspection</option>
-                  <option value="Structural">Structural Inspection</option>
-                  <option value="Electrical">Electrical Inspection</option>
-                  <option value="Plumbing">Plumbing Inspection</option>
-                  <option value="Final">Final Inspection</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Inspection Date *</Label>
-                  <Input
-                    type="date"
-                    value={formData.inspection_date}
-                    onChange={(e) => setFormData({ ...formData, inspection_date: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="on_hold">On Hold</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Inspector Name *</Label>
-                <Input
-                  value={formData.inspector_name}
-                  onChange={(e) => setFormData({ ...formData, inspector_name: e.target.value })}
-                  placeholder="Enter inspector name"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Findings</Label>
-                <Textarea
-                  value={formData.findings}
-                  onChange={(e) => setFormData({ ...formData, findings: e.target.value })}
-                  placeholder="Enter inspection findings..."
-                  rows={4}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Recommendations</Label>
-                <Textarea
-                  value={formData.recommendations}
-                  onChange={(e) => setFormData({ ...formData, recommendations: e.target.value })}
-                  placeholder="Enter recommendations..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Attach Photos</Label>
-                <div className="mt-2">
-                  {imagePreviews.length > 0 ? (
-                    <div className="grid grid-cols-4 gap-3">
-                      {imagePreviews.map((preview, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={preview}
-                            alt={`Preview ${index + 1}`}
-                            className="w-full h-32 object-cover rounded-lg border border-slate-200"
-                          />
-                          <button
-                            onClick={() => handleRemoveImage(index)}
-                            className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                            type="button"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div
-                      onClick={() => document.getElementById('image-upload')?.click()}
-                      className="w-full h-40 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-slate-50 transition-colors"
+              {/* Part A Header */}
+              <div className="border-2 border-slate-900 p-4">
+                <h3 className="font-bold text-sm mb-3 text-center">PART A – REQUEST APPLICATION</h3>
+                
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs">PROJECT</Label>
+                    <select
+                      value={formData.project_id}
+                      onChange={(e) => handleProjectSelect(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     >
-                      <ImageIcon className="w-12 h-12 text-slate-400 mb-2" />
-                      <p className="text-sm text-slate-500">Click to attach photos</p>
-                      <p className="text-xs text-slate-400 mt-1">PNG, JPG, GIF up to 5MB each</p>
-                    </div>
-                  )}
-                  <input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleFileSelect}
-                    className="hidden"
+                      <option value="">Select a project</option>
+                      {projects.map(project => (
+                        <option key={project.id} value={project.id}>
+                          {project.project_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">RWI Serial No</Label>
+                    <Input
+                      placeholder="URSB/KA-T/25/35-51"
+                      className="text-sm"
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Work Category</Label>
+                    <select
+                      value={formData.work_category}
+                      onChange={(e) => setFormData({ ...formData, work_category: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    >
+                      <option value="">Select work category</option>
+                      <option value="FIRE FIGHTING WORK">FIRE FIGHTING WORK</option>
+                      <option value="ELECTRICAL WORK">ELECTRICAL WORK</option>
+                      <option value="PLUMBING WORK">PLUMBING WORK</option>
+                      <option value="STRUCTURAL WORK">STRUCTURAL WORK</option>
+                      <option value="MECHANICAL WORK">MECHANICAL WORK</option>
+                      <option value="ARCHITECTURAL WORK">ARCHITECTURAL WORK</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Contractor (Requestor)</Label>
+                    <Input
+                      value={formData.contractor}
+                      onChange={(e) => setFormData({ ...formData, contractor: e.target.value })}
+                      className="text-sm"
+                      placeholder="Contractor name"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 mb-4">
+                  <Label className="text-xs">Description of Works</Label>
+                  <Textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Describe the work to be inspected..."
+                    rows={3}
+                    className="text-sm"
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Zone</Label>
+                    <Input
+                      value={formData.zone}
+                      onChange={(e) => setFormData({ ...formData, zone: e.target.value })}
+                      placeholder="Zone"
+                      className="text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Location</Label>
+                    <Input
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      placeholder="Location"
+                      className="text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Request Section */}
+              <div className="border-2 border-slate-900 p-4">
+                <h3 className="font-bold text-sm mb-3">Request</h3>
+                
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Requested by</Label>
+                    <Input
+                      value={formData.inspector_name}
+                      onChange={(e) => setFormData({ ...formData, inspector_name: e.target.value })}
+                      placeholder="Inspector name"
+                      className="text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Date</Label>
+                    <Input
+                      type="date"
+                      value={formData.inspection_date}
+                      onChange={(e) => setFormData({ ...formData, inspection_date: e.target.value })}
+                      className="text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Works Ready for Inspection on</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="date"
+                        value={formData.inspection_date}
+                        onChange={(e) => setFormData({ ...formData, inspection_date: e.target.value })}
+                        className="text-sm flex-1"
+                      />
+                      <Input
+                        type="time"
+                        value={formData.inspection_time}
+                        onChange={(e) => setFormData({ ...formData, inspection_time: e.target.value })}
+                        className="text-sm w-24"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Works Intended to commence on</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="date"
+                        value={formData.intended_date}
+                        onChange={(e) => setFormData({ ...formData, intended_date: e.target.value })}
+                        className="text-sm flex-1"
+                      />
+                      <Input
+                        type="time"
+                        value={formData.intended_time}
+                        onChange={(e) => setFormData({ ...formData, intended_time: e.target.value })}
+                        className="text-sm w-24"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Information */}
+              <div className="border-2 border-slate-900 p-4">
+                <h3 className="font-bold text-sm mb-3">Additional Information</h3>
+                
+                <div className="space-y-2 mb-4">
+                  <Label className="text-xs">Findings</Label>
+                  <Textarea
+                    value={formData.findings}
+                    onChange={(e) => setFormData({ ...formData, findings: e.target.value })}
+                    placeholder="Enter inspection findings..."
+                    rows={3}
+                    className="text-sm"
+                  />
+                </div>
+
+                <div className="space-y-2 mb-4">
+                  <Label className="text-xs">Recommendations</Label>
+                  <Textarea
+                    value={formData.recommendations}
+                    onChange={(e) => setFormData({ ...formData, recommendations: e.target.value })}
+                    placeholder="Enter recommendations..."
+                    rows={2}
+                    className="text-sm"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs">Attach Photos</Label>
+                  <div className="mt-2">
+                    {imagePreviews.length > 0 ? (
+                      <div className="grid grid-cols-4 gap-3">
+                        {imagePreviews.map((preview, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={preview}
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-lg border border-slate-200"
+                            />
+                            <button
+                              onClick={() => handleRemoveImage(index)}
+                              className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                              type="button"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => document.getElementById('image-upload')?.click()}
+                        className="w-full h-40 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-slate-50 transition-colors"
+                      >
+                        <ImageIcon className="w-12 h-12 text-slate-400 mb-2" />
+                        <p className="text-sm text-slate-500">Click to attach photos</p>
+                        <p className="text-xs text-slate-400 mt-1">PNG, JPG, GIF up to 5MB each</p>
+                      </div>
+                    )}
+                    <input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
