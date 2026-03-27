@@ -54,12 +54,12 @@ const navItems: NavItem[] = [
     icon: <Building2 className="w-5 h-5" />,
     children: [
       { label: 'Project Details', path: '/projects', icon: <FileText className="w-4 h-4" /> },
+      { label: 'Inspection', path: '/projects/inspection', icon: <ClipboardCheck className="w-4 h-4" /> },
       { label: 'Activities', path: '/projects/activities', icon: <ClipboardList className="w-4 h-4" /> },
       { label: 'Deliveries', path: '/projects/deliveries', icon: <Package className="w-4 h-4" /> },
       { label: 'Schedules', path: '/projects/schedules', icon: <Calendar className="w-4 h-4" /> },
       { label: 'Documents', path: '/projects/documents', icon: <FileText className="w-4 h-4" /> },
       { label: 'Issues', path: '/projects/issues', icon: <AlertCircle className="w-4 h-4" /> },
-      { label: 'Inspection', path: '/projects/inspection', icon: <ClipboardCheck className="w-4 h-4" /> },
     ],
   },
   {
