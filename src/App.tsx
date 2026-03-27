@@ -16,6 +16,7 @@ import Issues from './pages/projects/Issues';
 import Settings from './pages/Settings';
 import Manpower from './pages/resources/Manpower';
 import ClockInOut from './pages/resources/ClockInOut';
+import Inspection from './pages/projects/Inspection';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path="/projects/schedules" element={<Schedules />} />
           <Route path="/projects/documents" element={<Documents />} />
           <Route path="/projects/issues" element={<Issues />} />
+          <Route path="/projects/inspection" element={<Inspection />} />
           <Route path="/resources/machinery" element={<Machinery />} />
           <Route path="/resources/material" element={<Material />} />
           <Route path="/resources/manpower" element={<Manpower />} />
