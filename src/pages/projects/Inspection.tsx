@@ -78,7 +78,7 @@ export default function Inspection() {
       if (!user) return;
 
       const { data, error } = await supabase
-        .from('project_activities')
+        .from('inspections')
         .select('*, projects(project_name)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -165,17 +165,16 @@ export default function Inspection() {
       if (!user) return;
 
       const { error } = await supabase
-        .from('project_activities')
+        .from('inspections')
         .insert([{
           user_id: user.id,
           project_id: formData.project_id,
-          activity_name: `Inspection: ${formData.inspection_type}`,
-          description: formData.findings,
-          activity_date: formData.inspection_date,
-          end_date: formData.inspection_date,
+          inspection_type: formData.inspection_type,
+          inspection_date: formData.inspection_date,
+          inspector_name: formData.inspector_name,
           status: formData.status,
-          assigned_to: formData.inspector_name,
-          progress: 0,
+          findings: formData.findings,
+          recommendations: formData.recommendations,
         }]);
 
       if (error) throw error;
@@ -201,8 +200,9 @@ export default function Inspection() {
   };
 
   const filteredInspections = inspections.filter(inspection => {
-    const matchesSearch = inspection.activity_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         inspection.projects?.project_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = inspection.inspection_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         inspection.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         inspection.inspector_name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'all' || inspection.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
@@ -433,31 +433,31 @@ export default function Inspection() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-slate-900">{inspection.activity_name}</h3>
+                        <h3 className="text-lg font-semibold text-slate-900">{inspection.inspection_type}</h3>
                         <Badge className={getStatusColor(inspection.status)}>
                           {inspection.status}
                         </Badge>
                       </div>
                       
                       <p className="text-sm text-slate-500 mb-3">
-                        {inspection.projects?.project_name || 'No project'}
+                        {inspection.project_name || 'No project'}
                       </p>
                       
-                      {inspection.description && (
+                      {inspection.findings && (
                         <p className="text-sm text-slate-600 mb-4 line-clamp-2">
-                          {inspection.description}
+                          {inspection.findings}
                         </p>
                       )}
 
                       <div className="flex flex-wrap gap-4 text-sm text-slate-500">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          <span>{inspection.activity_date ? new Date(inspection.activity_date).toLocaleDateString() : 'N/A'}</span>
+                          <span>{inspection.inspection_date ? new Date(inspection.inspection_date).toLocaleDateString() : 'N/A'}</span>
                         </div>
-                        {inspection.assigned_to && (
+                        {inspection.inspector_name && (
                           <div className="flex items-center gap-1">
                             <User className="w-4 h-4" />
-                            <span>{inspection.assigned_to}</span>
+                            <span>{inspection.inspector_name}</span>
                           </div>
                         )}
                       </div>
