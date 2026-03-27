@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Badge } from '@/components/ui/badge';
 
 interface Inspection {
   id: string;
@@ -247,19 +247,17 @@ export default function Inspection() {
                   className="pl-10"
                 />
               </div>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-[180px]">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="on_hold">On Hold</SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="w-[180px] px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="on_hold">On Hold</option>
+              </select>
             </div>
           </CardContent>
         </Card>
@@ -295,12 +293,12 @@ export default function Inspection() {
                   className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select type</option>
-                  <SelectItem value="Safety">Safety Inspection</SelectItem>
-                  <SelectItem value="Quality">Quality Inspection</SelectItem>
-                  <SelectItem value="Structural">Structural Inspection</SelectItem>
-                  <SelectItem value="Electrical">Electrical Inspection</SelectItem>
-                  <SelectItem value="Plumbing">Plumbing Inspection</SelectItem>
-                  <SelectItem value="Final">Final Inspection</SelectItem>
+                  <option value="Safety">Safety Inspection</option>
+                  <option value="Quality">Quality Inspection</option>
+                  <option value="Structural">Structural Inspection</option>
+                  <option value="Electrical">Electrical Inspection</option>
+                  <option value="Plumbing">Plumbing Inspection</option>
+                  <option value="Final">Final Inspection</option>
                 </select>
               </div>
 
