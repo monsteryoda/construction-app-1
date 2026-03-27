@@ -43,6 +43,14 @@ interface Project {
   consultant?: string;
 }
 
+interface InspectionImage {
+  id: string;
+  inspection_id: string;
+  image_url: string;
+  file_name: string;
+  created_at: string;
+}
+
 export default function Inspection() {
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -50,6 +58,7 @@ export default function Inspection() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null);
+  const [inspectionImages, setInspectionImages] = useState<InspectionImage[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [formData, setFormData] = useState({
@@ -110,6 +119,21 @@ export default function Inspection() {
       toast.error('Failed to load inspections');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchInspectionImages = async (inspectionId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('inspection_images')
+        .select('*')
+        .eq('inspection_id', inspectionId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setInspectionImages(data || []);
+    } catch (error) {
+      console.error('Error fetching inspection images:', error);
     }
   };
 
@@ -184,7 +208,7 @@ export default function Inspection() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase
+      const { data: inspectionData, error: insertError } = await supabase
         .from('inspections')
         .insert([{
           user_id: user.id,
@@ -195,9 +219,39 @@ export default function Inspection() {
           status: formData.status,
           findings: formData.findings,
           recommendations: formData.recommendations,
-        }]);
+        }])
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (insertError) throw insertError;
+
+      // Upload images if any
+      if (selectedImages.length > 0) {
+        for (const file of selectedImages) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}.${fileExt}`;
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('inspection_images')
+            .upload(`${inspectionData.id}/${fileName}`, file);
+
+          if (uploadError) {
+            console.error('Image upload error:', uploadError);
+            continue;
+          }
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('inspection_images')
+            .getPublicUrl(uploadData.path);
+
+          await supabase
+            .from('inspection_images')
+            .insert([{
+              inspection_id: inspectionData.id,
+              image_url: publicUrl,
+              file_name: fileName,
+            }]);
+        }
+      }
 
       toast.success('Inspection added successfully');
       setShowAddDialog(false);
@@ -226,8 +280,9 @@ export default function Inspection() {
     }
   };
 
-  const handleViewDetails = (inspection: Inspection) => {
+  const handleViewDetails = async (inspection: Inspection) => {
     setSelectedInspection(inspection);
+    await fetchInspectionImages(inspection.id);
     setShowDetailsDialog(true);
   };
 
@@ -727,6 +782,28 @@ export default function Inspection() {
                       disabled
                       rows={2}
                     />
+                  </div>
+
+                  {/* Images Section */}
+                  <div className="space-y-2">
+                    <Label className="text-xs">Inspection Photos</Label>
+                    {inspectionImages.length > 0 ? (
+                      <div className="grid grid-cols-3 gap-4">
+                        {inspectionImages.map((image) => (
+                          <div key={image.id} className="relative group">
+                            <img
+                              src={image.image_url}
+                              alt={image.file_name || 'Inspection photo'}
+                              className="w-full h-48 object-cover rounded-lg border border-slate-200"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-slate-500 bg-slate-50 p-4 rounded-lg text-center">
+                        No photos attached
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
