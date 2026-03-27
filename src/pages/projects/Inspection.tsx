@@ -25,6 +25,14 @@ interface Inspection {
   recommendations: string;
   images?: any[];
   project_name?: string;
+  work_category?: string;
+  contractor?: string;
+  description?: string;
+  zone?: string;
+  location?: string;
+  inspection_time?: string;
+  intended_date?: string;
+  intended_time?: string;
 }
 
 interface Project {
@@ -40,6 +48,8 @@ export default function Inspection() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [formData, setFormData] = useState({
@@ -214,6 +224,11 @@ export default function Inspection() {
       console.error('Error adding inspection:', error);
       toast.error('Failed to add inspection');
     }
+  };
+
+  const handleViewDetails = (inspection: Inspection) => {
+    setSelectedInspection(inspection);
+    setShowDetailsDialog(true);
   };
 
   const filteredInspections = inspections.filter(inspection => {
@@ -538,6 +553,190 @@ export default function Inspection() {
           </DialogContent>
         </Dialog>
 
+        {/* View Details Dialog */}
+        <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+          <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-center text-lg font-semibold">Inspection Details</DialogTitle>
+            </DialogHeader>
+            {selectedInspection && (
+              <div className="space-y-6 py-4">
+                {/* Company Header */}
+                <div className="text-center border-b-2 border-slate-900 pb-4">
+                  <h2 className="text-xl font-bold text-slate-900">UBBIM RESOURCES SDN BHD</h2>
+                </div>
+
+                {/* Part A Header */}
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3 text-center">PART A – REQUEST APPLICATION</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs">PROJECT</Label>
+                      <Input
+                        value={selectedInspection.project_name || 'N/A'}
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs">RWI Serial No</Label>
+                      <Input
+                        placeholder="URSB/KA-T/25/35-51"
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs">Work Category</Label>
+                      <Input
+                        value={selectedInspection.inspection_type || 'N/A'}
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs">Contractor (Requestor)</Label>
+                      <Input
+                        value={selectedInspection.contractor || 'N/A'}
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mb-4">
+                    <Label className="text-xs">Description of Works</Label>
+                    <Textarea
+                      value={selectedInspection.description || 'N/A'}
+                      className="text-sm bg-slate-50"
+                      disabled
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs">Zone</Label>
+                      <Input
+                        value={selectedInspection.zone || 'N/A'}
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs">Location</Label>
+                      <Input
+                        value={selectedInspection.location || 'N/A'}
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Request Section */}
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Request</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs">Requested by</Label>
+                      <Input
+                        value={selectedInspection.inspector_name || 'N/A'}
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs">Date</Label>
+                      <Input
+                        type="date"
+                        value={selectedInspection.inspection_date || ''}
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs">Works Ready for Inspection on</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="date"
+                          value={selectedInspection.inspection_date || ''}
+                          className="text-sm flex-1 bg-slate-50"
+                          disabled
+                        />
+                        <Input
+                          type="time"
+                          value={selectedInspection.inspection_time || '10:00'}
+                          className="text-sm w-24 bg-slate-50"
+                          disabled
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs">Works Intended to commence on</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="date"
+                          value={selectedInspection.intended_date || ''}
+                          className="text-sm flex-1 bg-slate-50"
+                          disabled
+                        />
+                        <Input
+                          type="time"
+                          value={selectedInspection.intended_time || '10:00'}
+                          className="text-sm w-24 bg-slate-50"
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Additional Information */}
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Additional Information</h3>
+                  
+                  <div className="space-y-2 mb-4">
+                    <Label className="text-xs">Findings</Label>
+                    <Textarea
+                      value={selectedInspection.findings || 'N/A'}
+                      className="text-sm bg-slate-50"
+                      disabled
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="space-y-2 mb-4">
+                    <Label className="text-xs">Recommendations</Label>
+                    <Textarea
+                      value={selectedInspection.recommendations || 'N/A'}
+                      className="text-sm bg-slate-50"
+                      disabled
+                      rows={2}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => setShowDetailsDialog(false)}>Close</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Inspections List */}
         {loading ? (
           <div className="text-center py-12">
@@ -598,6 +797,7 @@ export default function Inspection() {
                         variant="outline"
                         size="sm"
                         className="gap-2"
+                        onClick={() => handleViewDetails(inspection)}
                       >
                         <FileText className="w-4 h-4" />
                         View Details
