@@ -270,6 +270,8 @@ export default function Inspection() {
       }
 
       console.log('[handleSubmit] Inspection created:', inspectionData.id);
+      console.log('[handleSubmit] Inspection user_id:', inspectionData.user_id);
+      console.log('[handleSubmit] Current user_id:', user.id);
 
       // Upload images if any
       if (selectedImages.length > 0) {
@@ -300,19 +302,22 @@ export default function Inspection() {
 
           console.log('[handleSubmit] Public URL:', publicUrl);
 
-          const { error: dbError } = await supabase
+          // Insert into database with explicit user_id
+          const { error: dbError, data: dbData } = await supabase
             .from('inspection_images')
             .insert([{
               inspection_id: inspectionData.id,
               image_url: publicUrl,
               file_name: fileName,
-            }]);
+            }])
+            .select();
 
           if (dbError) {
             console.error('[handleSubmit] Error saving image to DB:', dbError);
+            console.error('[handleSubmit] DB Error details:', JSON.stringify(dbError, null, 2));
             failedCount++;
           } else {
-            console.log('[handleSubmit] Image saved to DB');
+            console.log('[handleSubmit] Image saved to DB:', dbData);
             uploadedCount++;
           }
         }
