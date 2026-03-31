@@ -130,10 +130,15 @@ export default function Inspection() {
         .eq('inspection_id', inspectionId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching inspection images:', error);
+        setInspectionImages([]);
+        return;
+      }
       setInspectionImages(data || []);
     } catch (error) {
       console.error('Error fetching inspection images:', error);
+      setInspectionImages([]);
     }
   };
 
