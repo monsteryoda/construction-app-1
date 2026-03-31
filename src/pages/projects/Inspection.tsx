@@ -114,6 +114,7 @@ export default function Inspection() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log('[fetchInspections] Total inspections:', data?.length);
       setInspections(data || []);
     } catch (error) {
       console.error('Error fetching inspections:', error);
