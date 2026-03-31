@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText, ChevronRight, RefreshCw } from 'lucide-react';
+import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
@@ -129,7 +129,7 @@ export default function Inspection() {
       console.log('[fetchInspectionImages] Starting fetch for inspection:', inspectionId);
       setImagesLoading(true);
       
-      // First, let's check if the inspection exists
+      // Check if the inspection exists
       const { data: inspectionData, error: inspectionError } = await supabase
         .from('inspections')
         .select('id, user_id')
@@ -145,7 +145,7 @@ export default function Inspection() {
 
       console.log('[fetchInspectionImages] Inspection found:', inspectionData);
 
-      // Now fetch images
+      // Fetch images from database
       const { data, error } = await supabase
         .from('inspection_images')
         .select('*')
@@ -154,7 +154,6 @@ export default function Inspection() {
 
       if (error) {
         console.error('[fetchInspectionImages] Error fetching images:', error);
-        console.error('[fetchInspectionImages] Error details:', JSON.stringify(error, null, 2));
         setInspectionImages([]);
         toast.error('Failed to load images');
         return;
@@ -360,14 +359,6 @@ export default function Inspection() {
     setInspectionImages([]); // Clear previous images
     await fetchInspectionImages(inspection.id);
     setShowDetailsDialog(true);
-  };
-
-  const handleRefreshImages = async () => {
-    if (!selectedInspection?.id) return;
-    
-    console.log('[handleRefreshImages] Refreshing images for inspection:', selectedInspection.id);
-    await fetchInspectionImages(selectedInspection.id);
-    toast.success('Images refreshed');
   };
 
   const filteredInspections = inspections.filter(inspection => {
@@ -876,19 +867,7 @@ export default function Inspection() {
 
                   {/* Images Section */}
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs">Inspection Photos</Label>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRefreshImages}
-                        disabled={imagesLoading}
-                        className="gap-2"
-                      >
-                        <RefreshCw className={`w-4 h-4 ${imagesLoading ? 'animate-spin' : ''}`} />
-                        Refresh
-                      </Button>
-                    </div>
+                    <Label className="text-xs">Inspection Photos</Label>
                     {imagesLoading ? (
                       <div className="text-center py-8">
                         <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
