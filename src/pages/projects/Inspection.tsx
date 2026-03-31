@@ -429,7 +429,6 @@ export default function Inspection() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Inspection Details */}
           <Card className="lg:col-span-2">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -538,7 +537,6 @@ export default function Inspection() {
             </CardContent>
           </Card>
 
-          {/* Inspection Summary */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -583,7 +581,6 @@ export default function Inspection() {
           </Card>
         </div>
 
-        {/* Inspection Photos */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -675,7 +672,6 @@ export default function Inspection() {
           </CardContent>
         </Card>
 
-        {/* Remarks Section */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -731,7 +727,6 @@ export default function Inspection() {
           </CardContent>
         </Card>
 
-        {/* Add Remark Dialog */}
         {showRemarkDialog && (
           <div
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
@@ -777,7 +772,6 @@ export default function Inspection() {
           </div>
         )}
 
-        {/* Image Preview Dialog */}
         {showImageDialog && (previewImages.length > 0 || inspection.images?.length > 0) && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
