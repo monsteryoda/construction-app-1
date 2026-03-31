@@ -875,7 +875,6 @@ export default function Inspection() {
                       <div className="text-sm text-slate-500 bg-slate-50 p-4 rounded-lg text-center">
                         <AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-400" />
                         <p>No photos attached</p>
-                        <p className="text-xs mt-2">Check browser console for debugging info</p>
                       </div>
                     )}
                   </div>
