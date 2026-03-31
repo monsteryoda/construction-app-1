@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText, ChevronRight } from 'lucide-react';
+import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText, ChevronRight, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
@@ -829,7 +829,19 @@ export default function Inspection() {
 
                   {/* Images Section */}
                   <div className="space-y-2">
-                    <Label className="text-xs">Inspection Photos</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">Inspection Photos</Label>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fetchInspectionImages(selectedInspection.id)}
+                        disabled={imagesLoading}
+                        className="gap-1"
+                      >
+                        <RefreshCw className={`w-3 h-3 ${imagesLoading ? 'animate-spin' : ''}`} />
+                        Refresh
+                      </Button>
+                    </div>
                     {imagesLoading ? (
                       <div className="text-center py-8">
                         <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
@@ -851,6 +863,7 @@ export default function Inspection() {
                       <div className="text-sm text-slate-500 bg-slate-50 p-4 rounded-lg text-center">
                         <AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-400" />
                         <p>No photos attached</p>
+                        <p className="text-xs mt-2">Check browser console for debugging info</p>
                       </div>
                     )}
                   </div>
