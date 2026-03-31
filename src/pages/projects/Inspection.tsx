@@ -125,9 +125,26 @@ export default function Inspection() {
 
   const fetchInspectionImages = async (inspectionId: string) => {
     try {
-      console.log('[fetchInspectionImages] Fetching images for inspection:', inspectionId);
+      console.log('[fetchInspectionImages] Starting fetch for inspection:', inspectionId);
       setImagesLoading(true);
       
+      // First, let's check if the inspection exists
+      const { data: inspectionData, error: inspectionError } = await supabase
+        .from('inspections')
+        .select('id, user_id')
+        .eq('id', inspectionId)
+        .single();
+
+      if (inspectionError) {
+        console.error('[fetchInspectionImages] Inspection not found:', inspectionError);
+        setInspectionImages([]);
+        toast.error('Inspection not found');
+        return;
+      }
+
+      console.log('[fetchInspectionImages] Inspection found:', inspectionData);
+
+      // Now fetch images
       const { data, error } = await supabase
         .from('inspection_images')
         .select('*')
@@ -136,6 +153,7 @@ export default function Inspection() {
 
       if (error) {
         console.error('[fetchInspectionImages] Error fetching images:', error);
+        console.error('[fetchInspectionImages] Error details:', JSON.stringify(error, null, 2));
         setInspectionImages([]);
         toast.error('Failed to load images');
         return;
@@ -143,6 +161,12 @@ export default function Inspection() {
       
       console.log('[fetchInspectionImages] Fetched images:', data);
       console.log('[fetchInspectionImages] Image count:', data?.length);
+      
+      if (data && data.length > 0) {
+        console.log('[fetchInspectionImages] First image:', data[0]);
+        console.log('[fetchInspectionImages] First image URL:', data[0].image_url?.substring(0, 100) + '...');
+      }
+      
       setInspectionImages(data || []);
     } catch (error) {
       console.error('[fetchInspectionImages] Error:', error);
