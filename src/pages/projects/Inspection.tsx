@@ -307,7 +307,9 @@ export default function Inspection() {
   };
 
   const handleViewDetails = async (inspection: Inspection) => {
+    console.log('[handleViewDetails] Opening details for inspection:', inspection.id);
     setSelectedInspection(inspection);
+    setInspectionImages([]); // Clear previous images
     await fetchInspectionImages(inspection.id);
     setShowDetailsDialog(true);
   };
