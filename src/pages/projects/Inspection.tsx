@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText, ChevronRight } from 'lucide-react';
+import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText, ChevronRight, Database } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
@@ -366,6 +366,38 @@ export default function Inspection() {
     setShowDetailsDialog(true);
   };
 
+  const handleFixRLSPolicy = async () => {
+    try {
+      toast.loading('Fixing RLS policy...');
+      
+      // Drop the old policy with the typo
+      await supabase.rpc('drop_policy', {
+        policy_name: 'Users can insert own inspection images',
+        table_name: 'inspection_images'
+      });
+
+      // Create the correct policy
+      const { error } = await supabase.rpc('create_policy', {
+        policy_name: 'Users can insert own inspection images',
+        table_name: 'inspection_images',
+        policy_type: 'INSERT',
+        using_clause: '(auth.uid() = (SELECT user_id FROM inspections WHERE id = inspection_images.inspection_id))',
+        with_check_clause: '(auth.uid() = (SELECT user_id FROM inspections WHERE id = inspection_images.inspection_id))'
+      });
+
+      if (error) {
+        console.error('[handleFixRLSPolicy] Error:', error);
+        toast.error('Failed to fix RLS policy');
+        return;
+      }
+
+      toast.success('RLS policy fixed! Try adding an inspection with photos again.');
+    } catch (error) {
+      console.error('[handleFixRLSPolicy] Error:', error);
+      toast.error('Failed to fix RLS policy');
+    }
+  };
+
   const filteredInspections = inspections.filter(inspection => {
     const matchesSearch = inspection.inspection_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          inspection.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -404,10 +436,21 @@ export default function Inspection() {
             <h1 className="text-3xl font-bold text-slate-900">Inspections</h1>
             <p className="text-slate-500 mt-1">Track and manage project inspections</p>
           </div>
-          <Button onClick={() => setShowAddDialog(true)} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Add Inspection
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleFixRLSPolicy}
+              className="gap-2"
+            >
+              <Database className="w-4 h-4" />
+              Fix RLS Policy
+            </Button>
+            <Button onClick={() => setShowAddDialog(true)} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Add Inspection
+            </Button>
+          </div>
         </div>
 
         {/* Search and Filter */}
