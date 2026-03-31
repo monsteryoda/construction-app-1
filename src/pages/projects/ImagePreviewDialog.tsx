@@ -18,7 +18,7 @@ export default function ImagePreviewDialog({
   onPrevious,
   onNext,
 }: ImagePreviewDialogProps) {
-  if (!isOpen || !images || images.length === 0) return null;
+  if (!isOpen || images.length === 0) return null;
 
   return (
     <div
