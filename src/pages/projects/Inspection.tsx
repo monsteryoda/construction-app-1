@@ -59,6 +59,7 @@ export default function Inspection() {
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null);
   const [inspectionImages, setInspectionImages] = useState<InspectionImage[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [formData, setFormData] = useState({
@@ -125,6 +126,8 @@ export default function Inspection() {
   const fetchInspectionImages = async (inspectionId: string) => {
     try {
       console.log('[fetchInspectionImages] Fetching images for inspection:', inspectionId);
+      setImagesLoading(true);
+      
       const { data, error } = await supabase
         .from('inspection_images')
         .select('*')
@@ -134,13 +137,19 @@ export default function Inspection() {
       if (error) {
         console.error('[fetchInspectionImages] Error fetching images:', error);
         setInspectionImages([]);
+        toast.error('Failed to load images');
         return;
       }
+      
       console.log('[fetchInspectionImages] Fetched images:', data);
+      console.log('[fetchInspectionImages] Image count:', data?.length);
       setInspectionImages(data || []);
     } catch (error) {
       console.error('[fetchInspectionImages] Error:', error);
       setInspectionImages([]);
+      toast.error('Error loading images');
+    } finally {
+      setImagesLoading(false);
     }
   };
 
@@ -821,7 +830,12 @@ export default function Inspection() {
                   {/* Images Section */}
                   <div className="space-y-2">
                     <Label className="text-xs">Inspection Photos</Label>
-                    {inspectionImages.length > 0 ? (
+                    {imagesLoading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
+                        <p className="text-sm text-slate-500">Loading images...</p>
+                      </div>
+                    ) : inspectionImages.length > 0 ? (
                       <div className="grid grid-cols-3 gap-4">
                         {inspectionImages.map((image) => (
                           <div key={image.id} className="relative group">
@@ -835,7 +849,8 @@ export default function Inspection() {
                       </div>
                     ) : (
                       <div className="text-sm text-slate-500 bg-slate-50 p-4 rounded-lg text-center">
-                        No photos attached
+                        <AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                        <p>No photos attached</p>
                       </div>
                     )}
                   </div>
