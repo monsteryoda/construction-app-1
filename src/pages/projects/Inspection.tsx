@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText, ChevronRight } from 'lucide-react';
+import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText, ChevronRight, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
@@ -275,6 +275,9 @@ export default function Inspection() {
       // Upload images if any
       if (selectedImages.length > 0) {
         console.log('[handleSubmit] Uploading', selectedImages.length, 'images...');
+        let uploadedCount = 0;
+        let failedCount = 0;
+
         for (const file of selectedImages) {
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}.${fileExt}`;
@@ -286,6 +289,7 @@ export default function Inspection() {
 
           if (uploadError) {
             console.error('[handleSubmit] Image upload error:', uploadError);
+            failedCount++;
             continue;
           }
 
@@ -307,13 +311,23 @@ export default function Inspection() {
 
           if (dbError) {
             console.error('[handleSubmit] Error saving image to DB:', dbError);
+            failedCount++;
           } else {
             console.log('[handleSubmit] Image saved to DB');
+            uploadedCount++;
           }
         }
+
+        if (uploadedCount > 0) {
+          toast.success(`${uploadedCount} image(s) uploaded successfully`);
+        }
+        if (failedCount > 0) {
+          toast.warning(`${failedCount} image(s) failed to upload`);
+        }
+      } else {
+        toast.success('Inspection added successfully');
       }
 
-      toast.success('Inspection added successfully');
       setShowAddDialog(false);
       setFormData({
         project_id: '',
@@ -346,6 +360,14 @@ export default function Inspection() {
     setInspectionImages([]); // Clear previous images
     await fetchInspectionImages(inspection.id);
     setShowDetailsDialog(true);
+  };
+
+  const handleRefreshImages = async () => {
+    if (!selectedInspection?.id) return;
+    
+    console.log('[handleRefreshImages] Refreshing images for inspection:', selectedInspection.id);
+    await fetchInspectionImages(selectedInspection.id);
+    toast.success('Images refreshed');
   };
 
   const filteredInspections = inspections.filter(inspection => {
@@ -854,7 +876,19 @@ export default function Inspection() {
 
                   {/* Images Section */}
                   <div className="space-y-2">
-                    <Label className="text-xs">Inspection Photos</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">Inspection Photos</Label>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRefreshImages}
+                        disabled={imagesLoading}
+                        className="gap-2"
+                      >
+                        <RefreshCw className={`w-4 h-4 ${imagesLoading ? 'animate-spin' : ''}`} />
+                        Refresh
+                      </Button>
+                    </div>
                     {imagesLoading ? (
                       <div className="text-center py-8">
                         <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
