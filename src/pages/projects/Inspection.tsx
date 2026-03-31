@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -389,6 +389,9 @@ export default function Inspection() {
           <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-center text-lg font-semibold">REQUEST FOR WORK INSPECTION (RWI) FORM</DialogTitle>
+              <DialogDescription>
+                Fill in the inspection request form below to submit a work inspection request.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-6 py-4">
               {/* Company Header */}
@@ -639,6 +642,9 @@ export default function Inspection() {
           <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-center text-lg font-semibold">Inspection Details</DialogTitle>
+              <DialogDescription>
+                View the complete inspection request details and attached photos.
+              </DialogDescription>
             </DialogHeader>
             {selectedInspection && (
               <div className="space-y-6 py-4">
