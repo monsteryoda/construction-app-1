@@ -124,6 +124,7 @@ export default function Inspection() {
 
   const fetchInspectionImages = async (inspectionId: string) => {
     try {
+      console.log('[fetchInspectionImages] Fetching images for inspection:', inspectionId);
       const { data, error } = await supabase
         .from('inspection_images')
         .select('*')
@@ -131,13 +132,14 @@ export default function Inspection() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching inspection images:', error);
+        console.error('[fetchInspectionImages] Error fetching images:', error);
         setInspectionImages([]);
         return;
       }
+      console.log('[fetchInspectionImages] Fetched images:', data);
       setInspectionImages(data || []);
     } catch (error) {
-      console.error('Error fetching inspection images:', error);
+      console.error('[fetchInspectionImages] Error:', error);
       setInspectionImages([]);
     }
   };
@@ -213,6 +215,7 @@ export default function Inspection() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      console.log('[handleSubmit] Creating inspection...');
       const { data: inspectionData, error: insertError } = await supabase
         .from('inspections')
         .insert([{
@@ -228,33 +231,51 @@ export default function Inspection() {
         .select()
         .single();
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error('[handleSubmit] Error creating inspection:', insertError);
+        throw insertError;
+      }
+
+      console.log('[handleSubmit] Inspection created:', inspectionData.id);
 
       // Upload images if any
       if (selectedImages.length > 0) {
+        console.log('[handleSubmit] Uploading', selectedImages.length, 'images...');
         for (const file of selectedImages) {
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}.${fileExt}`;
+          
+          console.log('[handleSubmit] Uploading file:', fileName);
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('inspection_images')
             .upload(`${inspectionData.id}/${fileName}`, file);
 
           if (uploadError) {
-            console.error('Image upload error:', uploadError);
+            console.error('[handleSubmit] Image upload error:', uploadError);
             continue;
           }
 
+          console.log('[handleSubmit] File uploaded:', uploadData.path);
+          
           const { data: { publicUrl } } = supabase.storage
             .from('inspection_images')
             .getPublicUrl(uploadData.path);
 
-          await supabase
+          console.log('[handleSubmit] Public URL:', publicUrl);
+
+          const { error: dbError } = await supabase
             .from('inspection_images')
             .insert([{
               inspection_id: inspectionData.id,
               image_url: publicUrl,
               file_name: fileName,
             }]);
+
+          if (dbError) {
+            console.error('[handleSubmit] Error saving image to DB:', dbError);
+          } else {
+            console.log('[handleSubmit] Image saved to DB');
+          }
         }
       }
 
@@ -280,7 +301,7 @@ export default function Inspection() {
       setImagePreviews([]);
       fetchInspections();
     } catch (error) {
-      console.error('Error adding inspection:', error);
+      console.error('[handleSubmit] Error:', error);
       toast.error('Failed to add inspection');
     }
   };
