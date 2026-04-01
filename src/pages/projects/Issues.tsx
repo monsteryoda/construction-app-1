@@ -70,7 +70,7 @@ export default function Issues() {
           const { data: remarks, error: remarksError } = await supabase
             .from('activity_remarks')
             .select('*')
-            .eq('activity_id', issue.id)  // Using activity_id to reference issue.id
+            .eq('activity_id', issue.id)
             .order('created_at', { ascending: true });
           
           if (remarksError) {
@@ -81,11 +81,6 @@ export default function Issues() {
         })
       );
 
-      console.log('[fetchIssues] Fetched issues with remarks:', issuesWithRemarks.length);
-      issuesWithRemarks.forEach(issue => {
-        console.log(`[fetchIssues] Issue ${issue.id} has ${issue.activity_remarks?.length || 0} remarks`);
-      });
-      
       setIssues(issuesWithRemarks);
     } catch (error) {
       console.error('[fetchIssues] Error:', error);
@@ -102,10 +97,6 @@ export default function Issues() {
         toast.error('User not authenticated');
         return;
       }
-
-      console.log('[handleAddIssue] Creating issue with', images.length, 'images');
-      console.log('[handleAddIssue] Issue data:', issue);
-      console.log('[handleAddIssue] Images array:', images);
 
       // Validate images
       if (images.length === 0) {
@@ -128,13 +119,9 @@ export default function Issues() {
         throw new Error(`Failed to create issue: ${issueError.message}`);
       }
 
-      console.log('[handleAddIssue] Issue created:', issueData.id);
-
       // Then upload images if any
       if (images.length > 0 && issueData) {
-        console.log('[handleAddIssue] Uploading', images.length, 'images...');
         const uploadedUrls = await uploadImages(issueData.id, user.id, images);
-        console.log('[handleAddIssue] Uploaded', uploadedUrls.length, 'images');
         toast.success(`${uploadedUrls.length} image(s) uploaded successfully`);
       }
 
@@ -149,6 +136,40 @@ export default function Issues() {
     }
   };
 
+  const handleStatusChange = async (issueId: string, newStatus: string) => {
+    try {
+      console.log('[handleStatusChange] Changing status for issue:', issueId, 'to:', newStatus);
+      
+      const updateData: any = {
+        status: newStatus,
+      };
+
+      // If resolving, add resolved date
+      if (newStatus === 'resolved') {
+        updateData.resolved_date = new Date().toISOString().split('T')[0];
+      }
+
+      const { error } = await supabase
+        .from('project_issues')
+        .update(updateData)
+        .eq('id', issueId);
+
+      if (error) {
+        console.error('[handleStatusChange] Error:', error);
+        throw error;
+      }
+
+      console.log('[handleStatusChange] Status changed successfully');
+      toast.success('Issue marked as resolved');
+      
+      // Refresh issues to show the new status
+      await fetchIssues();
+    } catch (error) {
+      console.error('[handleStatusChange] Error:', error);
+      toast.error('Failed to update issue status');
+    }
+  };
+
   const handleAddRemark = async (issueId: string, remark: string) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -157,15 +178,11 @@ export default function Issues() {
         return;
       }
 
-      console.log('[handleAddRemark] Adding remark to issue:', issueId);
-      console.log('[handleAddRemark] Remark:', remark);
-      console.log('[handleAddRemark] User ID:', user.id);
-
       // Use activity_remarks table with activity_id = issue.id
       const { error } = await supabase
         .from('activity_remarks')
         .insert([{
-          activity_id: issueId,  // Using activity_id to reference issue.id
+          activity_id: issueId,
           remark: remark,
           created_by: user.id,
         }]);
@@ -175,16 +192,10 @@ export default function Issues() {
         throw error;
       }
 
-      console.log('[handleAddRemark] Remark added successfully');
       toast.success('Remark added successfully');
       
       // Refresh issues to show the new remark
       await fetchIssues();
-      
-      // Clear the input after a short delay to allow the UI to update
-      setTimeout(() => {
-        console.log('[handleAddRemark] Cleared remark input after refresh');
-      }, 500);
     } catch (error) {
       console.error('[handleAddRemark] Error:', error);
       toast.error('Failed to add remark: ' + (error as Error).message);
@@ -193,7 +204,6 @@ export default function Issues() {
 
   const handleDeleteRemark = async (remarkId: string) => {
     try {
-      console.log('[handleDeleteRemark] Deleting remark:', remarkId);
       const { error } = await supabase
         .from('activity_remarks')
         .delete()
@@ -201,7 +211,6 @@ export default function Issues() {
 
       if (error) throw error;
 
-      console.log('[handleDeleteRemark] Remark deleted successfully');
       toast.success('Remark deleted successfully');
       fetchIssues();
     } catch (error) {
@@ -254,6 +263,7 @@ export default function Issues() {
                 key={issue.id}
                 issue={issue}
                 onDeleteImage={deleteIssueImage}
+                onStatusChange={handleStatusChange}
                 onAddRemark={handleAddRemark}
                 onDeleteRemark={handleDeleteRemark}
               />
