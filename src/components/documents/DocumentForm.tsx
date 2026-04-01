@@ -17,7 +17,7 @@ interface DocumentFormProps {
   projects: Project[];
 }
 
-const DocumentForm: React.FC<DocumentFormProps> = ({ isOpen, onClose, onSubmit, projects }) => {
+export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: DocumentFormProps) {
   const [formData, setFormData] = useState({
     project_id: '',
     document_name: '',
@@ -261,6 +261,4 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ isOpen, onClose, onSubmit, 
       </DialogContent>
     </Dialog>
   );
-};
-
-export default DocumentForm;
+}
