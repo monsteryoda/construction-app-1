@@ -57,6 +57,17 @@ interface InspectionImage {
   created_at: string;
 }
 
+interface InspectionChecklist {
+  id: string;
+  inspection_id: string;
+  work_category: string;
+  checklist_data: {
+    [key: string]: boolean;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
 export default function Inspection() {
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -121,6 +132,7 @@ export default function Inspection() {
     reviewedBy: '',
     approvedBy: '',
   });
+  const [checklistLoading, setChecklistLoading] = useState(false);
 
   useEffect(() => {
     fetchProjects();
@@ -283,6 +295,55 @@ export default function Inspection() {
     }
   };
 
+  const fetchChecklist = async (inspectionId: string) => {
+    try {
+      setChecklistLoading(true);
+      
+      const { data, error } = await supabase
+        .from('inspection_checklists')
+        .select('*')
+        .eq('inspection_id', inspectionId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching checklist:', error);
+        return;
+      }
+
+      if (data) {
+        if (data.work_category === 'PILING WORK') {
+          setPilingChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'FOUNDATION FOOTING') {
+          setFoundationChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'FORMWORK') {
+          setFormworkChecklist(data.checklist_data as any);
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setChecklistLoading(false);
+    }
+  };
+
+  const saveChecklist = async (inspectionId: string, workCategory: string, checklistData: any) => {
+    try {
+      const { error } = await supabase
+        .from('inspection_checklists')
+        .upsert({
+          inspection_id: inspectionId,
+          work_category: workCategory,
+          checklist_data: checklistData,
+        });
+
+      if (error) throw error;
+      toast.success('Checklist saved successfully');
+    } catch (error) {
+      console.error('Error saving checklist:', error);
+      toast.error('Failed to save checklist');
+    }
+  };
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
@@ -395,6 +456,15 @@ export default function Inspection() {
         toast.success('Inspection added successfully');
       }
 
+      // Save checklist if any checklist data exists
+      if (formData.work_category === 'PILING WORK' && Object.values(pilingChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'PILING WORK', pilingChecklist);
+      } else if (formData.work_category === 'FOUNDATION FOOTING' && Object.values(foundationChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'FOUNDATION FOOTING', foundationChecklist);
+      } else if (formData.work_category === 'FORMWORK' && Object.values(formworkChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'FORMWORK', formworkChecklist);
+      }
+
       // Upload images if any
       if (selectedImages.length > 0) {
         let uploadedCount = 0;
@@ -505,6 +575,7 @@ export default function Inspection() {
     setSelectedInspection(inspection);
     setInspectionImages([]);
     await fetchInspectionImages(inspection.id);
+    await fetchChecklist(inspection.id);
     setShowDetailsDialog(true);
   };
 
@@ -532,6 +603,7 @@ export default function Inspection() {
       tracking: inspection.tracking || '',
     });
     setEditingId(inspection.id);
+    fetchChecklist(inspection.id);
     setShowEditDialog(true);
   };
 
