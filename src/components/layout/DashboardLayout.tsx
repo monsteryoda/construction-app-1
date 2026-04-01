@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProject } from '@/contexts/ProjectContext';
 import { Button } from '@/components/ui/button';
 import {
   Building2,
@@ -78,6 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const navigate = useNavigate();
   const location = useLocation();
   const { signOut, user } = useAuth();
+  const { currentProject } = useProject();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [projectExpanded, setProjectExpanded] = useState(true);
   const [resourcesExpanded, setResourcesExpanded] = useState(false);
@@ -92,6 +94,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const getBreadcrumbLabel = () => {
     if (location.pathname === '/dashboard') return 'Dashboard';
     if (location.pathname === '/projects') return 'Project Details';
+    if (currentProject) {
+      return currentProject.project_name;
+    }
     if (location.pathname.startsWith('/projects/')) {
       const pathSegment = location.pathname.split('/').pop();
       return pathSegment?.replace('-', ' ') || 'Project';
@@ -213,7 +218,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </button>
               <ChevronRight className="w-4 h-4" />
               <button 
-                onClick={() => navigate('/projects')}
+                onClick={() => currentProject ? navigate(`/projects/${currentProject.id}`) : navigate('/projects')}
                 className="hover:text-blue-600 transition-colors cursor-pointer"
               >
                 {getBreadcrumbLabel()}
