@@ -11,6 +11,7 @@ import { Plus, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Project } from '@/components/deliveries/DeliveryTypes';
+import InspectionModal from '@/components/InspectionModal';
 
 export default function Inspection() {
   const navigate = useNavigate();
@@ -345,615 +346,475 @@ export default function Inspection() {
           <p className="text-slate-500">Submit construction inspection reports</p>
         </div>
 
-        <div className="flex justify-center items-center h-64">
-          <Button 
-            onClick={() => setIsModalOpen(true)} 
-            size="lg"
-            className="px-8 py-6 text-lg"
-          >
-            <Plus className="w-6 h-6 mr-2" />
-            Create New Inspection
-          </Button>
-        </div>
-
-        {/* Inspection Form Modal */}
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <CardHeader className="flex flex-row items-center justify-between sticky top-0 bg-white z-10">
-              <CardTitle>Inspection Form</CardTitle>
-              <Button variant="ghost" size="icon" onClick={() => setIsModalOpen(false)}>
-                <X className="w-4 h-4" />
-              </Button>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Project Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Project Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Project Selection */}
-                <div className="space-y-2">
-                  <Label htmlFor="project_id">Project *</Label>
-                  <select
-                    id="project_id"
-                    name="project_id"
-                    value={formData.project_id}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select a project</option>
-                    {projects.map(project => (
-                      <option key={project.id} value={project.id}>
-                        {project.project_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="project_id">Project *</Label>
+                <select
+                  id="project_id"
+                  name="project_id"
+                  value={formData.project_id}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select a project</option>
+                  {projects.map(project => (
+                    <option key={project.id} value={project.id}>
+                      {project.project_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </CardContent>
+          </Card>
 
-                {/* Inspection Details */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="inspection_type">Inspection Type *</Label>
-                    <select
-                      id="inspection_type"
-                      name="inspection_type"
-                      value={formData.inspection_type}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select type</option>
-                      <option value="Piling Work">Piling Work</option>
-                      <option value="FOUNDATION FOOTING">FOUNDATION FOOTING</option>
-                      <option value="FORMWORK">FORMWORK</option>
-                      <option value="REINFORCEMENT WORK / BRC">REINFORCEMENT WORK / BRC</option>
-                    </select>
-                  </div>
+          {/* Inspection Details - Opens in Modal */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Inspection Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => setIsModalOpen(true)} className="w-full">
+                Open Inspection Details Form
+              </Button>
+            </CardContent>
+          </Card>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="inspection_date">Inspection Date *</Label>
-                    <Input
-                      id="inspection_date"
-                      name="inspection_date"
-                      type="date"
-                      value={formData.inspection_date}
-                      onChange={handleInputChange}
-                      required
+          {/* Piling Work Checklist */}
+          {formData.work_category === 'Piling Work' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Piling Work Checklist</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="surveySettingOut"
+                      checked={pilingChecklist.surveySettingOut}
+                      onChange={(e) => handlePilingChecklistChange('surveySettingOut', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                     />
+                    <Label htmlFor="surveySettingOut" className="text-sm">
+                      Survey Setting Out With Reference To Drawing.
+                    </Label>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="work_category">Work Category *</Label>
-                    <select
-                      id="work_category"
-                      name="work_category"
-                      value={formData.work_category}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select category</option>
-                      <option value="Piling Work">Piling Work</option>
-                      <option value="FOUNDATION FOOTING">FOUNDATION FOOTING</option>
-                      <option value="FORMWORK">FORMWORK</option>
-                      <option value="REINFORCEMENT WORK / BRC">REINFORCEMENT WORK / BRC</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="zone">Zone</Label>
-                    <Input
-                      id="zone"
-                      name="zone"
-                      value={formData.zone}
-                      onChange={handleInputChange}
-                      placeholder="Enter zone"
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="excavationLevel"
+                      checked={pilingChecklist.excavationLevel}
+                      onChange={(e) => handlePilingChecklistChange('excavationLevel', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                     />
+                    <Label htmlFor="excavationLevel" className="text-sm">
+                      Excavation Level
+                    </Label>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Location</Label>
-                    <Input
-                      id="location"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleInputChange}
-                      placeholder="Enter location"
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="reinforcement"
+                      checked={pilingChecklist.reinforcement}
+                      onChange={(e) => handlePilingChecklistChange('reinforcement', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                     />
+                    <Label htmlFor="reinforcement" className="text-sm">
+                      Reinforcement
+                    </Label>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="inspection_time">Inspection Time</Label>
-                    <Input
-                      id="inspection_time"
-                      name="inspection_time"
-                      type="time"
-                      value={formData.inspection_time}
-                      onChange={handleInputChange}
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="concreteGrade"
+                      checked={pilingChecklist.concreteGrade}
+                      onChange={(e) => handlePilingChecklistChange('concreteGrade', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                     />
+                    <Label htmlFor="concreteGrade" className="text-sm">
+                      Concrete Grade
+                    </Label>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="intended_date">Intended Date</Label>
-                    <Input
-                      id="intended_date"
-                      name="intended_date"
-                      type="date"
-                      value={formData.intended_date}
-                      onChange={handleInputChange}
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="concretePouring"
+                      checked={pilingChecklist.concretePouring}
+                      onChange={(e) => handlePilingChecklistChange('concretePouring', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                     />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="intended_time">Intended Time</Label>
-                    <Input
-                      id="intended_time"
-                      name="intended_time"
-                      type="time"
-                      value={formData.intended_time}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="site_manager">Site Manager</Label>
-                    <Input
-                      id="site_manager"
-                      name="site_manager"
-                      value={formData.site_manager}
-                      onChange={handleInputChange}
-                      placeholder="Enter site manager name"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="safety_officer">Safety Officer</Label>
-                    <Input
-                      id="safety_officer"
-                      name="safety_officer"
-                      value={formData.safety_officer}
-                      onChange={handleInputChange}
-                      placeholder="Enter safety officer name"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="quality_control">Quality Control</Label>
-                    <Input
-                      id="quality_control"
-                      name="quality_control"
-                      value={formData.quality_control}
-                      onChange={handleInputChange}
-                      placeholder="Enter QC name"
-                    />
+                    <Label htmlFor="concretePouring" className="text-sm">
+                      Concrete Pouring
+                    </Label>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          )}
 
+          {/* Foundation Footing Checklist */}
+          {formData.work_category === 'FOUNDATION FOOTING' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Foundation Footing Checklist</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="foundationSurveySettingOut"
+                      checked={foundationChecklist.surveySettingOut}
+                      onChange={(e) => handleFoundationChecklistChange('surveySettingOut', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="foundationSurveySettingOut" className="text-sm">
+                      Survey Setting Out With Reference To Drawing.
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="foundationExcavationLevel"
+                      checked={foundationChecklist.excavationLevel}
+                      onChange={(e) => handleFoundationChecklistChange('excavationLevel', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="foundationExcavationLevel" className="text-sm">
+                      Excavation Level
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="foundationHardcoreCrusherRun"
+                      checked={foundationChecklist.hardcoreCrusherRun}
+                      onChange={(e) => handleFoundationChecklistChange('hardcoreCrusherRun', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="foundationHardcoreCrusherRun" className="text-sm">
+                      Hardcore Crusher Run
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="foundationVerticalityCheck"
+                      checked={foundationChecklist.verticalityCheck}
+                      onChange={(e) => handleFoundationChecklistChange('verticalityCheck', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="foundationVerticalityCheck" className="text-sm">
+                      Verticality Check
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="foundationLeanConcrete"
+                      checked={foundationChecklist.leanConcrete}
+                      onChange={(e) => handleFoundationChecklistChange('leanConcrete', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="foundationLeanConcrete" className="text-sm">
+                      Lean Concrete
+                    </Label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Formwork Checklist */}
+          {formData.work_category === 'FORMWORK' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Formwork Checklist</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="formworkDimensionLevelsVerticality"
+                      checked={formworkChecklist.dimensionLevelsVerticality}
+                      onChange={(e) => handleFormworkChecklistChange('dimensionLevelsVerticality', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="formworkDimensionLevelsVerticality" className="text-sm">
+                      Dimension Levels, Verticality.
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="formworkAdequatelySupportedOfPropped"
+                      checked={formworkChecklist.adequatelySupportedOfPropped}
+                      onChange={(e) => handleFormworkChecklistChange('adequatelySupportedOfPropped', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="formworkAdequatelySupportedOfPropped" className="text-sm">
+                      Adequately Supported of Propped.
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="formworkJointsTight"
+                      checked={formworkChecklist.jointsTight}
+                      onChange={(e) => handleFormworkChecklistChange('jointsTight', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="formworkJointsTight" className="text-sm">
+                      Joints Tight.
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="formworkSurfaceOfFormsAcceptable"
+                      checked={formworkChecklist.surfaceOfFormsAcceptable}
+                      onChange={(e) => handleFormworkChecklistChange('surfaceOfFormsAcceptable', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="formworkSurfaceOfFormsAcceptable" className="text-sm">
+                      Surface of Forms Acceptable.
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="formworkAllSawdustAndRubbishRemoved"
+                      checked={formworkChecklist.allSawdustAndRubbishRemoved}
+                      onChange={(e) => handleFormworkChecklistChange('allSawdustAndRubbishRemoved', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="formworkAllSawdustAndRubbishRemoved" className="text-sm">
+                      All Sawdust & Rubbish Removed.
+                    </Label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Reinforcement Work / BRC Checklist */}
+          {formData.work_category === 'REINFORCEMENT WORK / BRC' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Reinforcement Work / BRC Checklist</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="reinforcementBarSizeAndSpacing"
+                      checked={reinforcementChecklist.barSizeAndSpacing}
+                      onChange={(e) => handleReinforcementChecklistChange('barSizeAndSpacing', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="reinforcementBarSizeAndSpacing" className="text-sm">
+                      Bar Size and Spacing.
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="reinforcementLapLengthAndPosition"
+                      checked={reinforcementChecklist.lapLengthAndPosition}
+                      onChange={(e) => handleReinforcementChecklistChange('lapLengthAndPosition', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="reinforcementLapLengthAndPosition" className="text-sm">
+                      Lap Length and Position.
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="reinforcementCoverBlockersAndSupports"
+                      checked={reinforcementChecklist.coverBlockersAndSupports}
+                      onChange={(e) => handleReinforcementChecklistChange('coverBlockersAndSupports', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="reinforcementCoverBlockersAndSupports" className="text-sm">
+                      Cover Blockers and Supports.
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="reinforcementFixingSecurely"
+                      checked={reinforcementChecklist.fixingSecurely}
+                      onChange={(e) => handleReinforcementChecklistChange('fixingSecurely', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="reinforcementFixingSecurely" className="text-sm">
+                      Fixing Securely.
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="reinforcementBarCleanAndFreeFromDebris"
+                      checked={reinforcementChecklist.barCleanAndFreeFromDebris}
+                      onChange={(e) => handleReinforcementChecklistChange('barCleanAndFreeFromDebris', e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="reinforcementBarCleanAndFreeFromDebris" className="text-sm">
+                      Bar Clean and Free from Debris.
+                    </Label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Signatures Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Signatures</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="remarks">Remarks</Label>
-                  <Textarea
-                    id="remarks"
-                    name="remarks"
-                    value={formData.remarks}
-                    onChange={handleInputChange}
-                    placeholder="Enter any remarks"
-                    rows={3}
+                  <Label htmlFor="inspectedBy">Inspected By</Label>
+                  <Input
+                    id="inspectedBy"
+                    value={signatures.inspectedBy}
+                    onChange={(e) => setSignatures(prev => ({ ...prev, inspectedBy: e.target.value }))}
+                    placeholder="Enter name"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="priority">Priority</Label>
-                  <select
-                    id="priority"
-                    name="priority"
-                    value={formData.priority}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="normal">Normal</option>
-                    <option value="high">High</option>
-                    <option value="urgent">Urgent</option>
-                  </select>
+                  <Label htmlFor="reviewedBy">Reviewed By</Label>
+                  <Input
+                    id="reviewedBy"
+                    value={signatures.reviewedBy}
+                    onChange={(e) => setSignatures(prev => ({ ...prev, reviewedBy: e.target.value }))}
+                    placeholder="Enter name"
+                  />
                 </div>
 
-                {/* Piling Work Checklist */}
-                {formData.work_category === 'Piling Work' && (
-                  <div className="space-y-3">
-                    <Label className="text-lg font-semibold">Piling Work Checklist</Label>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="surveySettingOut"
-                          checked={pilingChecklist.surveySettingOut}
-                          onChange={(e) => handlePilingChecklistChange('surveySettingOut', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="surveySettingOut" className="text-sm">
-                          Survey Setting Out With Reference To Drawing.
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="excavationLevel"
-                          checked={pilingChecklist.excavationLevel}
-                          onChange={(e) => handlePilingChecklistChange('excavationLevel', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="excavationLevel" className="text-sm">
-                          Excavation Level
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="reinforcement"
-                          checked={pilingChecklist.reinforcement}
-                          onChange={(e) => handlePilingChecklistChange('reinforcement', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="reinforcement" className="text-sm">
-                          Reinforcement
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="concreteGrade"
-                          checked={pilingChecklist.concreteGrade}
-                          onChange={(e) => handlePilingChecklistChange('concreteGrade', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="concreteGrade" className="text-sm">
-                          Concrete Grade
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="concretePouring"
-                          checked={pilingChecklist.concretePouring}
-                          onChange={(e) => handlePilingChecklistChange('concretePouring', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="concretePouring" className="text-sm">
-                          Concrete Pouring
-                        </Label>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Foundation Footing Checklist */}
-                {formData.work_category === 'FOUNDATION FOOTING' && (
-                  <div className="space-y-3">
-                    <Label className="text-lg font-semibold">Foundation Footing Checklist</Label>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="foundationSurveySettingOut"
-                          checked={foundationChecklist.surveySettingOut}
-                          onChange={(e) => handleFoundationChecklistChange('surveySettingOut', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="foundationSurveySettingOut" className="text-sm">
-                          Survey Setting Out With Reference To Drawing.
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="foundationExcavationLevel"
-                          checked={foundationChecklist.excavationLevel}
-                          onChange={(e) => handleFoundationChecklistChange('excavationLevel', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="foundationExcavationLevel" className="text-sm">
-                          Excavation Level
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="foundationHardcoreCrusherRun"
-                          checked={foundationChecklist.hardcoreCrusherRun}
-                          onChange={(e) => handleFoundationChecklistChange('hardcoreCrusherRun', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="foundationHardcoreCrusherRun" className="text-sm">
-                          Hardcore Crusher Run
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="foundationVerticalityCheck"
-                          checked={foundationChecklist.verticalityCheck}
-                          onChange={(e) => handleFoundationChecklistChange('verticalityCheck', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="foundationVerticalityCheck" className="text-sm">
-                          Verticality Check
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="foundationLeanConcrete"
-                          checked={foundationChecklist.leanConcrete}
-                          onChange={(e) => handleFoundationChecklistChange('leanConcrete', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="foundationLeanConcrete" className="text-sm">
-                          Lean Concrete
-                        </Label>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Formwork Checklist */}
-                {formData.work_category === 'FORMWORK' && (
-                  <div className="space-y-3">
-                    <Label className="text-lg font-semibold">Formwork Checklist</Label>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="formworkDimensionLevelsVerticality"
-                          checked={formworkChecklist.dimensionLevelsVerticality}
-                          onChange={(e) => handleFormworkChecklistChange('dimensionLevelsVerticality', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="formworkDimensionLevelsVerticality" className="text-sm">
-                          Dimension Levels, Verticality.
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="formworkAdequatelySupportedOfPropped"
-                          checked={formworkChecklist.adequatelySupportedOfPropped}
-                          onChange={(e) => handleFormworkChecklistChange('adequatelySupportedOfPropped', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="formworkAdequatelySupportedOfPropped" className="text-sm">
-                          Adequately Supported of Propped.
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="formworkJointsTight"
-                          checked={formworkChecklist.jointsTight}
-                          onChange={(e) => handleFormworkChecklistChange('jointsTight', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="formworkJointsTight" className="text-sm">
-                          Joints Tight.
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="formworkSurfaceOfFormsAcceptable"
-                          checked={formworkChecklist.surfaceOfFormsAcceptable}
-                          onChange={(e) => handleFormworkChecklistChange('surfaceOfFormsAcceptable', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="formworkSurfaceOfFormsAcceptable" className="text-sm">
-                          Surface of Forms Acceptable.
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="formworkAllSawdustAndRubbishRemoved"
-                          checked={formworkChecklist.allSawdustAndRubbishRemoved}
-                          onChange={(e) => handleFormworkChecklistChange('allSawdustAndRubbishRemoved', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="formworkAllSawdustAndRubbishRemoved" className="text-sm">
-                          All Sawdust & Rubbish Removed.
-                        </Label>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Reinforcement Work / BRC Checklist */}
-                {formData.work_category === 'REINFORCEMENT WORK / BRC' && (
-                  <div className="space-y-3">
-                    <Label className="text-lg font-semibold">Reinforcement Work / BRC Checklist</Label>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="reinforcementBarSizeAndSpacing"
-                          checked={reinforcementChecklist.barSizeAndSpacing}
-                          onChange={(e) => handleReinforcementChecklistChange('barSizeAndSpacing', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="reinforcementBarSizeAndSpacing" className="text-sm">
-                          Bar Size and Spacing.
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="reinforcementLapLengthAndPosition"
-                          checked={reinforcementChecklist.lapLengthAndPosition}
-                          onChange={(e) => handleReinforcementChecklistChange('lapLengthAndPosition', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="reinforcementLapLengthAndPosition" className="text-sm">
-                          Lap Length and Position.
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="reinforcementCoverBlockersAndSupports"
-                          checked={reinforcementChecklist.coverBlockersAndSupports}
-                          onChange={(e) => handleReinforcementChecklistChange('coverBlockersAndSupports', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="reinforcementCoverBlockersAndSupports" className="text-sm">
-                          Cover Blockers and Supports.
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="reinforcementFixingSecurely"
-                          checked={reinforcementChecklist.fixingSecurely}
-                          onChange={(e) => handleReinforcementChecklistChange('fixingSecurely', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="reinforcementFixingSecurely" className="text-sm">
-                          Fixing Securely.
-                        </Label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="reinforcementBarCleanAndFreeFromDebris"
-                          checked={reinforcementChecklist.barCleanAndFreeFromDebris}
-                          onChange={(e) => handleReinforcementChecklistChange('barCleanAndFreeFromDebris', e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="reinforcementBarCleanAndFreeFromDebris" className="text-sm">
-                          Bar Clean and Free from Debris.
-                        </Label>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Signatures Section */}
-                <div className="space-y-4">
-                  <Label className="text-lg font-semibold">Signatures</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="inspectedBy">Inspected By</Label>
-                      <Input
-                        id="inspectedBy"
-                        value={signatures.inspectedBy}
-                        onChange={(e) => setSignatures(prev => ({ ...prev, inspectedBy: e.target.value }))}
-                        placeholder="Enter name"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="reviewedBy">Reviewed By</Label>
-                      <Input
-                        id="reviewedBy"
-                        value={signatures.reviewedBy}
-                        onChange={(e) => setSignatures(prev => ({ ...prev, reviewedBy: e.target.value }))}
-                        placeholder="Enter name"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="approvedBy">Approved By</Label>
-                      <Input
-                        id="approvedBy"
-                        value={signatures.approvedBy}
-                        onChange={(e) => setSignatures(prev => ({ ...prev, approvedBy: e.target.value }))}
-                        placeholder="Enter name"
-                      />
-                    </div>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="approvedBy">Approved By</Label>
+                  <Input
+                    id="approvedBy"
+                    value={signatures.approvedBy}
+                    onChange={(e) => setSignatures(prev => ({ ...prev, approvedBy: e.target.value }))}
+                    placeholder="Enter name"
+                  />
                 </div>
-
-                {/* Attach Images */}
-                <div className="space-y-4">
-                  <Label className="text-lg font-semibold">Attach Images</Label>
-                  <div className="mt-2">
-                    {imagePreviews.length > 0 ? (
-                      <div className="grid grid-cols-4 gap-3">
-                        {imagePreviews.map((preview, index) => (
-                          <div key={index} className="relative group">
-                            <img
-                              src={preview}
-                              alt={`Preview ${index + 1}`}
-                              className="w-full h-32 object-cover rounded-lg border border-slate-200"
-                            />
-                            <button
-                              onClick={() => handleRemoveImage(index)}
-                              className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                              type="button"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-full h-40 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-slate-50 transition-colors"
-                      >
-                        <Upload className="w-12 h-12 text-slate-400 mb-2" />
-                        <p className="text-sm text-slate-500">Click to attach images</p>
-                        <p className="text-xs text-slate-400 mt-1">PNG, JPG, GIF up to 5MB each</p>
-                        <p className="text-xs text-slate-400 mt-1">You can select multiple images at once</p>
-                      </div>
-                    )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleFileSelect}
-                      className="hidden"
-                      disabled={uploading}
-                    />
-                    {uploading && (
-                      <p className="text-sm text-blue-600 mt-2 flex items-center gap-2">
-                        <span className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full inline-block"></span>
-                        Uploading images...
-                      </p>
-                    )}
-                    {imagePreviews.length > 0 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleAddMoreImages}
-                        className="w-full mt-3 gap-2"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Add More Images
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" size="lg" disabled={uploading}>
-                    {uploading ? 'Submitting...' : 'Submit Inspection'}
-                  </Button>
-                </div>
-              </form>
+              </div>
             </CardContent>
           </Card>
-        </div>
+
+          {/* Attach Images */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Attach Images</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="mt-2">
+                {imagePreviews.length > 0 ? (
+                  <div className="grid grid-cols-4 gap-3">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border border-slate-200"
+                        />
+                        <button
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                          type="button"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full h-40 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-slate-50 transition-colors"
+                  >
+                    <Upload className="w-12 h-12 text-slate-400 mb-2" />
+                    <p className="text-sm text-slate-500">Click to attach images</p>
+                    <p className="text-xs text-slate-400 mt-1">PNG, JPG, GIF up to 5MB each</p>
+                    <p className="text-xs text-slate-400 mt-1">You can select multiple images at once</p>
+                  </div>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  disabled={uploading}
+                />
+                {uploading && (
+                  <p className="text-sm text-blue-600 mt-2 flex items-center gap-2">
+                    <span className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full inline-block"></span>
+                    Uploading images...
+                  </p>
+                )}
+                {imagePreviews.length > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddMoreImages}
+                    className="w-full mt-3 gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add More Images
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <Button type="submit" size="lg" disabled={uploading} className="w-full md:w-auto">
+              {uploading ? 'Submitting...' : 'Submit Inspection'}
+            </Button>
+          </div>
+        </form>
+
+        {/* Inspection Details Modal */}
+        <InspectionModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleModalSubmit}
+          projects={projects}
+        />
       </div>
     </DashboardLayout>
   );
