@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Plus, Building2, Calendar, FileText, ImageIcon, Upload, X, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useProject } from '@/contexts/ProjectContext';
 
 interface Project {
   id: string;
@@ -63,6 +64,7 @@ function ProjectImage({ imageUrl, projectName }: { imageUrl: string | null; proj
 
 export default function ProjectDetails() {
   const navigate = useNavigate();
+  const { currentProject, setCurrentProject } = useProject();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -202,6 +204,10 @@ export default function ProjectDetails() {
   };
 
   const handleViewProject = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      setCurrentProject({ id: project.id, project_name: project.project_name });
+    }
     navigate(`/projects/${projectId}`);
   };
 
