@@ -264,6 +264,19 @@ export default function Inspection() {
     wallCleaning: false,
     wallCuring: false,
   });
+  const [plasteringChecklist, setPlasteringChecklist] = useState({
+    complianceToDrawing: false,
+    settingOut: false,
+    surfacePreparation: false,
+    curing: false,
+    thickness: false,
+    verticality: false,
+    straightness: false,
+    surfaceFinish: false,
+    corners: false,
+    joints: false,
+    protection: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -474,6 +487,8 @@ export default function Inspection() {
           setPipeCulvertBoxCulvertChecklist(data.checklist_data as any);
         } else if (data.work_category === 'BRICKWORK') {
           setBrickworkChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'PLASTERING') {
+          setPlasteringChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -640,6 +655,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'PIPE CULVERT / BOX CULVERT', pipeCulvertBoxCulvertChecklist);
       } else if (formData.work_category === 'BRICKWORK' && Object.values(brickworkChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'BRICKWORK', brickworkChecklist);
+      } else if (formData.work_category === 'PLASTERING' && Object.values(plasteringChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'PLASTERING', plasteringChecklist);
       }
 
       // Upload images if any
@@ -873,6 +890,19 @@ export default function Inspection() {
         wallCleaning: false,
         wallCuring: false,
       });
+      setPlasteringChecklist({
+        complianceToDrawing: false,
+        settingOut: false,
+        surfacePreparation: false,
+        curing: false,
+        thickness: false,
+        verticality: false,
+        straightness: false,
+        surfaceFinish: false,
+        corners: false,
+        joints: false,
+        protection: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -1061,6 +1091,13 @@ export default function Inspection() {
 
   const handleBrickworkChecklistChange = (key: keyof typeof brickworkChecklist, value: boolean) => {
     setBrickworkChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handlePlasteringChecklistChange = (key: keyof typeof plasteringChecklist, value: boolean) => {
+    setPlasteringChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -3165,6 +3202,158 @@ export default function Inspection() {
                       />
                       <Label htmlFor="wallCuring" className="text-sm">
                         Wall Curing
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Plastering Checklist - Third Section */}
+              {formData.work_category === 'PLASTERING' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Plastering Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="complianceToDrawing"
+                        checked={plasteringChecklist.complianceToDrawing}
+                        onChange={(e) => handlePlasteringChecklistChange('complianceToDrawing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="complianceToDrawing" className="text-sm">
+                        Compliance to the Drawing
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="settingOut"
+                        checked={plasteringChecklist.settingOut}
+                        onChange={(e) => handlePlasteringChecklistChange('settingOut', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="settingOut" className="text-sm">
+                        Setting Out
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="surfacePreparation"
+                        checked={plasteringChecklist.surfacePreparation}
+                        onChange={(e) => handlePlasteringChecklistChange('surfacePreparation', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="surfacePreparation" className="text-sm">
+                        Surface Preparation
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="curing"
+                        checked={plasteringChecklist.curing}
+                        onChange={(e) => handlePlasteringChecklistChange('curing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="curing" className="text-sm">
+                        Curing
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="thickness"
+                        checked={plasteringChecklist.thickness}
+                        onChange={(e) => handlePlasteringChecklistChange('thickness', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="thickness" className="text-sm">
+                        Thickness
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="verticality"
+                        checked={plasteringChecklist.verticality}
+                        onChange={(e) => handlePlasteringChecklistChange('verticality', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="verticality" className="text-sm">
+                        Verticality
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="straightness"
+                        checked={plasteringChecklist.straightness}
+                        onChange={(e) => handlePlasteringChecklistChange('straightness', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="straightness" className="text-sm">
+                        Straightness
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="surfaceFinish"
+                        checked={plasteringChecklist.surfaceFinish}
+                        onChange={(e) => handlePlasteringChecklistChange('surfaceFinish', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="surfaceFinish" className="text-sm">
+                        Surface Finish
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="corners"
+                        checked={plasteringChecklist.corners}
+                        onChange={(e) => handlePlasteringChecklistChange('corners', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="corners" className="text-sm">
+                        Corners
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="joints"
+                        checked={plasteringChecklist.joints}
+                        onChange={(e) => handlePlasteringChecklistChange('joints', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="joints" className="text-sm">
+                        Joints
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="protection"
+                        checked={plasteringChecklist.protection}
+                        onChange={(e) => handlePlasteringChecklistChange('protection', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="protection" className="text-sm">
+                        Protection
                       </Label>
                     </div>
                   </div>
