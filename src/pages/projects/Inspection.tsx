@@ -1,7 +1,7 @@
-setReinforcementChecklist({
-        barSizeAndSpacing: false,
-        lapLengthAndPosition: false,
-        coverBlockersAndSupports: false,
-        fixingSecurely: false,
-        barCleanAndFreeFromDebris: false,
+setFormworkChecklist({
+        dimensionLevelsVerticality: false,
+        adequatelySupportedOfPropped: false,
+        jointsTight: false,
+        surfaceOfFormsAcceptable: false,
+        allSawdustAndRubbishRemoved: false,
       });
