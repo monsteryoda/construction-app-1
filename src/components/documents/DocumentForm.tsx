@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,7 +17,7 @@ interface DocumentFormProps {
   projects: Project[];
 }
 
-export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: DocumentFormProps) {
+const DocumentForm: React.FC<DocumentFormProps> = ({ isOpen, onClose, onSubmit, projects }) => {
   const [formData, setFormData] = useState({
     project_id: '',
     document_name: '',
@@ -52,7 +52,6 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
 
     if (validFiles.length === 0) return;
 
-    // Load previews for images
     let previewsLoaded = 0;
     validFiles.forEach((file, index) => {
       if (file.type.startsWith('image/')) {
@@ -69,7 +68,6 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
         };
         reader.readAsDataURL(file);
       } else {
-        // For non-image files, add immediately
         setSelectedFiles(prev => [...prev, ...validFiles]);
         setFilePreviews(prev => [...prev, ...validPreviews]);
         toast.success(`Added ${validFiles.length} file(s)`);
@@ -107,7 +105,6 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
     try {
       await onSubmit(formData, selectedFiles);
       
-      // Reset form
       setFormData({
         project_id: '',
         document_name: '',
@@ -264,4 +261,6 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default DocumentForm;
