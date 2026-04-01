@@ -70,6 +70,8 @@ export default function Inspection() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [rwiSerialNo, setRwiSerialNo] = useState('');
+  const [referenceNo, setReferenceNo] = useState('');
+  const [trackingNo, setTrackingNo] = useState('');
   const [formData, setFormData] = useState({
     project_id: '',
     work_category: '',
@@ -105,6 +107,8 @@ export default function Inspection() {
     fetchProjects();
     fetchInspections();
     generateRwiSerialNo();
+    generateReferenceNo();
+    generateTrackingNo();
   }, []);
 
   const generateRwiSerialNo = async () => {
@@ -131,6 +135,62 @@ export default function Inspection() {
       console.error('Error generating RWI serial no:', error);
       const year = new Date().getFullYear().toString().slice(-2);
       setRwiSerialNo(`URSB/KA-T/${year}/35-01`);
+    }
+  };
+
+  const generateReferenceNo = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('inspections')
+        .select('id')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+
+      const count = data?.length || 0;
+      const year = new Date().getFullYear().toString().slice(-2);
+      const month = new Date().getMonth() + 1;
+      const serial = count + 1;
+      const formattedSerial = serial.toString().padStart(3, '0');
+      
+      setReferenceNo(`REF/${year}/${month.toString().padStart(2, '0')}/${formattedSerial}`);
+    } catch (error) {
+      console.error('Error generating reference no:', error);
+      const year = new Date().getFullYear().toString().slice(-2);
+      const month = new Date().getMonth() + 1;
+      setReferenceNo(`REF/${year}/${month.toString().padStart(2, '0')}/001`);
+    }
+  };
+
+  const generateTrackingNo = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('inspections')
+        .select('id')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+
+      const count = data?.length || 0;
+      const year = new Date().getFullYear().toString().slice(-2);
+      const serial = count + 1;
+      const formattedSerial = serial.toString().padStart(4, '0');
+      
+      setTrackingNo(`TRK/${year}/${formattedSerial}`);
+    } catch (error) {
+      console.error('Error generating tracking no:', error);
+      const year = new Date().getFullYear().toString().slice(-2);
+      setTrackingNo(`TRK/${year}/0001`);
     }
   };
 
@@ -359,6 +419,8 @@ export default function Inspection() {
       setShowEditDialog(false);
       setEditingId(null);
       generateRwiSerialNo();
+      generateReferenceNo();
+      generateTrackingNo();
       setFormData({
         project_id: '',
         work_category: '',
@@ -844,20 +906,18 @@ export default function Inspection() {
                   <div className="space-y-2">
                     <Label className="text-xs">References</Label>
                     <Input
-                      value={formData.references}
-                      onChange={(e) => setFormData({ ...formData, references: e.target.value })}
-                      placeholder="Reference number"
-                      className="text-sm"
+                      value={editingId ? 'N/A (Existing)' : referenceNo}
+                      className="text-sm bg-slate-50 font-mono"
+                      disabled
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label className="text-xs">Tracking</Label>
                     <Input
-                      value={formData.tracking}
-                      onChange={(e) => setFormData({ ...formData, tracking: e.target.value })}
-                      placeholder="Tracking number"
-                      className="text-sm"
+                      value={editingId ? 'N/A (Existing)' : trackingNo}
+                      className="text-sm bg-slate-50 font-mono"
+                      disabled
                     />
                   </div>
                 </div>
