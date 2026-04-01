@@ -127,6 +127,18 @@ export default function Inspection() {
     surfaceOfFormsAcceptable: false,
     allSawdustAndRubbishRemoved: false,
   });
+  const [reinforcementChecklist, setReinforcementChecklist] = useState({
+    correctGradeSizeNumberSpacing: false,
+    correctLapAnchorageLength: false,
+    adequateChairsSpacers: false,
+    coverAsRequired: false,
+    noMudOilLooseRust: false,
+  });
+  const [concreteChecklist, setConcreteChecklist] = useState({
+    concreteGradeAccordingToSpecification: false,
+    slumpTestCubeTaken: false,
+    vibratorAtSite: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -317,6 +329,10 @@ export default function Inspection() {
           setFoundationChecklist(data.checklist_data as any);
         } else if (data.work_category === 'FORMWORK') {
           setFormworkChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'REINFORCEMENT WORK / BRC') {
+          setReinforcementChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'CONCRETE WORK') {
+          setConcreteChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -463,6 +479,10 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'FOUNDATION FOOTING', foundationChecklist);
       } else if (formData.work_category === 'FORMWORK' && Object.values(formworkChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'FORMWORK', formworkChecklist);
+      } else if (formData.work_category === 'REINFORCEMENT WORK / BRC' && Object.values(reinforcementChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'REINFORCEMENT WORK / BRC', reinforcementChecklist);
+      } else if (formData.work_category === 'CONCRETE WORK' && Object.values(concreteChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'CONCRETE WORK', concreteChecklist);
       }
 
       // Upload images if any
@@ -558,6 +578,18 @@ export default function Inspection() {
         jointsTight: false,
         surfaceOfFormsAcceptable: false,
         allSawdustAndRubbishRemoved: false,
+      });
+      setReinforcementChecklist({
+        correctGradeSizeNumberSpacing: false,
+        correctLapAnchorageLength: false,
+        adequateChairsSpacers: false,
+        coverAsRequired: false,
+        noMudOilLooseRust: false,
+      });
+      setConcreteChecklist({
+        concreteGradeAccordingToSpecification: false,
+        slumpTestCubeTaken: false,
+        vibratorAtSite: false,
       });
       setSignatures({
         inspectedBy: '',
@@ -677,6 +709,20 @@ export default function Inspection() {
 
   const handleFormworkChecklistChange = (key: keyof typeof formworkChecklist, value: boolean) => {
     setFormworkChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleReinforcementChecklistChange = (key: keyof typeof reinforcementChecklist, value: boolean) => {
+    setReinforcementChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleConcreteChecklistChange = (key: keyof typeof concreteChecklist, value: boolean) => {
+    setConcreteChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -1170,6 +1216,128 @@ export default function Inspection() {
                       />
                       <Label htmlFor="allSawdustAndRubbishRemoved" className="text-sm">
                         All Sawdust & Rubbish Removed.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Reinforcement Work / BRC Checklist - Third Section */}
+              {formData.work_category === 'REINFORCEMENT WORK / BRC' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Reinforcement Work / BRC Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="correctGradeSizeNumberSpacing"
+                        checked={reinforcementChecklist.correctGradeSizeNumberSpacing}
+                        onChange={(e) => handleReinforcementChecklistChange('correctGradeSizeNumberSpacing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="correctGradeSizeNumberSpacing" className="text-sm">
+                        Correct Grade, Size, Number & Spacing.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="correctLapAnchorageLength"
+                        checked={reinforcementChecklist.correctLapAnchorageLength}
+                        onChange={(e) => handleReinforcementChecklistChange('correctLapAnchorageLength', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="correctLapAnchorageLength" className="text-sm">
+                        Correct Lap / Anchorage Length.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="adequateChairsSpacers"
+                        checked={reinforcementChecklist.adequateChairsSpacers}
+                        onChange={(e) => handleReinforcementChecklistChange('adequateChairsSpacers', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="adequateChairsSpacers" className="text-sm">
+                        Adequate Chairs, Spacers, etc.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="coverAsRequired"
+                        checked={reinforcementChecklist.coverAsRequired}
+                        onChange={(e) => handleReinforcementChecklistChange('coverAsRequired', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="coverAsRequired" className="text-sm">
+                        Cover as Required.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="noMudOilLooseRust"
+                        checked={reinforcementChecklist.noMudOilLooseRust}
+                        onChange={(e) => handleReinforcementChecklistChange('noMudOilLooseRust', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="noMudOilLooseRust" className="text-sm">
+                        No Mud, Oil, Loose Rust, etc.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Concrete Work Checklist - Third Section */}
+              {formData.work_category === 'CONCRETE WORK' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Concrete Work Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="concreteGradeAccordingToSpecification"
+                        checked={concreteChecklist.concreteGradeAccordingToSpecification}
+                        onChange={(e) => handleConcreteChecklistChange('concreteGradeAccordingToSpecification', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="concreteGradeAccordingToSpecification" className="text-sm">
+                        Concrete Grade according to Specification.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="slumpTestCubeTaken"
+                        checked={concreteChecklist.slumpTestCubeTaken}
+                        onChange={(e) => handleConcreteChecklistChange('slumpTestCubeTaken', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="slumpTestCubeTaken" className="text-sm">
+                        Slump Test / Cube Taken.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="vibratorAtSite"
+                        checked={concreteChecklist.vibratorAtSite}
+                        onChange={(e) => handleConcreteChecklistChange('vibratorAtSite', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="vibratorAtSite" className="text-sm">
+                        Vibrator at Site.
                       </Label>
                     </div>
                   </div>
