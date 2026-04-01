@@ -205,7 +205,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </Button>
             <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
             <nav className="hidden sm:flex items-center gap-2 text-sm text-slate-500">
-              <span>Home</span>
+              <button 
+                onClick={() => navigate('/projects')}
+                className="hover:text-blue-600 transition-colors cursor-pointer"
+              >
+                Home
+              </button>
               <ChevronRight className="w-4 h-4" />
               <span className="text-slate-900 font-medium capitalize">
                 {getBreadcrumbLabel()}
