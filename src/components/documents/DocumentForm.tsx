@@ -120,6 +120,134 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
     }
   };
 
+  const DialogContentComponent = () => (
+    <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto">
+      <DialogHeader>
+        <DialogTitle className="text-center text-lg font-semibold">Add Document</DialogTitle>
+        <DialogDescription>
+          Create a new document and attach multiple files
+        </DialogDescription>
+      </DialogHeader>
+      <div className="space-y-4 py-4">
+        <div className="space-y-2">
+          <Label className="text-sm">Project</Label>
+          <select
+            value={formData.project_id}
+            onChange={(e) => setFormData({ ...formData, project_id: e.target.value })}
+            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          >
+            <option value="">Select a project</option>
+            {projects.map(project => (
+              <option key={project.id} value={project.id}>
+                {project.project_name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm">Document Name</Label>
+          <Input
+            value={formData.document_name}
+            onChange={(e) => setFormData({ ...formData, document_name: e.target.value })}
+            placeholder="Enter document name"
+            className="text-sm"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm">Document Type</Label>
+          <select
+            value={formData.document_type}
+            onChange={(e) => setFormData({ ...formData, document_type: e.target.value })}
+            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          >
+            <option value="">Select document type</option>
+            <option value="Drawing">Drawing</option>
+            <option value="Contract">Contract</option>
+            <option value="Photo">Photo</option>
+            <option value="Report">Report</option>
+            <option value="Invoice">Invoice</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm">Description</Label>
+          <Textarea
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Enter document description"
+            rows={3}
+            className="text-sm"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm">Attach Files (Multiple files allowed)</Label>
+          <div className="mt-2">
+            {filePreviews.length > 0 ? (
+              <div className="grid grid-cols-3 gap-3">
+                {filePreviews.map((preview, index) => (
+                  <div key={index} className="relative group">
+                    {selectedFiles[index]?.type.startsWith('image/') ? (
+                      <img
+                        src={preview}
+                        alt={`File ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border border-slate-200"
+                      />
+                    ) : (
+                      <div className="w-full h-32 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-center">
+                        <FileText className="w-8 h-8 text-slate-400" />
+                      </div>
+                    )}
+                    <button
+                      onClick={() => handleRemoveFile(index)}
+                      className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                      type="button"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div
+                onClick={() => document.getElementById('file-upload')?.click()}
+                className="w-full h-40 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-slate-50 transition-colors"
+              >
+                <ImageIcon className="w-12 h-12 text-slate-400 mb-2" />
+                <p className="text-sm text-slate-500">Click to attach files</p>
+                <p className="text-xs text-slate-400 mt-1">PNG, JPG, PDF, DOC up to 10MB each</p>
+              </div>
+            )}
+            <input
+              id="file-upload"
+              type="file"
+              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+          </div>
+          {selectedFiles.length > 0 && (
+            <p className="text-xs text-slate-500">
+              {selectedFiles.length} file(s) selected - {selectedFiles.reduce((acc, file) => acc + file.size, 0) / 1024 / 1024.toFixed(2)} MB total
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting ? 'Adding...' : 'Add Document'}
+        </Button>
+      </div>
+    </DialogContent>
+  );
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open) {
@@ -134,131 +262,7 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
       }
       onClose();
     }}>
-      <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-center text-lg font-semibold">Add Document</DialogTitle>
-          <DialogDescription>
-            Create a new document and attach multiple files
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label className="text-sm">Project</Label>
-            <select
-              value={formData.project_id}
-              onChange={(e) => setFormData({ ...formData, project_id: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            >
-              <option value="">Select a project</option>
-              {projects.map(project => (
-                <option key={project.id} value={project.id}>
-                  {project.project_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm">Document Name</Label>
-            <Input
-              value={formData.document_name}
-              onChange={(e) => setFormData({ ...formData, document_name: e.target.value })}
-              placeholder="Enter document name"
-              className="text-sm"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm">Document Type</Label>
-            <select
-              value={formData.document_type}
-              onChange={(e) => setFormData({ ...formData, document_type: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            >
-              <option value="">Select document type</option>
-              <option value="Drawing">Drawing</option>
-              <option value="Contract">Contract</option>
-              <option value="Photo">Photo</option>
-              <option value="Report">Report</option>
-              <option value="Invoice">Invoice</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm">Description</Label>
-            <Textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Enter document description"
-              rows={3}
-              className="text-sm"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm">Attach Files (Multiple files allowed)</Label>
-            <div className="mt-2">
-              {filePreviews.length > 0 ? (
-                <div className="grid grid-cols-3 gap-3">
-                  {filePreviews.map((preview, index) => (
-                    <div key={index} className="relative group">
-                      {selectedFiles[index]?.type.startsWith('image/') ? (
-                        <img
-                          src={preview}
-                          alt={`File ${index + 1}`}
-                          className="w-full h-32 object-cover rounded-lg border border-slate-200"
-                        />
-                      ) : (
-                        <div className="w-full h-32 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-center">
-                          <FileText className="w-8 h-8 text-slate-400" />
-                        </div>
-                      )}
-                      <button
-                        onClick={() => handleRemoveFile(index)}
-                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                        type="button"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div
-                  onClick={() => document.getElementById('file-upload')?.click()}
-                  className="w-full h-40 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-slate-50 transition-colors"
-                >
-                  <ImageIcon className="w-12 h-12 text-slate-400 mb-2" />
-                  <p className="text-sm text-slate-500">Click to attach files</p>
-                  <p className="text-xs text-slate-400 mt-1">PNG, JPG, PDF, DOC up to 10MB each</p>
-                </div>
-              )}
-              <input
-                id="file-upload"
-                type="file"
-                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
-                multiple
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-            </div>
-            {selectedFiles.length > 0 && (
-              <p className="text-xs text-slate-500">
-                {selectedFiles.length} file(s) selected - {selectedFiles.reduce((acc, file) => acc + file.size, 0) / 1024 / 1024.toFixed(2)} MB total
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? 'Adding...' : 'Add Document'}
-          </Button>
-        </div>
-      </DialogContent>
+      <DialogContentComponent />
     </Dialog>
   );
 }
