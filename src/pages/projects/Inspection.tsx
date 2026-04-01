@@ -35,7 +35,7 @@ interface Inspection {
   inspection_time?: string;
   intended_date?: string;
   intended_time?: string;
-  references?: string;
+  reference_no?: string;
   tracking?: string;
   created_at: string;
   updated_at: string;
@@ -90,7 +90,7 @@ export default function Inspection() {
     status: 'pending',
     findings: '',
     recommendations: '',
-    references: '',
+    reference_no: '',
     tracking: '',
   });
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -164,9 +164,9 @@ export default function Inspection() {
 
       const { data, error } = await supabase
         .from('inspections')
-        .select('references')
+        .select('reference_no')
         .eq('user_id', user.id)
-        .not('references', 'is', null)
+        .not('reference_no', 'is', null)
         .order('created_at', { ascending: false })
         .limit(1);
 
@@ -174,7 +174,7 @@ export default function Inspection() {
 
       let nextNumber = 1;
       if (data && data.length > 0) {
-        const lastRef = data[0].references;
+        const lastRef = data[0].reference_no;
         const match = lastRef?.match(/REF-(\d+)/);
         if (match) {
           nextNumber = parseInt(match[1]) + 1;
@@ -366,7 +366,7 @@ export default function Inspection() {
         email: formData.email,
         client: formData.client,
         consultant: formData.consultant,
-        references: formData.references,
+        reference_no: formData.reference_no,
         tracking: formData.tracking,
       };
 
@@ -464,7 +464,7 @@ export default function Inspection() {
         status: 'pending',
         findings: '',
         recommendations: '',
-        references: '',
+        reference_no: '',
         tracking: '',
       });
       setSelectedImages([]);
@@ -528,7 +528,7 @@ export default function Inspection() {
       status: inspection.status,
       findings: inspection.findings || '',
       recommendations: inspection.recommendations || '',
-      references: inspection.references || '',
+      reference_no: inspection.reference_no || '',
       tracking: inspection.tracking || '',
     });
     setEditingId(inspection.id);
@@ -1112,8 +1112,8 @@ export default function Inspection() {
                   <div className="space-y-2">
                     <Label className="text-xs">References</Label>
                     <Input
-                      value={formData.references || referenceNo}
-                      onChange={(e) => setFormData({ ...formData, references: e.target.value })}
+                      value={formData.reference_no || referenceNo}
+                      onChange={(e) => setFormData({ ...formData, reference_no: e.target.value })}
                       placeholder="Reference number"
                       className="text-sm bg-slate-50 font-mono"
                       disabled
@@ -1418,7 +1418,7 @@ export default function Inspection() {
                     <div className="space-y-2">
                       <Label className="text-xs">References</Label>
                       <Input
-                        value={selectedInspection.references || 'N/A'}
+                        value={selectedInspection.reference_no || 'N/A'}
                         className="text-sm bg-slate-50"
                         disabled
                       />
