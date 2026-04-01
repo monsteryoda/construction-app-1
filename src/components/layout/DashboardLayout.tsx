@@ -89,6 +89,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const isActive = (path: string) => location.pathname === path;
 
+  const getBreadcrumbLabel = () => {
+    if (location.pathname === '/dashboard') return 'Dashboard';
+    if (location.pathname === '/projects') return 'Project Details';
+    if (location.pathname.startsWith('/projects/')) {
+      const pathSegment = location.pathname.split('/').pop();
+      return pathSegment?.replace('-', ' ') || 'Project';
+    }
+    if (location.pathname.startsWith('/resources/')) {
+      const pathSegment = location.pathname.split('/').pop();
+      return pathSegment?.replace('-', ' ') || 'Resources';
+    }
+    return 'Home';
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
@@ -194,7 +208,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span>Home</span>
               <ChevronRight className="w-4 h-4" />
               <span className="text-slate-900 font-medium capitalize">
-                {location.pathname === '/dashboard' ? 'Dashboard' : location.pathname.split('/').pop()?.replace('-', ' ')}
+                {getBreadcrumbLabel()}
               </span>
             </nav>
           </div>
