@@ -102,6 +102,11 @@ export default function Inspection() {
     checkVerticalityOfPiles: false,
     checkWeldingJoint: false,
   });
+  const [signatures, setSignatures] = useState({
+    inspectedBy: '',
+    reviewedBy: '',
+    approvedBy: '',
+  });
 
   useEffect(() => {
     fetchProjects();
@@ -455,6 +460,11 @@ export default function Inspection() {
         checkPilePitchedAccurately: false,
         checkVerticalityOfPiles: false,
         checkWeldingJoint: false,
+      });
+      setSignatures({
+        inspectedBy: '',
+        reviewedBy: '',
+        approvedBy: '',
       });
       fetchInspections();
     } catch (error) {
@@ -994,6 +1004,121 @@ export default function Inspection() {
                       onChange={handleFileSelect}
                       className="hidden"
                     />
+                  </div>
+                </div>
+              </div>
+
+              {/* Signature Section */}
+              <div className="border-2 border-slate-900 p-4">
+                <h3 className="font-bold text-sm mb-3">Signatures</h3>
+                
+                <div className="grid grid-cols-3 gap-6">
+                  {/* Inspected By */}
+                  <div className="space-y-3">
+                    <Label className="text-xs font-semibold">INSPECTED BY:</Label>
+                    <p className="text-xs text-slate-500">QA Executive / Assistant Site Manager</p>
+                    <div className="border-b border-slate-400 h-12"></div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Signature</Label>
+                      <Input
+                        value={signatures.inspectedBy}
+                        onChange={(e) => setSignatures(prev => ({ ...prev, inspectedBy: e.target.value }))}
+                        placeholder="Sign here"
+                        className="text-sm h-8"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Name</Label>
+                      <Input
+                        value={signatures.inspectedBy}
+                        onChange={(e) => setSignatures(prev => ({ ...prev, inspectedBy: e.target.value }))}
+                        placeholder="Full name"
+                        className="text-sm h-8"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Date</Label>
+                      <Input
+                        type="date"
+                        value={formData.inspection_date}
+                        onChange={(e) => setFormData({ ...formData, inspection_date: e.target.value })}
+                        className="text-sm h-8"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Reviewed By */}
+                  <div className="space-y-3">
+                    <Label className="text-xs font-semibold">REVIEWED BY:</Label>
+                    <p className="text-xs text-slate-500">Client Project Manager / Engineer</p>
+                    <div className="border-b border-slate-400 h-12"></div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Signature</Label>
+                      <Input
+                        value={signatures.reviewedBy}
+                        onChange={(e) => setSignatures(prev => ({ ...prev, reviewedBy: e.target.value }))}
+                        placeholder="Sign here"
+                        className="text-sm h-8"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Name</Label>
+                      <Input
+                        value={signatures.reviewedBy}
+                        onChange={(e) => setSignatures(prev => ({ ...prev, reviewedBy: e.target.value }))}
+                        placeholder="Full name"
+                        className="text-sm h-8"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Date</Label>
+                      <Input
+                        type="date"
+                        value={formData.inspection_date}
+                        onChange={(e) => setFormData({ ...formData, inspection_date: e.target.value })}
+                        className="text-sm h-8"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Approved By */}
+                  <div className="space-y-3">
+                    <Label className="text-xs font-semibold">APPROVED BY:</Label>
+                    <p className="text-xs text-slate-500">Consultant Engineer</p>
+                    <div className="border-b border-slate-400 h-12"></div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Signature</Label>
+                      <Input
+                        value={signatures.approvedBy}
+                        onChange={(e) => setSignatures(prev => ({ ...prev, approvedBy: e.target.value }))}
+                        placeholder="Sign here"
+                        className="text-sm h-8"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Name</Label>
+                      <Input
+                        value={signatures.approvedBy}
+                        onChange={(e) => setSignatures(prev => ({ ...prev, approvedBy: e.target.value }))}
+                        placeholder="Full name"
+                        className="text-sm h-8"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Date</Label>
+                      <Input
+                        type="date"
+                        value={formData.inspection_date}
+                        onChange={(e) => setFormData({ ...formData, inspection_date: e.target.value })}
+                        className="text-sm h-8"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Company Stamp</Label>
+                      <div className="border border-dashed border-slate-300 h-8 rounded flex items-center justify-center text-xs text-slate-400">
+                        Stamp Area
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
