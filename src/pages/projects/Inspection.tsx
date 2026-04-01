@@ -234,6 +234,22 @@ export default function Inspection() {
     drainCatchpit: false,
     drainOutfall: false,
   });
+  const [pipeCulvertBoxCulvertChecklist, setPipeCulvertBoxCulvertChecklist] = useState({
+    complianceToDrawing: false,
+    settingOut: false,
+    excavation: false,
+    backfilling: false,
+    compaction: false,
+    pipeCulvertBedding: false,
+    pipeCulvertJoints: false,
+    pipeCulvertInvertLevel: false,
+    pipeCulvertTesting: false,
+    boxCulvertFormwork: false,
+    boxCulvertReinforcement: false,
+    boxCulvertConcrete: false,
+    boxCulvertWaterproofing: false,
+    boxCulvertBackfilling: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -440,6 +456,8 @@ export default function Inspection() {
           setPerimeterDrainAndApronChecklist(data.checklist_data as any);
         } else if (data.work_category === 'WASTE WATER DRAIN') {
           setWasteWaterDrainChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'PIPE CULVERT / BOX CULVERT') {
+          setPipeCulvertBoxCulvertChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -602,6 +620,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'PERIMETER DRAIN AND APRON', perimeterDrainAndApronChecklist);
       } else if (formData.work_category === 'WASTE WATER DRAIN' && Object.values(wasteWaterDrainChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'WASTE WATER DRAIN', wasteWaterDrainChecklist);
+      } else if (formData.work_category === 'PIPE CULVERT / BOX CULVERT' && Object.values(pipeCulvertBoxCulvertChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'PIPE CULVERT / BOX CULVERT', pipeCulvertBoxCulvertChecklist);
       }
 
       // Upload images if any
@@ -805,6 +825,22 @@ export default function Inspection() {
         drainCatchpit: false,
         drainOutfall: false,
       });
+      setPipeCulvertBoxCulvertChecklist({
+        complianceToDrawing: false,
+        settingOut: false,
+        excavation: false,
+        backfilling: false,
+        compaction: false,
+        pipeCulvertBedding: false,
+        pipeCulvertJoints: false,
+        pipeCulvertInvertLevel: false,
+        pipeCulvertTesting: false,
+        boxCulvertFormwork: false,
+        boxCulvertReinforcement: false,
+        boxCulvertConcrete: false,
+        boxCulvertWaterproofing: false,
+        boxCulvertBackfilling: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -979,6 +1015,13 @@ export default function Inspection() {
 
   const handleWasteWaterDrainChecklistChange = (key: keyof typeof wasteWaterDrainChecklist, value: boolean) => {
     setWasteWaterDrainChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handlePipeCulvertBoxCulvertChecklistChange = (key: keyof typeof pipeCulvertBoxCulvertChecklist, value: boolean) => {
+    setPipeCulvertBoxCulvertChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -2727,6 +2770,197 @@ export default function Inspection() {
                       />
                       <Label htmlFor="drainOutfall" className="text-sm">
                         Drain Outfall
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Pipe Culvert / Box Culvert Checklist - Third Section */}
+              {formData.work_category === 'PIPE CULVERT / BOX CULVERT' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Pipe Culvert / Box Culvert Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="complianceToDrawing"
+                        checked={pipeCulvertBoxCulvertChecklist.complianceToDrawing}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('complianceToDrawing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="complianceToDrawing" className="text-sm">
+                        Compliance to the Drawing
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="settingOut"
+                        checked={pipeCulvertBoxCulvertChecklist.settingOut}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('settingOut', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="settingOut" className="text-sm">
+                        Setting Out
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="excavation"
+                        checked={pipeCulvertBoxCulvertChecklist.excavation}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('excavation', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="excavation" className="text-sm">
+                        Excavation
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="backfilling"
+                        checked={pipeCulvertBoxCulvertChecklist.backfilling}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('backfilling', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="backfilling" className="text-sm">
+                        Backfilling
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="compaction"
+                        checked={pipeCulvertBoxCulvertChecklist.compaction}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('compaction', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="compaction" className="text-sm">
+                        Compaction
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="pipeCulvertBedding"
+                        checked={pipeCulvertBoxCulvertChecklist.pipeCulvertBedding}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('pipeCulvertBedding', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="pipeCulvertBedding" className="text-sm">
+                        Pipe Culvert Bedding
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="pipeCulvertJoints"
+                        checked={pipeCulvertBoxCulvertChecklist.pipeCulvertJoints}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('pipeCulvertJoints', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="pipeCulvertJoints" className="text-sm">
+                        Pipe Culvert Joints
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="pipeCulvertInvertLevel"
+                        checked={pipeCulvertBoxCulvertChecklist.pipeCulvertInvertLevel}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('pipeCulvertInvertLevel', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="pipeCulvertInvertLevel" className="text-sm">
+                        Pipe Culvert Invert Level
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="pipeCulvertTesting"
+                        checked={pipeCulvertBoxCulvertChecklist.pipeCulvertTesting}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('pipeCulvertTesting', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="pipeCulvertTesting" className="text-sm">
+                        Pipe Culvert Testing
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="boxCulvertFormwork"
+                        checked={pipeCulvertBoxCulvertChecklist.boxCulvertFormwork}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('boxCulvertFormwork', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="boxCulvertFormwork" className="text-sm">
+                        Box Culvert Formwork
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="boxCulvertReinforcement"
+                        checked={pipeCulvertBoxCulvertChecklist.boxCulvertReinforcement}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('boxCulvertReinforcement', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="boxCulvertReinforcement" className="text-sm">
+                        Box Culvert Reinforcement
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="boxCulvertConcrete"
+                        checked={pipeCulvertBoxCulvertChecklist.boxCulvertConcrete}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('boxCulvertConcrete', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="boxCulvertConcrete" className="text-sm">
+                        Box Culvert Concrete
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="boxCulvertWaterproofing"
+                        checked={pipeCulvertBoxCulvertChecklist.boxCulvertWaterproofing}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('boxCulvertWaterproofing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="boxCulvertWaterproofing" className="text-sm">
+                        Box Culvert Waterproofing
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="boxCulvertBackfilling"
+                        checked={pipeCulvertBoxCulvertChecklist.boxCulvertBackfilling}
+                        onChange={(e) => handlePipeCulvertBoxCulvertChecklistChange('boxCulvertBackfilling', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="boxCulvertBackfilling" className="text-sm">
+                        Box Culvert Backfilling
                       </Label>
                     </div>
                   </div>
