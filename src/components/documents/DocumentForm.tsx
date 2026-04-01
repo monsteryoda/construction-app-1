@@ -232,7 +232,7 @@ export default function DocumentForm({ isOpen, onClose, onSubmit, projects }: Do
           </div>
           {selectedFiles.length > 0 && (
             <p className="text-xs text-slate-500">
-              {selectedFiles.length} file(s) selected - {selectedFiles.reduce((acc, file) => acc + file.size, 0) / 1024 / 1024.toFixed(2)} MB total
+              {selectedFiles.length} file(s) selected - {((selectedFiles.reduce((acc, file) => acc + file.size, 0)) / (1024 * 1024)).toFixed(2)} MB total
             </p>
           )}
         </div>
