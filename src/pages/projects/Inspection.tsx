@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Plus, Search, Filter, ClipboardCheck, Calendar, User, Image as ImageIcon, X, CheckCircle, AlertCircle, FileText, ChevronRight, Database } from 'lucide-react';
+import { Plus, Search, ClipboardCheck, Calendar, User, Image as ImageIcon, X, AlertCircle, FileText, Database, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +23,6 @@ interface Inspection {
   status: string;
   findings: string;
   recommendations: string;
-  images?: any[];
   project_name?: string;
   work_category?: string;
   contractor?: string;
@@ -39,8 +38,6 @@ interface Project {
   id: string;
   project_name: string;
   contractor?: string;
-  client?: string;
-  consultant?: string;
 }
 
 interface InspectionImage {
@@ -93,7 +90,7 @@ export default function Inspection() {
 
       const { data } = await supabase
         .from('projects')
-        .select('id, project_name, contractor, client, consultant')
+        .select('id, project_name, contractor')
         .eq('user_id', user.id);
 
       setProjects(data || []);
@@ -114,7 +111,6 @@ export default function Inspection() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      console.log('[fetchInspections] Total inspections:', data?.length);
       setInspections(data || []);
     } catch (error) {
       console.error('Error fetching inspections:', error);
@@ -126,26 +122,8 @@ export default function Inspection() {
 
   const fetchInspectionImages = async (inspectionId: string) => {
     try {
-      console.log('[fetchInspectionImages] Starting fetch for inspection:', inspectionId);
       setImagesLoading(true);
       
-      // Check if the inspection exists
-      const { data: inspectionData, error: inspectionError } = await supabase
-        .from('inspections')
-        .select('id, user_id')
-        .eq('id', inspectionId)
-        .single();
-
-      if (inspectionError) {
-        console.error('[fetchInspectionImages] Inspection not found:', inspectionError);
-        setInspectionImages([]);
-        toast.error('Inspection not found');
-        return;
-      }
-
-      console.log('[fetchInspectionImages] Inspection found:', inspectionData);
-
-      // Fetch images from database
       const { data, error } = await supabase
         .from('inspection_images')
         .select('*')
@@ -153,23 +131,15 @@ export default function Inspection() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('[fetchInspectionImages] Error fetching images:', error);
+        console.error('Error fetching images:', error);
         setInspectionImages([]);
         toast.error('Failed to load images');
         return;
       }
       
-      console.log('[fetchInspectionImages] Fetched images:', data);
-      console.log('[fetchInspectionImages] Image count:', data?.length);
-      
-      if (data && data.length > 0) {
-        console.log('[fetchInspectionImages] First image:', data[0]);
-        console.log('[fetchInspectionImages] First image URL:', data[0].image_url?.substring(0, 100) + '...');
-      }
-      
       setInspectionImages(data || []);
     } catch (error) {
-      console.error('[fetchInspectionImages] Error:', error);
+      console.error('Error:', error);
       setInspectionImages([]);
       toast.error('Error loading images');
     } finally {
@@ -248,7 +218,6 @@ export default function Inspection() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      console.log('[handleSubmit] Creating inspection...');
       const { data: inspectionData, error: insertError } = await supabase
         .from('inspections')
         .insert([{
@@ -265,17 +234,12 @@ export default function Inspection() {
         .single();
 
       if (insertError) {
-        console.error('[handleSubmit] Error creating inspection:', insertError);
+        console.error('Error creating inspection:', insertError);
         throw insertError;
       }
 
-      console.log('[handleSubmit] Inspection created:', inspectionData.id);
-      console.log('[handleSubmit] Inspection user_id:', inspectionData.user_id);
-      console.log('[handleSubmit] Current user_id:', user.id);
-
       // Upload images if any
       if (selectedImages.length > 0) {
-        console.log('[handleSubmit] Uploading', selectedImages.length, 'images...');
         let uploadedCount = 0;
         let failedCount = 0;
 
@@ -283,41 +247,30 @@ export default function Inspection() {
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}.${fileExt}`;
           
-          console.log('[handleSubmit] Uploading file:', fileName);
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('inspection_images')
             .upload(`${inspectionData.id}/${fileName}`, file);
 
           if (uploadError) {
-            console.error('[handleSubmit] Image upload error:', uploadError);
             failedCount++;
             continue;
           }
 
-          console.log('[handleSubmit] File uploaded:', uploadData.path);
-          
           const { data: { publicUrl } } = supabase.storage
             .from('inspection_images')
             .getPublicUrl(uploadData.path);
 
-          console.log('[handleSubmit] Public URL:', publicUrl);
-
-          // Insert into database with explicit user_id
-          const { error: dbError, data: dbData } = await supabase
+          const { error: dbError } = await supabase
             .from('inspection_images')
             .insert([{
               inspection_id: inspectionData.id,
               image_url: publicUrl,
               file_name: fileName,
-            }])
-            .select();
+            }]);
 
           if (dbError) {
-            console.error('[handleSubmit] Error saving image to DB:', dbError);
-            console.error('[handleSubmit] DB Error details:', JSON.stringify(dbError, null, 2));
             failedCount++;
           } else {
-            console.log('[handleSubmit] Image saved to DB:', dbData);
             uploadedCount++;
           }
         }
@@ -353,15 +306,14 @@ export default function Inspection() {
       setImagePreviews([]);
       fetchInspections();
     } catch (error) {
-      console.error('[handleSubmit] Error:', error);
+      console.error('Error:', error);
       toast.error('Failed to add inspection');
     }
   };
 
   const handleViewDetails = async (inspection: Inspection) => {
-    console.log('[handleViewDetails] Opening details for inspection:', inspection.id);
     setSelectedInspection(inspection);
-    setInspectionImages([]); // Clear previous images
+    setInspectionImages([]);
     await fetchInspectionImages(inspection.id);
     setShowDetailsDialog(true);
   };
@@ -370,14 +322,24 @@ export default function Inspection() {
     try {
       toast.loading('Fixing RLS policy...');
       
-      // Drop the old policy with the typo
+      // Drop old policies
       await supabase.rpc('drop_policy', {
         policy_name: 'Users can insert own inspection images',
         table_name: 'inspection_images'
       });
+      
+      await supabase.rpc('drop_policy', {
+        policy_name: 'Users can view own inspection images',
+        table_name: 'inspection_images'
+      });
+      
+      await supabase.rpc('drop_policy', {
+        policy_name: 'Users can delete own inspection images',
+        table_name: 'inspection_images'
+      });
 
-      // Create the correct policy
-      const { error } = await supabase.rpc('create_policy', {
+      // Create correct policies
+      const { error: insertError } = await supabase.rpc('create_policy', {
         policy_name: 'Users can insert own inspection images',
         table_name: 'inspection_images',
         policy_type: 'INSERT',
@@ -385,15 +347,31 @@ export default function Inspection() {
         with_check_clause: '(auth.uid() = (SELECT user_id FROM inspections WHERE id = inspection_images.inspection_id))'
       });
 
-      if (error) {
-        console.error('[handleFixRLSPolicy] Error:', error);
-        toast.error('Failed to fix RLS policy');
-        return;
-      }
+      if (insertError) throw insertError;
+
+      const { error: selectError } = await supabase.rpc('create_policy', {
+        policy_name: 'Users can view own inspection images',
+        table_name: 'inspection_images',
+        policy_type: 'SELECT',
+        using_clause: '(auth.uid() = (SELECT user_id FROM inspections WHERE id = inspection_images.inspection_id))',
+        with_check_clause: null
+      });
+
+      if (selectError) throw selectError;
+
+      const { error: deleteError } = await supabase.rpc('create_policy', {
+        policy_name: 'Users can delete own inspection images',
+        table_name: 'inspection_images',
+        policy_type: 'DELETE',
+        using_clause: '(auth.uid() = (SELECT user_id FROM inspections WHERE id = inspection_images.inspection_id))',
+        with_check_clause: null
+      });
+
+      if (deleteError) throw deleteError;
 
       toast.success('RLS policy fixed! Try adding an inspection with photos again.');
     } catch (error) {
-      console.error('[handleFixRLSPolicy] Error:', error);
+      console.error('Error:', error);
       toast.error('Failed to fix RLS policy');
     }
   };
