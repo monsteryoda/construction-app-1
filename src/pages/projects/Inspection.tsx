@@ -139,6 +139,41 @@ export default function Inspection() {
     slumpTestCubeTaken: false,
     vibratorAtSite: false,
   });
+  const [siteClearanceChecklist, setSiteClearanceChecklist] = useState({
+    surveySettingOut: false,
+    removalOfTreesBushes: false,
+    removalOfDebris: false,
+  });
+  const [earthworkChecklist, setEarthworkChecklist] = useState({
+    complianceToDrawing: false,
+    settingOut: false,
+    excavation: false,
+    backfilling: false,
+    compaction: false,
+    fieldDensityTest: false,
+    turfingHydroseeding: false,
+    detentionPond: false,
+    siltTrap: false,
+    temporaryEarthDrain: false,
+    asBuiltLevel: false,
+  });
+  const [roadWorkChecklist, setRoadWorkChecklist] = useState({
+    complianceToDrawing: false,
+    settingOut: false,
+    excavation: false,
+    backfilling: false,
+    compaction: false,
+    subbase: false,
+    basecourse: false,
+    binderCourse: false,
+    surfaceCourse: false,
+    kerb: false,
+    channel: false,
+    manhole: false,
+    drainage: false,
+    roadMarking: false,
+    signBoard: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -333,6 +368,12 @@ export default function Inspection() {
           setReinforcementChecklist(data.checklist_data as any);
         } else if (data.work_category === 'CONCRETE WORK') {
           setConcreteChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'SITE CLEARANCE') {
+          setSiteClearanceChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'EARTHWORK') {
+          setEarthworkChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'ROAD WORK') {
+          setRoadWorkChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -483,6 +524,12 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'REINFORCEMENT WORK / BRC', reinforcementChecklist);
       } else if (formData.work_category === 'CONCRETE WORK' && Object.values(concreteChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'CONCRETE WORK', concreteChecklist);
+      } else if (formData.work_category === 'SITE CLEARANCE' && Object.values(siteClearanceChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'SITE CLEARANCE', siteClearanceChecklist);
+      } else if (formData.work_category === 'EARTHWORK' && Object.values(earthworkChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'EARTHWORK', earthworkChecklist);
+      } else if (formData.work_category === 'ROAD WORK' && Object.values(roadWorkChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'ROAD WORK', roadWorkChecklist);
       }
 
       // Upload images if any
@@ -590,6 +637,41 @@ export default function Inspection() {
         concreteGradeAccordingToSpecification: false,
         slumpTestCubeTaken: false,
         vibratorAtSite: false,
+      });
+      setSiteClearanceChecklist({
+        surveySettingOut: false,
+        removalOfTreesBushes: false,
+        removalOfDebris: false,
+      });
+      setEarthworkChecklist({
+        complianceToDrawing: false,
+        settingOut: false,
+        excavation: false,
+        backfilling: false,
+        compaction: false,
+        fieldDensityTest: false,
+        turfingHydroseeding: false,
+        detentionPond: false,
+        siltTrap: false,
+        temporaryEarthDrain: false,
+        asBuiltLevel: false,
+      });
+      setRoadWorkChecklist({
+        complianceToDrawing: false,
+        settingOut: false,
+        excavation: false,
+        backfilling: false,
+        compaction: false,
+        subbase: false,
+        basecourse: false,
+        binderCourse: false,
+        surfaceCourse: false,
+        kerb: false,
+        channel: false,
+        manhole: false,
+        drainage: false,
+        roadMarking: false,
+        signBoard: false,
       });
       setSignatures({
         inspectedBy: '',
@@ -723,6 +805,27 @@ export default function Inspection() {
 
   const handleConcreteChecklistChange = (key: keyof typeof concreteChecklist, value: boolean) => {
     setConcreteChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleSiteClearanceChecklistChange = (key: keyof typeof siteClearanceChecklist, value: boolean) => {
+    setSiteClearanceChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleEarthworkChecklistChange = (key: keyof typeof earthworkChecklist, value: boolean) => {
+    setEarthworkChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleRoadWorkChecklistChange = (key: keyof typeof roadWorkChecklist, value: boolean) => {
+    setRoadWorkChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -1338,6 +1441,410 @@ export default function Inspection() {
                       />
                       <Label htmlFor="vibratorAtSite" className="text-sm">
                         Vibrator at Site.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Site Clearance Checklist - Third Section */}
+              {formData.work_category === 'SITE CLEARANCE' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Site Clearance Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="surveySettingOut"
+                        checked={siteClearanceChecklist.surveySettingOut}
+                        onChange={(e) => handleSiteClearanceChecklistChange('surveySettingOut', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="surveySettingOut" className="text-sm">
+                        Survey setting out as per Drawing.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="removalOfTreesBushes"
+                        checked={siteClearanceChecklist.removalOfTreesBushes}
+                        onChange={(e) => handleSiteClearanceChecklistChange('removalOfTreesBushes', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="removalOfTreesBushes" className="text-sm">
+                        Removal of all trees, bushes, vegetation, rubbish and other obstruction.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="removalOfDebris"
+                        checked={siteClearanceChecklist.removalOfDebris}
+                        onChange={(e) => handleSiteClearanceChecklistChange('removalOfDebris', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="removalOfDebris" className="text-sm">
+                        Removal or Dispose off existing debris from site.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Earthwork Checklist - Third Section */}
+              {formData.work_category === 'EARTHWORK' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Earthwork Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="complianceToDrawing"
+                        checked={earthworkChecklist.complianceToDrawing}
+                        onChange={(e) => handleEarthworkChecklistChange('complianceToDrawing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="complianceToDrawing" className="text-sm">
+                        Compliance to the Drawing
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="settingOut"
+                        checked={earthworkChecklist.settingOut}
+                        onChange={(e) => handleEarthworkChecklistChange('settingOut', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="settingOut" className="text-sm">
+                        Setting Out
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="excavation"
+                        checked={earthworkChecklist.excavation}
+                        onChange={(e) => handleEarthworkChecklistChange('excavation', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="excavation" className="text-sm">
+                        Excavation
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="backfilling"
+                        checked={earthworkChecklist.backfilling}
+                        onChange={(e) => handleEarthworkChecklistChange('backfilling', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="backfilling" className="text-sm">
+                        Backfilling
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="compaction"
+                        checked={earthworkChecklist.compaction}
+                        onChange={(e) => handleEarthworkChecklistChange('compaction', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="compaction" className="text-sm">
+                        Compaction
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="fieldDensityTest"
+                        checked={earthworkChecklist.fieldDensityTest}
+                        onChange={(e) => handleEarthworkChecklistChange('fieldDensityTest', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="fieldDensityTest" className="text-sm">
+                        Field Density Test (FDT)
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="turfingHydroseeding"
+                        checked={earthworkChecklist.turfingHydroseeding}
+                        onChange={(e) => handleEarthworkChecklistChange('turfingHydroseeding', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="turfingHydroseeding" className="text-sm">
+                        Turfing / Hydroseeding
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="detentionPond"
+                        checked={earthworkChecklist.detentionPond}
+                        onChange={(e) => handleEarthworkChecklistChange('detentionPond', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="detentionPond" className="text-sm">
+                        Detention Pond
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="siltTrap"
+                        checked={earthworkChecklist.siltTrap}
+                        onChange={(e) => handleEarthworkChecklistChange('siltTrap', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="siltTrap" className="text-sm">
+                        Silt Trap
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="temporaryEarthDrain"
+                        checked={earthworkChecklist.temporaryEarthDrain}
+                        onChange={(e) => handleEarthworkChecklistChange('temporaryEarthDrain', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="temporaryEarthDrain" className="text-sm">
+                        Temporary Earth Drain (TED) & Check Dam
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="asBuiltLevel"
+                        checked={earthworkChecklist.asBuiltLevel}
+                        onChange={(e) => handleEarthworkChecklistChange('asBuiltLevel', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="asBuiltLevel" className="text-sm">
+                        As built level
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Road Work Checklist - Third Section */}
+              {formData.work_category === 'ROAD WORK' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Road Work Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="complianceToDrawing"
+                        checked={roadWorkChecklist.complianceToDrawing}
+                        onChange={(e) => handleRoadWorkChecklistChange('complianceToDrawing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="complianceToDrawing" className="text-sm">
+                        Compliance to the Drawing
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="settingOut"
+                        checked={roadWorkChecklist.settingOut}
+                        onChange={(e) => handleRoadWorkChecklistChange('settingOut', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="settingOut" className="text-sm">
+                        Setting Out
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="excavation"
+                        checked={roadWorkChecklist.excavation}
+                        onChange={(e) => handleRoadWorkChecklistChange('excavation', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="excavation" className="text-sm">
+                        Excavation
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="backfilling"
+                        checked={roadWorkChecklist.backfilling}
+                        onChange={(e) => handleRoadWorkChecklistChange('backfilling', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="backfilling" className="text-sm">
+                        Backfilling
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="compaction"
+                        checked={roadWorkChecklist.compaction}
+                        onChange={(e) => handleRoadWorkChecklistChange('compaction', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="compaction" className="text-sm">
+                        Compaction
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="subbase"
+                        checked={roadWorkChecklist.subbase}
+                        onChange={(e) => handleRoadWorkChecklistChange('subbase', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="subbase" className="text-sm">
+                        Subbase
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="basecourse"
+                        checked={roadWorkChecklist.basecourse}
+                        onChange={(e) => handleRoadWorkChecklistChange('basecourse', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="basecourse" className="text-sm">
+                        Basecourse
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="binderCourse"
+                        checked={roadWorkChecklist.binderCourse}
+                        onChange={(e) => handleRoadWorkChecklistChange('binderCourse', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="binderCourse" className="text-sm">
+                        Binder Course
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="surfaceCourse"
+                        checked={roadWorkChecklist.surfaceCourse}
+                        onChange={(e) => handleRoadWorkChecklistChange('surfaceCourse', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="surfaceCourse" className="text-sm">
+                        Surface Course
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="kerb"
+                        checked={roadWorkChecklist.kerb}
+                        onChange={(e) => handleRoadWorkChecklistChange('kerb', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="kerb" className="text-sm">
+                        Kerb
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="channel"
+                        checked={roadWorkChecklist.channel}
+                        onChange={(e) => handleRoadWorkChecklistChange('channel', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="channel" className="text-sm">
+                        Channel
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="manhole"
+                        checked={roadWorkChecklist.manhole}
+                        onChange={(e) => handleRoadWorkChecklistChange('manhole', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="manhole" className="text-sm">
+                        Manhole
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainage"
+                        checked={roadWorkChecklist.drainage}
+                        onChange={(e) => handleRoadWorkChecklistChange('drainage', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainage" className="text-sm">
+                        Drainage
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="roadMarking"
+                        checked={roadWorkChecklist.roadMarking}
+                        onChange={(e) => handleRoadWorkChecklistChange('roadMarking', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="roadMarking" className="text-sm">
+                        Road Marking
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="signBoard"
+                        checked={roadWorkChecklist.signBoard}
+                        onChange={(e) => handleRoadWorkChecklistChange('signBoard', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="signBoard" className="text-sm">
+                        Sign Board
                       </Label>
                     </div>
                   </div>
