@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Plus, Search, ClipboardCheck, Calendar, User, Image as ImageIcon, X, AlertCircle, FileText, Database, CheckCircle2, Mail, Building, Printer, Save, Eye, Edit2 } from 'lucide-react';
+import { Plus, Search, ClipboardCheck, Calendar, User, Image as ImageIcon, X, AlertCircle, FileText, Database, CheckCircle2, Mail, Building, Printer, Save, Eye, Edit2, CheckSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
@@ -94,6 +94,12 @@ export default function Inspection() {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [pilingChecklist, setPilingChecklist] = useState({
+    checkPositionOfPeg: false,
+    checkPilePitchedAccurately: false,
+    checkVerticalityOfPiles: false,
+    checkWeldingJoint: false,
+  });
 
   useEffect(() => {
     fetchProjects();
@@ -376,6 +382,12 @@ export default function Inspection() {
       });
       setSelectedImages([]);
       setImagePreviews([]);
+      setPilingChecklist({
+        checkPositionOfPeg: false,
+        checkPilePitchedAccurately: false,
+        checkVerticalityOfPiles: false,
+        checkWeldingJoint: false,
+      });
       fetchInspections();
     } catch (error) {
       console.error('Error:', error);
@@ -468,6 +480,13 @@ export default function Inspection() {
       contractor: project?.contractor || '',
       client: project?.client || '',
       consultant: project?.consultant || '',
+    }));
+  };
+
+  const handlePilingChecklistChange = (key: keyof typeof pilingChecklist, value: boolean) => {
+    setPilingChecklist(prev => ({
+      ...prev,
+      [key]: value,
     }));
   };
 
@@ -690,6 +709,67 @@ export default function Inspection() {
                   </div>
                 </div>
               </div>
+
+              {/* Piling Work Checklist */}
+              {formData.work_category === 'PILING WORK' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Piling Work Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="checkPositionOfPeg"
+                        checked={pilingChecklist.checkPositionOfPeg}
+                        onChange={(e) => handlePilingChecklistChange('checkPositionOfPeg', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="checkPositionOfPeg" className="text-sm">
+                        Check Position Of Peg With Reference to Drawing.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="checkPilePitchedAccurately"
+                        checked={pilingChecklist.checkPilePitchedAccurately}
+                        onChange={(e) => handlePilingChecklistChange('checkPilePitchedAccurately', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="checkPilePitchedAccurately" className="text-sm">
+                        Check Whether Pile Are Pitched Accurately As Per Drawing.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="checkVerticalityOfPiles"
+                        checked={pilingChecklist.checkVerticalityOfPiles}
+                        onChange={(e) => handlePilingChecklistChange('checkVerticalityOfPiles', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="checkVerticalityOfPiles" className="text-sm">
+                        Check Verticality Of Piles Before Driving In.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="checkWeldingJoint"
+                        checked={pilingChecklist.checkWeldingJoint}
+                        onChange={(e) => handlePilingChecklistChange('checkWeldingJoint', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="checkWeldingJoint" className="text-sm">
+                        Check For Welding Joint With Reference to Drawing.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Request Section */}
               <div className="border-2 border-slate-900 p-4">
