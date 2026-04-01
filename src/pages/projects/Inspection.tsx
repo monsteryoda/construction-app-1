@@ -600,6 +600,7 @@ export default function Inspection() {
                       <option value="HDPE MEMBRANE">HDPE MEMBRANE</option>
                       <option value="PERIMETER FENCING / HOARDING">PERIMETER FENCING / HOARDING</option>
                       <option value="FINAL CLEANING UP">FINAL CLEANING UP</option>
+                      <option value="COLD WATER PIPING WORK">COLD WATER PIPING WORK</option>
                     </select>
                   </div>
 
