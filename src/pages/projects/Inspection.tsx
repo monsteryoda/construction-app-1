@@ -70,6 +70,8 @@ export default function Inspection() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [rwiSerialNo, setRwiSerialNo] = useState('');
+  const [referenceNo, setReferenceNo] = useState('');
+  const [trackingNo, setTrackingNo] = useState('');
   const [formData, setFormData] = useState({
     project_id: '',
     work_category: '',
@@ -105,6 +107,8 @@ export default function Inspection() {
     fetchProjects();
     fetchInspections();
     generateRwiSerialNo();
+    generateReferenceNo();
+    generateTrackingNo();
   }, []);
 
   const generateRwiSerialNo = async () => {
@@ -131,6 +135,68 @@ export default function Inspection() {
       console.error('Error generating RWI serial no:', error);
       const year = new Date().getFullYear().toString().slice(-2);
       setRwiSerialNo(`URSB/KA-T/${year}/35-01`);
+    }
+  };
+
+  const generateReferenceNo = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('inspections')
+        .select('references')
+        .eq('user_id', user.id)
+        .not('references', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+
+      let nextNumber = 1;
+      if (data && data.length > 0) {
+        const lastRef = data[0].references;
+        const match = lastRef?.match(/REF-(\d+)/);
+        if (match) {
+          nextNumber = parseInt(match[1]) + 1;
+        }
+      }
+
+      setReferenceNo(`REF-${nextNumber.toString().padStart(3, '0')}`);
+    } catch (error) {
+      console.error('Error generating reference no:', error);
+      setReferenceNo('REF-001');
+    }
+  };
+
+  const generateTrackingNo = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('inspections')
+        .select('tracking')
+        .eq('user_id', user.id)
+        .not('tracking', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+
+      let nextNumber = 1;
+      if (data && data.length > 0) {
+        const lastTrack = data[0].tracking;
+        const match = lastTrack?.match(/TRK-(\d+)/);
+        if (match) {
+          nextNumber = parseInt(match[1]) + 1;
+        }
+      }
+
+      setTrackingNo(`TRK-${nextNumber.toString().padStart(3, '0')}`);
+    } catch (error) {
+      console.error('Error generating tracking no:', error);
+      setTrackingNo('TRK-001');
     }
   };
 
@@ -359,6 +425,8 @@ export default function Inspection() {
       setShowEditDialog(false);
       setEditingId(null);
       generateRwiSerialNo();
+      generateReferenceNo();
+      generateTrackingNo();
       setFormData({
         project_id: '',
         work_category: '',
@@ -844,20 +912,22 @@ export default function Inspection() {
                   <div className="space-y-2">
                     <Label className="text-xs">References</Label>
                     <Input
-                      value={formData.references}
+                      value={formData.references || referenceNo}
                       onChange={(e) => setFormData({ ...formData, references: e.target.value })}
                       placeholder="Reference number"
-                      className="text-sm"
+                      className="text-sm bg-slate-50 font-mono"
+                      disabled
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label className="text-xs">Tracking</Label>
                     <Input
-                      value={formData.tracking}
+                      value={formData.tracking || trackingNo}
                       onChange={(e) => setFormData({ ...formData, tracking: e.target.value })}
                       placeholder="Tracking number"
-                      className="text-sm"
+                      className="text-sm bg-slate-50 font-mono"
+                      disabled
                     />
                   </div>
                 </div>
