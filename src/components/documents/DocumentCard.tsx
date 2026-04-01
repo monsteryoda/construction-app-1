@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Download, Eye, Calendar, X, FileUp, Edit, Trash2 } from 'lucide-react';
+import { FileText, Download, Eye, Calendar, X, FileUp, Edit, Trash2, MoreVertical } from 'lucide-react';
 import { Document } from './DocumentTypes';
 import { deleteDocumentFile } from './DocumentActions';
 
@@ -17,6 +17,7 @@ interface DocumentCardProps {
 export default function DocumentCard({ document, onDeleteFile, onEdit, onDelete }: DocumentCardProps) {
   const [showFileDialog, setShowFileDialog] = useState(false);
   const [selectedFileIndex, setSelectedFileIndex] = useState(0);
+  const [showFileMenu, setShowFileMenu] = useState(false);
 
   const getFileIcon = (documentType: string) => {
     switch (documentType.toLowerCase()) {
@@ -29,6 +30,20 @@ export default function DocumentCard({ document, onDeleteFile, onEdit, onDelete 
       default:
         return <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center"><FileText className="w-5 h-5 text-slate-600" /></div>;
     }
+  };
+
+  const getFileIconSmall = (fileName: string) => {
+    const ext = fileName.split('.').pop()?.toLowerCase() || '';
+    if (ext === 'pdf') {
+      return <div className="w-8 h-8 bg-red-100 rounded flex items-center justify-center"><FileText className="w-4 h-4 text-red-600" /></div>;
+    } else if (ext === 'doc' || ext === 'docx') {
+      return <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center"><FileText className="w-4 h-4 text-blue-600" /></div>;
+    } else if (ext === 'xls' || ext === 'xlsx') {
+      return <div className="w-8 h-8 bg-green-100 rounded flex items-center justify-center"><FileText className="w-4 h-4 text-green-600" /></div>;
+    } else if (ext === 'jpg' || ext === 'jpeg' || ext === 'png' || ext === 'gif') {
+      return <div className="w-8 h-8 bg-purple-100 rounded flex items-center justify-center"><FileText className="w-4 h-4 text-purple-600" /></div>;
+    }
+    return <div className="w-8 h-8 bg-slate-100 rounded flex items-center justify-center"><FileText className="w-4 h-4 text-slate-600" /></div>;
   };
 
   const formatFileSize = (bytes: number) => {
@@ -61,6 +76,25 @@ export default function DocumentCard({ document, onDeleteFile, onEdit, onDelete 
     if (onEdit) {
       onEdit(document);
     }
+  };
+
+  const handleFileClick = (index: number) => {
+    setSelectedFileIndex(index);
+    setShowFileDialog(true);
+  };
+
+  const handleDownload = (e: React.MouseEvent, fileUrl: string, fileName: string) => {
+    e.stopPropagation();
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = fileName;
+    link.target = '_blank';
+    link.click();
+  };
+
+  const handleView = (e: React.MouseEvent, fileUrl: string) => {
+    e.stopPropagation();
+    window.open(fileUrl, '_blank');
   };
 
   return (
@@ -96,62 +130,66 @@ export default function DocumentCard({ document, onDeleteFile, onEdit, onDelete 
               {/* Display Multiple Files */}
               {document.files && document.files.length > 0 && (
                 <div className="mt-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <FileUp className="w-4 h-4 text-slate-500" />
-                    <span className="text-sm font-medium text-slate-700">
-                      {document.files.length} file(s)
-                    </span>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <FileUp className="w-4 h-4 text-slate-500" />
+                      <span className="text-sm font-medium text-slate-700">
+                        {document.files.length} file(s)
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowFileMenu(!showFileMenu)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {document.files.map((file, index) => (
-                      <div key={file.id} className="relative group">
-                        <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
-                          <FileText className="w-4 h-4 text-blue-600" />
+                      <div 
+                        key={file.id} 
+                        className={`relative group cursor-pointer ${selectedFileIndex === index ? 'ring-2 ring-blue-500' : ''}`}
+                        onClick={() => handleFileClick(index)}
+                      >
+                        <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200 hover:border-blue-500 transition-colors">
+                          {getFileIconSmall(file.file_name)}
                           <div className="min-w-0">
-                            <p className="text-xs font-medium text-slate-700 truncate max-w-[150px]">
+                            <p className="text-xs font-medium text-slate-700 truncate max-w-[120px]">
                               {file.file_name}
                             </p>
                             <p className="text-xs text-slate-500">{formatFileSize(file.file_size)}</p>
                           </div>
                         </div>
+                        {/* Delete button */}
                         <button
-                          onClick={() => handleDeleteFile(file.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteFile(file.id);
+                          }}
                           className="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                           title="Delete file"
                         >
                           <X className="w-3 h-3" />
                         </button>
-                        {/* Download/View buttons for each file */}
+                        {/* Quick actions on hover */}
                         <div className="absolute top-10 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Button
                             variant="secondary"
                             size="sm"
                             className="h-6 px-2"
-                            asChild
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedFileIndex(index);
-                              setShowFileDialog(true);
-                            }}
+                            onClick={(e) => handleView(e, file.file_url)}
                           >
-                            <a href={file.file_url} target="_blank" rel="noopener noreferrer">
-                              <Eye className="w-3 h-3" />
-                            </a>
+                            <Eye className="w-3 h-3" />
                           </Button>
                           <Button
                             variant="secondary"
                             size="sm"
                             className="h-6 px-2"
-                            asChild
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedFileIndex(index);
-                              setShowFileDialog(true);
-                            }}
+                            onClick={(e) => handleDownload(e, file.file_url, file.file_name)}
                           >
-                            <a href={file.file_url} download>
-                              <Download className="w-3 h-3" />
-                            </a>
+                            <Download className="w-3 h-3" />
                           </Button>
                         </div>
                       </div>
@@ -233,7 +271,7 @@ export default function DocumentCard({ document, onDeleteFile, onEdit, onDelete 
             </div>
             <div className="p-4">
               <div className="flex items-center gap-4 mb-4">
-                <FileText className="w-12 h-12 text-blue-600" />
+                {getFileIconSmall(document.files[selectedFileIndex]?.file_name || '')}
                 <div>
                   <p className="font-medium text-slate-900">{document.files[selectedFileIndex]?.file_name}</p>
                   <p className="text-sm text-slate-500">
@@ -242,17 +280,13 @@ export default function DocumentCard({ document, onDeleteFile, onEdit, onDelete 
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="gap-1" asChild>
-                  <a href={document.files[selectedFileIndex]?.file_url} target="_blank" rel="noopener noreferrer">
-                    <Eye className="w-4 h-4" />
-                    View
-                  </a>
+                <Button variant="outline" size="sm" className="gap-1" onClick={(e) => handleView(e, document.files[selectedFileIndex]?.file_url || '')}>
+                  <Eye className="w-4 h-4" />
+                  View
                 </Button>
-                <Button variant="outline" size="sm" className="gap-1" asChild>
-                  <a href={document.files[selectedFileIndex]?.file_url} download>
-                    <Download className="w-4 h-4" />
-                    Download
-                  </a>
+                <Button variant="outline" size="sm" className="gap-1" onClick={(e) => handleDownload(e, document.files[selectedFileIndex]?.file_url || '', document.files[selectedFileIndex]?.file_name || '')}>
+                  <Download className="w-4 h-4" />
+                  Download
                 </Button>
               </div>
             </div>

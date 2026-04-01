@@ -56,16 +56,16 @@ export default function Documents() {
       // Fetch files for each document
       const documentsWithFiles = await Promise.all(
         (data || []).map(async (doc) => {
-          // For now, we'll use the main file_url
-          return { ...doc, files: [{
-            id: doc.id,
-            document_id: doc.id,
-            file_url: doc.file_url,
-            file_name: doc.document_name,
-            file_size: doc.file_size,
-            version: doc.version,
-            uploaded_at: doc.uploaded_at,
-          }] };
+          const { data: files } = await supabase
+            .from('document_files')
+            .select('*')
+            .eq('document_id', doc.id)
+            .order('created_at', { ascending: false });
+          
+          return { 
+            ...doc, 
+            files: files || [] 
+          };
         })
       );
 
@@ -88,7 +88,6 @@ export default function Documents() {
         .insert([{
           user_id: user.id,
           ...document,
-          file_size: files.reduce((acc, file) => acc + file.size, 0),
         }])
         .select()
         .single();
