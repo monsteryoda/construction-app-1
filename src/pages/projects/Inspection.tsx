@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Plus, Search, ClipboardCheck, Calendar, User, Image as ImageIcon, X, AlertCircle, FileText, Database, CheckCircle2 } from 'lucide-react';
+import { Plus, Search, ClipboardCheck, Calendar, User, Image as ImageIcon, X, AlertCircle, FileText, Database, CheckCircle2, Mail, Building, Printer, Save, Eye, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +23,9 @@ interface Inspection {
   status: string;
   findings: string;
   recommendations: string;
+  email?: string;
+  client?: string;
+  consultant?: string;
   project_name?: string;
   work_category?: string;
   contractor?: string;
@@ -32,12 +35,18 @@ interface Inspection {
   inspection_time?: string;
   intended_date?: string;
   intended_time?: string;
+  references?: string;
+  tracking?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Project {
   id: string;
   project_name: string;
   contractor?: string;
+  client?: string;
+  consultant?: string;
 }
 
 interface InspectionImage {
@@ -54,6 +63,7 @@ export default function Inspection() {
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null);
   const [inspectionImages, setInspectionImages] = useState<InspectionImage[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
@@ -71,12 +81,18 @@ export default function Inspection() {
     intended_date: '',
     intended_time: '10:00',
     inspector_name: '',
+    email: '',
+    client: '',
+    consultant: '',
     status: 'pending',
     findings: '',
     recommendations: '',
+    references: '',
+    tracking: '',
   });
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProjects();
@@ -90,7 +106,7 @@ export default function Inspection() {
 
       const { data } = await supabase
         .from('projects')
-        .select('id, project_name, contractor')
+        .select('id, project_name, contractor, client, consultant')
         .eq('user_id', user.id);
 
       setProjects(data || []);
@@ -106,7 +122,7 @@ export default function Inspection() {
 
       const { data, error } = await supabase
         .from('inspections')
-        .select('*, projects(project_name)')
+        .select('*, projects(project_name, client, consultant)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -218,24 +234,45 @@ export default function Inspection() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: inspectionData, error: insertError } = await supabase
-        .from('inspections')
-        .insert([{
-          user_id: user.id,
-          project_id: formData.project_id,
-          inspection_type: formData.work_category,
-          inspection_date: formData.inspection_date,
-          inspector_name: formData.inspector_name,
-          status: formData.status,
-          findings: formData.findings,
-          recommendations: formData.recommendations,
-        }])
-        .select()
-        .single();
+      const inspectionData = {
+        user_id: user.id,
+        project_id: formData.project_id,
+        inspection_type: formData.work_category,
+        inspection_date: formData.inspection_date,
+        inspector_name: formData.inspector_name,
+        status: formData.status,
+        findings: formData.findings,
+        recommendations: formData.recommendations,
+        email: formData.email,
+        client: formData.client,
+        consultant: formData.consultant,
+        references: formData.references,
+        tracking: formData.tracking,
+      };
 
-      if (insertError) {
-        console.error('Error creating inspection:', insertError);
-        throw insertError;
+      let inspectionResult;
+      
+      if (editingId) {
+        const { data, error } = await supabase
+          .from('inspections')
+          .update(inspectionData)
+          .eq('id', editingId)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        inspectionResult = data;
+        toast.success('Inspection updated successfully');
+      } else {
+        const { data, error } = await supabase
+          .from('inspections')
+          .insert([inspectionData])
+          .select()
+          .single();
+
+        if (error) throw error;
+        inspectionResult = data;
+        toast.success('Inspection added successfully');
       }
 
       // Upload images if any
@@ -249,7 +286,7 @@ export default function Inspection() {
           
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('inspection_images')
-            .upload(`${inspectionData.id}/${fileName}`, file);
+            .upload(`${inspectionResult.id}/${fileName}`, file);
 
           if (uploadError) {
             failedCount++;
@@ -263,7 +300,7 @@ export default function Inspection() {
           const { error: dbError } = await supabase
             .from('inspection_images')
             .insert([{
-              inspection_id: inspectionData.id,
+              inspection_id: inspectionResult.id,
               image_url: publicUrl,
               file_name: fileName,
             }]);
@@ -281,11 +318,11 @@ export default function Inspection() {
         if (failedCount > 0) {
           toast.warning(`${failedCount} image(s) failed to upload`);
         }
-      } else {
-        toast.success('Inspection added successfully');
       }
 
       setShowAddDialog(false);
+      setShowEditDialog(false);
+      setEditingId(null);
       setFormData({
         project_id: '',
         work_category: '',
@@ -298,16 +335,21 @@ export default function Inspection() {
         intended_date: '',
         intended_time: '10:00',
         inspector_name: '',
+        email: '',
+        client: '',
+        consultant: '',
         status: 'pending',
         findings: '',
         recommendations: '',
+        references: '',
+        tracking: '',
       });
       setSelectedImages([]);
       setImagePreviews([]);
       fetchInspections();
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Failed to add inspection');
+      toast.error('Failed to save inspection');
     }
   };
 
@@ -318,68 +360,59 @@ export default function Inspection() {
     setShowDetailsDialog(true);
   };
 
-  const handleFixRLSPolicy = async () => {
+  const handleEdit = (inspection: Inspection) => {
+    setSelectedInspection(inspection);
+    setFormData({
+      project_id: inspection.project_id,
+      work_category: inspection.inspection_type,
+      contractor: inspection.contractor || '',
+      description: inspection.description || '',
+      zone: inspection.zone || '',
+      location: inspection.location || '',
+      inspection_date: inspection.inspection_date || '',
+      inspection_time: inspection.inspection_time || '10:00',
+      intended_date: inspection.intended_date || '',
+      intended_time: inspection.intended_time || '10:00',
+      inspector_name: inspection.inspector_name,
+      email: inspection.email || '',
+      client: inspection.client || '',
+      consultant: inspection.consultant || '',
+      status: inspection.status,
+      findings: inspection.findings || '',
+      recommendations: inspection.recommendations || '',
+      references: inspection.references || '',
+      tracking: inspection.tracking || '',
+    });
+    setEditingId(inspection.id);
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateStatus = async (inspectionId: string, newStatus: string) => {
     try {
-      toast.loading('Fixing RLS policy...');
+      const { error } = await supabase
+        .from('inspections')
+        .update({ status: newStatus })
+        .eq('id', inspectionId);
+
+      if (error) throw error;
       
-      // Drop old policies
-      await supabase.rpc('drop_policy', {
-        policy_name: 'Users can insert own inspection images',
-        table_name: 'inspection_images'
-      });
-      
-      await supabase.rpc('drop_policy', {
-        policy_name: 'Users can view own inspection images',
-        table_name: 'inspection_images'
-      });
-      
-      await supabase.rpc('drop_policy', {
-        policy_name: 'Users can delete own inspection images',
-        table_name: 'inspection_images'
-      });
-
-      // Create correct policies
-      const { error: insertError } = await supabase.rpc('create_policy', {
-        policy_name: 'Users can insert own inspection images',
-        table_name: 'inspection_images',
-        policy_type: 'INSERT',
-        using_clause: '(auth.uid() = (SELECT user_id FROM inspections WHERE id = inspection_images.inspection_id))',
-        with_check_clause: '(auth.uid() = (SELECT user_id FROM inspections WHERE id = inspection_images.inspection_id))'
-      });
-
-      if (insertError) throw insertError;
-
-      const { error: selectError } = await supabase.rpc('create_policy', {
-        policy_name: 'Users can view own inspection images',
-        table_name: 'inspection_images',
-        policy_type: 'SELECT',
-        using_clause: '(auth.uid() = (SELECT user_id FROM inspections WHERE id = inspection_images.inspection_id))',
-        with_check_clause: null
-      });
-
-      if (selectError) throw selectError;
-
-      const { error: deleteError } = await supabase.rpc('create_policy', {
-        policy_name: 'Users can delete own inspection images',
-        table_name: 'inspection_images',
-        policy_type: 'DELETE',
-        using_clause: '(auth.uid() = (SELECT user_id FROM inspections WHERE id = inspection_images.inspection_id))',
-        with_check_clause: null
-      });
-
-      if (deleteError) throw deleteError;
-
-      toast.success('RLS policy fixed! Try adding an inspection with photos again.');
+      toast.success(`Status updated to ${newStatus}`);
+      fetchInspections();
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('Failed to fix RLS policy');
+      console.error('Error updating status:', error);
+      toast.error('Failed to update status');
     }
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   const filteredInspections = inspections.filter(inspection => {
     const matchesSearch = inspection.inspection_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          inspection.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         inspection.inspector_name?.toLowerCase().includes(searchTerm.toLowerCase());
+                         inspection.inspector_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         inspection.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'all' || inspection.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
@@ -403,6 +436,8 @@ export default function Inspection() {
       ...prev,
       project_id: projectId,
       contractor: project?.contractor || '',
+      client: project?.client || '',
+      consultant: project?.consultant || '',
     }));
   };
 
@@ -415,15 +450,6 @@ export default function Inspection() {
             <p className="text-slate-500 mt-1">Track and manage project inspections</p>
           </div>
           <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleFixRLSPolicy}
-              className="gap-2"
-            >
-              <Database className="w-4 h-4" />
-              Fix RLS Policy
-            </Button>
             <Button onClick={() => setShowAddDialog(true)} className="gap-2">
               <Plus className="w-4 h-4" />
               Add Inspection
@@ -505,7 +531,7 @@ export default function Inspection() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-3 gap-4 mb-4">
                   <div className="space-y-2">
                     <Label className="text-xs">Work Category</Label>
                     <select
@@ -531,6 +557,48 @@ export default function Inspection() {
                       className="text-sm"
                       placeholder="Contractor name"
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="text-sm pl-9"
+                        placeholder="email@example.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Client</Label>
+                    <div className="relative">
+                      <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        value={formData.client}
+                        onChange={(e) => setFormData({ ...formData, client: e.target.value })}
+                        className="text-sm pl-9"
+                        placeholder="Client name"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Consultant</Label>
+                    <div className="relative">
+                      <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        value={formData.consultant}
+                        onChange={(e) => setFormData({ ...formData, consultant: e.target.value })}
+                        className="text-sm pl-9"
+                        placeholder="Consultant name"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -637,6 +705,28 @@ export default function Inspection() {
               <div className="border-2 border-slate-900 p-4">
                 <h3 className="font-bold text-sm mb-3">Additional Information</h3>
                 
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs">References</Label>
+                    <Input
+                      value={formData.references}
+                      onChange={(e) => setFormData({ ...formData, references: e.target.value })}
+                      placeholder="Reference number"
+                      className="text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Tracking</Label>
+                    <Input
+                      value={formData.tracking}
+                      onChange={(e) => setFormData({ ...formData, tracking: e.target.value })}
+                      placeholder="Tracking number"
+                      className="text-sm"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2 mb-4">
                   <Label className="text-xs">Findings</Label>
                   <Textarea
@@ -707,7 +797,10 @@ export default function Inspection() {
               <Button variant="outline" onClick={() => setShowAddDialog(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSubmit}>Add Inspection</Button>
+              <Button onClick={handleSubmit}>
+                {editingId ? <Save className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+                {editingId ? 'Update Inspection' : 'Add Inspection'}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -752,7 +845,7 @@ export default function Inspection() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-3 gap-4 mb-4">
                     <div className="space-y-2">
                       <Label className="text-xs">Work Category</Label>
                       <Input
@@ -766,6 +859,55 @@ export default function Inspection() {
                       <Label className="text-xs">Contractor (Requestor)</Label>
                       <Input
                         value={selectedInspection.contractor || 'N/A'}
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs">Email</Label>
+                      <Input
+                        value={selectedInspection.email || 'N/A'}
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs">Client</Label>
+                      <Input
+                        value={selectedInspection.client || 'N/A'}
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs">Consultant</Label>
+                      <Input
+                        value={selectedInspection.consultant || 'N/A'}
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs">References</Label>
+                      <Input
+                        value={selectedInspection.references || 'N/A'}
+                        className="text-sm bg-slate-50"
+                        disabled
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs">Tracking</Label>
+                      <Input
+                        value={selectedInspection.tracking || 'N/A'}
                         className="text-sm bg-slate-50"
                         disabled
                       />
@@ -979,19 +1121,58 @@ export default function Inspection() {
                             <span>{inspection.inspector_name}</span>
                           </div>
                         )}
+                        {inspection.email && (
+                          <div className="flex items-center gap-1">
+                            <Mail className="w-4 h-4" />
+                            <span>{inspection.email}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => handleViewDetails(inspection)}
-                      >
-                        <FileText className="w-4 h-4" />
-                        View Details
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => handleEdit(inspection)}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => handleViewDetails(inspection)}
+                        >
+                          <Eye className="w-4 h-4" />
+                          View
+                        </Button>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <select
+                          value={inspection.status}
+                          onChange={(e) => handleUpdateStatus(inspection.id, e.target.value)}
+                          className="px-2 py-1 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="in_progress">In Progress</option>
+                          <option value="completed">Completed</option>
+                          <option value="on_hold">On Hold</option>
+                        </select>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
+                          onClick={handlePrint}
+                        >
+                          <Printer className="w-4 h-4" />
+                          Print
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
