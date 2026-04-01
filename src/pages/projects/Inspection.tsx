@@ -250,6 +250,20 @@ export default function Inspection() {
     boxCulvertWaterproofing: false,
     boxCulvertBackfilling: false,
   });
+  const [brickworkChecklist, setBrickworkChecklist] = useState({
+    complianceToDrawing: false,
+    settingOut: false,
+    brickQuality: false,
+    mortarMix: false,
+    wallVerticality: false,
+    wallStraightness: false,
+    bedJoints: false,
+    crossJoints: false,
+    wallThickness: false,
+    dampProofCourse: false,
+    wallCleaning: false,
+    wallCuring: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -458,6 +472,8 @@ export default function Inspection() {
           setWasteWaterDrainChecklist(data.checklist_data as any);
         } else if (data.work_category === 'PIPE CULVERT / BOX CULVERT') {
           setPipeCulvertBoxCulvertChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'BRICKWORK') {
+          setBrickworkChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -622,6 +638,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'WASTE WATER DRAIN', wasteWaterDrainChecklist);
       } else if (formData.work_category === 'PIPE CULVERT / BOX CULVERT' && Object.values(pipeCulvertBoxCulvertChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'PIPE CULVERT / BOX CULVERT', pipeCulvertBoxCulvertChecklist);
+      } else if (formData.work_category === 'BRICKWORK' && Object.values(brickworkChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'BRICKWORK', brickworkChecklist);
       }
 
       // Upload images if any
@@ -841,6 +859,20 @@ export default function Inspection() {
         boxCulvertWaterproofing: false,
         boxCulvertBackfilling: false,
       });
+      setBrickworkChecklist({
+        complianceToDrawing: false,
+        settingOut: false,
+        brickQuality: false,
+        mortarMix: false,
+        wallVerticality: false,
+        wallStraightness: false,
+        bedJoints: false,
+        crossJoints: false,
+        wallThickness: false,
+        dampProofCourse: false,
+        wallCleaning: false,
+        wallCuring: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -1022,6 +1054,13 @@ export default function Inspection() {
 
   const handlePipeCulvertBoxCulvertChecklistChange = (key: keyof typeof pipeCulvertBoxCulvertChecklist, value: boolean) => {
     setPipeCulvertBoxCulvertChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleBrickworkChecklistChange = (key: keyof typeof brickworkChecklist, value: boolean) => {
+    setBrickworkChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -2961,6 +3000,171 @@ export default function Inspection() {
                       />
                       <Label htmlFor="boxCulvertBackfilling" className="text-sm">
                         Box Culvert Backfilling
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Brickwork Checklist - Third Section */}
+              {formData.work_category === 'BRICKWORK' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Brickwork Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="complianceToDrawing"
+                        checked={brickworkChecklist.complianceToDrawing}
+                        onChange={(e) => handleBrickworkChecklistChange('complianceToDrawing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="complianceToDrawing" className="text-sm">
+                        Compliance to the Drawing
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="settingOut"
+                        checked={brickworkChecklist.settingOut}
+                        onChange={(e) => handleBrickworkChecklistChange('settingOut', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="settingOut" className="text-sm">
+                        Setting Out
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="brickQuality"
+                        checked={brickworkChecklist.brickQuality}
+                        onChange={(e) => handleBrickworkChecklistChange('brickQuality', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="brickQuality" className="text-sm">
+                        Brick Quality
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="mortarMix"
+                        checked={brickworkChecklist.mortarMix}
+                        onChange={(e) => handleBrickworkChecklistChange('mortarMix', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="mortarMix" className="text-sm">
+                        Mortar Mix
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="wallVerticality"
+                        checked={brickworkChecklist.wallVerticality}
+                        onChange={(e) => handleBrickworkChecklistChange('wallVerticality', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="wallVerticality" className="text-sm">
+                        Wall Verticality
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="wallStraightness"
+                        checked={brickworkChecklist.wallStraightness}
+                        onChange={(e) => handleBrickworkChecklistChange('wallStraightness', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="wallStraightness" className="text-sm">
+                        Wall Straightness
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="bedJoints"
+                        checked={brickworkChecklist.bedJoints}
+                        onChange={(e) => handleBrickworkChecklistChange('bedJoints', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="bedJoints" className="text-sm">
+                        Bed Joints
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="crossJoints"
+                        checked={brickworkChecklist.crossJoints}
+                        onChange={(e) => handleBrickworkChecklistChange('crossJoints', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="crossJoints" className="text-sm">
+                        Cross Joints
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="wallThickness"
+                        checked={brickworkChecklist.wallThickness}
+                        onChange={(e) => handleBrickworkChecklistChange('wallThickness', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="wallThickness" className="text-sm">
+                        Wall Thickness
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="dampProofCourse"
+                        checked={brickworkChecklist.dampProofCourse}
+                        onChange={(e) => handleBrickworkChecklistChange('dampProofCourse', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="dampProofCourse" className="text-sm">
+                        Damp Proof Course
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="wallCleaning"
+                        checked={brickworkChecklist.wallCleaning}
+                        onChange={(e) => handleBrickworkChecklistChange('wallCleaning', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="wallCleaning" className="text-sm">
+                        Wall Cleaning
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="wallCuring"
+                        checked={brickworkChecklist.wallCuring}
+                        onChange={(e) => handleBrickworkChecklistChange('wallCuring', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="wallCuring" className="text-sm">
+                        Wall Curing
                       </Label>
                     </div>
                   </div>
