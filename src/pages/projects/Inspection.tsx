@@ -593,14 +593,6 @@ export default function Inspection() {
                       <option value="ROOFING WORK">ROOFING WORK</option>
                       <option value="GUTTER WORK">GUTTER WORK</option>
                       <option value="RAIN WATER DOWN PIPE WORK">RAIN WATER DOWN PIPE WORK</option>
-                      <option value="COLD WATER PIPING WORK">COLD WATER PIPING WORK</option>
-                      <option value="INTERNAL SANITARY WORK">INTERNAL SANITARY WORK</option>
-                      <option value="FIRE PROTECTION SERVICES">FIRE PROTECTION SERVICES</option>
-                      <option value="ELECTRICAL SERVICES">ELECTRICAL SERVICES</option>
-                      <option value="STRUCTURAL RECTIFICATION">STRUCTURAL RECTIFICATION</option>
-                      <option value="HDPE MEMBRANE">HDPE MEMBRANE</option>
-                      <option value="PERIMETER FENCING / HOARDING">PERIMETER FENCING / HOARDING</option>
-                      <option value="FINAL CLEANING UP">FINAL CLEANING UP</option>
                     </select>
                   </div>
 
