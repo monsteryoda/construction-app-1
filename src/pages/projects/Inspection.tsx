@@ -587,6 +587,12 @@ export default function Inspection() {
                       <option value="WALL AND FLOOR TILING">WALL AND FLOOR TILING</option>
                       <option value="DOOR AND WINDOW">DOOR AND WINDOW</option>
                       <option value="STRUCTURAL STEEL WORK">STRUCTURAL STEEL WORK</option>
+                      <option value="ANCHOR BOLT WORK">ANCHOR BOLT WORK</option>
+                      <option value="PAINTING WORK">PAINTING WORK</option>
+                      <option value="ERECTION">ERECTION</option>
+                      <option value="ROOFING WORK">ROOFING WORK</option>
+                      <option value="GUTTER WORK">GUTTER WORK</option>
+                      <option value="RAIN WATER DOWN PIPE WORK">RAIN WATER DOWN PIPE WORK</option>
                     </select>
                   </div>
 
