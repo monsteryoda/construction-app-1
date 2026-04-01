@@ -69,6 +69,7 @@ export default function Inspection() {
   const [imagesLoading, setImagesLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [rwiSerialNo, setRwiSerialNo] = useState('');
   const [formData, setFormData] = useState({
     project_id: '',
     work_category: '',
@@ -97,7 +98,35 @@ export default function Inspection() {
   useEffect(() => {
     fetchProjects();
     fetchInspections();
+    generateRwiSerialNo();
   }, []);
+
+  const generateRwiSerialNo = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('inspections')
+        .select('id')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+
+      const count = data?.length || 0;
+      const year = new Date().getFullYear().toString().slice(-2);
+      const serial = count + 1;
+      const formattedSerial = serial.toString().padStart(2, '0');
+      
+      setRwiSerialNo(`URSB/KA-T/${year}/35-${formattedSerial}`);
+    } catch (error) {
+      console.error('Error generating RWI serial no:', error);
+      const year = new Date().getFullYear().toString().slice(-2);
+      setRwiSerialNo(`URSB/KA-T/${year}/35-01`);
+    }
+  };
 
   const fetchProjects = async () => {
     try {
@@ -323,6 +352,7 @@ export default function Inspection() {
       setShowAddDialog(false);
       setShowEditDialog(false);
       setEditingId(null);
+      generateRwiSerialNo();
       setFormData({
         project_id: '',
         work_category: '',
@@ -524,8 +554,8 @@ export default function Inspection() {
                   <div className="space-y-2">
                     <Label className="text-xs">RWI Serial No</Label>
                     <Input
-                      placeholder="URSB/KA-T/25/35-51"
-                      className="text-sm"
+                      value={editingId ? 'N/A (Existing)' : rwiSerialNo}
+                      className="text-sm bg-slate-50 font-mono"
                       disabled
                     />
                   </div>
@@ -838,8 +868,8 @@ export default function Inspection() {
                     <div className="space-y-2">
                       <Label className="text-xs">RWI Serial No</Label>
                       <Input
-                        placeholder="URSB/KA-T/25/35-51"
-                        className="text-sm bg-slate-50"
+                        value={editingId ? 'N/A (Existing)' : rwiSerialNo}
+                        className="text-sm bg-slate-50 font-mono"
                         disabled
                       />
                     </div>
