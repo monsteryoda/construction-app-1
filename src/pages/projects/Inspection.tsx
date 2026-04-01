@@ -102,6 +102,13 @@ export default function Inspection() {
     checkVerticalityOfPiles: false,
     checkWeldingJoint: false,
   });
+  const [foundationChecklist, setFoundationChecklist] = useState({
+    surveySettingOut: false,
+    excavationLevel: false,
+    hardcoreCrusherRun: false,
+    verticalityCheck: false,
+    leanConcrete: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -461,6 +468,13 @@ export default function Inspection() {
         checkVerticalityOfPiles: false,
         checkWeldingJoint: false,
       });
+      setFoundationChecklist({
+        surveySettingOut: false,
+        excavationLevel: false,
+        hardcoreCrusherRun: false,
+        verticalityCheck: false,
+        leanConcrete: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -563,6 +577,13 @@ export default function Inspection() {
 
   const handlePilingChecklistChange = (key: keyof typeof pilingChecklist, value: boolean) => {
     setPilingChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleFoundationChecklistChange = (key: keyof typeof foundationChecklist, value: boolean) => {
+    setFoundationChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -908,6 +929,80 @@ export default function Inspection() {
                       />
                       <Label htmlFor="checkWeldingJoint" className="text-sm">
                         Check For Welding Joint With Reference to Drawing.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Foundation Footing Checklist - Third Section */}
+              {formData.work_category === 'FOUNDATION FOOTING' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Foundation Footing Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="surveySettingOut"
+                        checked={foundationChecklist.surveySettingOut}
+                        onChange={(e) => handleFoundationChecklistChange('surveySettingOut', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="surveySettingOut" className="text-sm">
+                        Survey Setting Out With Reference To Drawing.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="excavationLevel"
+                        checked={foundationChecklist.excavationLevel}
+                        onChange={(e) => handleFoundationChecklistChange('excavationLevel', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="excavationLevel" className="text-sm">
+                        Excavation Level
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="hardcoreCrusherRun"
+                        checked={foundationChecklist.hardcoreCrusherRun}
+                        onChange={(e) => handleFoundationChecklistChange('hardcoreCrusherRun', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="hardcoreCrusherRun" className="text-sm">
+                        Hardcore Crusher Run
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="verticalityCheck"
+                        checked={foundationChecklist.verticalityCheck}
+                        onChange={(e) => handleFoundationChecklistChange('verticalityCheck', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="verticalityCheck" className="text-sm">
+                        Verticality Check
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="leanConcrete"
+                        checked={foundationChecklist.leanConcrete}
+                        onChange={(e) => handleFoundationChecklistChange('leanConcrete', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="leanConcrete" className="text-sm">
+                        Lean Concrete
                       </Label>
                     </div>
                   </div>
