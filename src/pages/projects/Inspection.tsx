@@ -214,6 +214,26 @@ export default function Inspection() {
     apronProtection: false,
     apronOutfall: false,
   });
+  const [wasteWaterDrainChecklist, setWasteWaterDrainChecklist] = useState({
+    complianceToDrawing: false,
+    settingOut: false,
+    excavation: false,
+    backfilling: false,
+    compaction: false,
+    drainConstruction: false,
+    drainInvertLevel: false,
+    drainCamber: false,
+    drainFinish: false,
+    drainJoints: false,
+    drainTesting: false,
+    drainProtection: false,
+    drainManhole: false,
+    drainChannel: false,
+    drainGully: false,
+    drainGrating: false,
+    drainCatchpit: false,
+    drainOutfall: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -418,6 +438,8 @@ export default function Inspection() {
           setSurfaceWaterDrainChecklist(data.checklist_data as any);
         } else if (data.work_category === 'PERIMETER DRAIN AND APRON') {
           setPerimeterDrainAndApronChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'WASTE WATER DRAIN') {
+          setWasteWaterDrainChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -578,6 +600,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'SURFACE WATER DRAIN', surfaceWaterDrainChecklist);
       } else if (formData.work_category === 'PERIMETER DRAIN AND APRON' && Object.values(perimeterDrainAndApronChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'PERIMETER DRAIN AND APRON', perimeterDrainAndApronChecklist);
+      } else if (formData.work_category === 'WASTE WATER DRAIN' && Object.values(wasteWaterDrainChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'WASTE WATER DRAIN', wasteWaterDrainChecklist);
       }
 
       // Upload images if any
@@ -761,6 +785,26 @@ export default function Inspection() {
         apronProtection: false,
         apronOutfall: false,
       });
+      setWasteWaterDrainChecklist({
+        complianceToDrawing: false,
+        settingOut: false,
+        excavation: false,
+        backfilling: false,
+        compaction: false,
+        drainConstruction: false,
+        drainInvertLevel: false,
+        drainCamber: false,
+        drainFinish: false,
+        drainJoints: false,
+        drainTesting: false,
+        drainProtection: false,
+        drainManhole: false,
+        drainChannel: false,
+        drainGully: false,
+        drainGrating: false,
+        drainCatchpit: false,
+        drainOutfall: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -928,6 +972,13 @@ export default function Inspection() {
 
   const handlePerimeterDrainAndApronChecklistChange = (key: keyof typeof perimeterDrainAndApronChecklist, value: boolean) => {
     setPerimeterDrainAndApronChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleWasteWaterDrainChecklistChange = (key: keyof typeof wasteWaterDrainChecklist, value: boolean) => {
+    setWasteWaterDrainChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -2433,6 +2484,249 @@ export default function Inspection() {
                       />
                       <Label htmlFor="apronOutfall" className="text-sm">
                         Apron Outfall
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Waste Water Drain Checklist - Third Section */}
+              {formData.work_category === 'WASTE WATER DRAIN' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Waste Water Drain Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="complianceToDrawing"
+                        checked={wasteWaterDrainChecklist.complianceToDrawing}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('complianceToDrawing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="complianceToDrawing" className="text-sm">
+                        Compliance to the Drawing
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="settingOut"
+                        checked={wasteWaterDrainChecklist.settingOut}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('settingOut', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="settingOut" className="text-sm">
+                        Setting Out
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="excavation"
+                        checked={wasteWaterDrainChecklist.excavation}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('excavation', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="excavation" className="text-sm">
+                        Excavation
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="backfilling"
+                        checked={wasteWaterDrainChecklist.backfilling}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('backfilling', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="backfilling" className="text-sm">
+                        Backfilling
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="compaction"
+                        checked={wasteWaterDrainChecklist.compaction}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('compaction', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="compaction" className="text-sm">
+                        Compaction
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainConstruction"
+                        checked={wasteWaterDrainChecklist.drainConstruction}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainConstruction', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainConstruction" className="text-sm">
+                        Drain Construction
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainInvertLevel"
+                        checked={wasteWaterDrainChecklist.drainInvertLevel}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainInvertLevel', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainInvertLevel" className="text-sm">
+                        Drain Invert Level
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainCamber"
+                        checked={wasteWaterDrainChecklist.drainCamber}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainCamber', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainCamber" className="text-sm">
+                        Drain Camber
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainFinish"
+                        checked={wasteWaterDrainChecklist.drainFinish}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainFinish', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainFinish" className="text-sm">
+                        Drain Finish
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainJoints"
+                        checked={wasteWaterDrainChecklist.drainJoints}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainJoints', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainJoints" className="text-sm">
+                        Drain Joints
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainTesting"
+                        checked={wasteWaterDrainChecklist.drainTesting}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainTesting', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainTesting" className="text-sm">
+                        Drain Testing
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainProtection"
+                        checked={wasteWaterDrainChecklist.drainProtection}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainProtection', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainProtection" className="text-sm">
+                        Drain Protection
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainManhole"
+                        checked={wasteWaterDrainChecklist.drainManhole}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainManhole', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainManhole" className="text-sm">
+                        Drain Manhole
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainChannel"
+                        checked={wasteWaterDrainChecklist.drainChannel}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainChannel', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainChannel" className="text-sm">
+                        Drain Channel
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainGully"
+                        checked={wasteWaterDrainChecklist.drainGully}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainGully', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainGully" className="text-sm">
+                        Drain Gully
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainGrating"
+                        checked={wasteWaterDrainChecklist.drainGrating}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainGrating', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainGrating" className="text-sm">
+                        Drain Grating
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainCatchpit"
+                        checked={wasteWaterDrainChecklist.drainCatchpit}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainCatchpit', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainCatchpit" className="text-sm">
+                        Drain Catchpit
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="drainOutfall"
+                        checked={wasteWaterDrainChecklist.drainOutfall}
+                        onChange={(e) => handleWasteWaterDrainChecklistChange('drainOutfall', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="drainOutfall" className="text-sm">
+                        Drain Outfall
                       </Label>
                     </div>
                   </div>
