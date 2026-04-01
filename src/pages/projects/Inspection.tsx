@@ -11,7 +11,6 @@ import { Plus, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Project } from '@/components/deliveries/DeliveryTypes';
-import InspectionModal from '@/components/InspectionModal';
 
 export default function Inspection() {
   const navigate = useNavigate();
@@ -19,7 +18,6 @@ export default function Inspection() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     project_id: '',
     inspection_type: '',
@@ -183,11 +181,6 @@ export default function Inspection() {
       ...prev,
       [key]: value,
     }));
-  };
-
-  const handleModalSubmit = (data: any) => {
-    setFormData(data);
-    setIsModalOpen(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -373,15 +366,176 @@ export default function Inspection() {
             </CardContent>
           </Card>
 
-          {/* Inspection Details - Opens in Modal */}
+          {/* Inspection Details */}
           <Card>
             <CardHeader>
               <CardTitle>Inspection Details</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Button onClick={() => setIsModalOpen(true)} className="w-full">
-                Open Inspection Details Form
-              </Button>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="inspection_type">Inspection Type *</Label>
+                  <select
+                    id="inspection_type"
+                    name="inspection_type"
+                    value={formData.inspection_type}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select type</option>
+                    <option value="Piling Work">Piling Work</option>
+                    <option value="FOUNDATION FOOTING">FOUNDATION FOOTING</option>
+                    <option value="FORMWORK">FORMWORK</option>
+                    <option value="REINFORCEMENT WORK / BRC">REINFORCEMENT WORK / BRC</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="inspection_date">Inspection Date *</Label>
+                  <Input
+                    id="inspection_date"
+                    name="inspection_date"
+                    type="date"
+                    value={formData.inspection_date}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="work_category">Work Category *</Label>
+                  <select
+                    id="work_category"
+                    name="work_category"
+                    value={formData.work_category}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select category</option>
+                    <option value="Piling Work">Piling Work</option>
+                    <option value="FOUNDATION FOOTING">FOUNDATION FOOTING</option>
+                    <option value="FORMWORK">FORMWORK</option>
+                    <option value="REINFORCEMENT WORK / BRC">REINFORCEMENT WORK / BRC</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="zone">Zone</Label>
+                  <Input
+                    id="zone"
+                    name="zone"
+                    value={formData.zone}
+                    onChange={handleInputChange}
+                    placeholder="Enter zone"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    placeholder="Enter location"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="inspection_time">Inspection Time</Label>
+                  <Input
+                    id="inspection_time"
+                    name="inspection_time"
+                    type="time"
+                    value={formData.inspection_time}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="intended_date">Intended Date</Label>
+                  <Input
+                    id="intended_date"
+                    name="intended_date"
+                    type="date"
+                    value={formData.intended_date}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="intended_time">Intended Time</Label>
+                  <Input
+                    id="intended_time"
+                    name="intended_time"
+                    type="time"
+                    value={formData.intended_time}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="site_manager">Site Manager</Label>
+                  <Input
+                    id="site_manager"
+                    name="site_manager"
+                    value={formData.site_manager}
+                    onChange={handleInputChange}
+                    placeholder="Enter site manager name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="safety_officer">Safety Officer</Label>
+                  <Input
+                    id="safety_officer"
+                    name="safety_officer"
+                    value={formData.safety_officer}
+                    onChange={handleInputChange}
+                    placeholder="Enter safety officer name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="quality_control">Quality Control</Label>
+                  <Input
+                    id="quality_control"
+                    name="quality_control"
+                    value={formData.quality_control}
+                    onChange={handleInputChange}
+                    placeholder="Enter QC name"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="remarks">Remarks</Label>
+                <Textarea
+                  id="remarks"
+                  name="remarks"
+                  value={formData.remarks}
+                  onChange={handleInputChange}
+                  placeholder="Enter any remarks"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="priority">Priority</Label>
+                <select
+                  id="priority"
+                  name="priority"
+                  value={formData.priority}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="normal">Normal</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+              </div>
             </CardContent>
           </Card>
 
@@ -807,14 +961,6 @@ export default function Inspection() {
             </Button>
           </div>
         </form>
-
-        {/* Inspection Details Modal */}
-        <InspectionModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={handleModalSubmit}
-          projects={projects}
-        />
       </div>
     </DashboardLayout>
   );
