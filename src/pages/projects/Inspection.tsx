@@ -277,6 +277,18 @@ export default function Inspection() {
     joints: false,
     protection: false,
   });
+  const [wallAndFloorTilingChecklist, setWallAndFloorTilingChecklist] = useState({
+    complianceToDrawing: false,
+    settingOut: false,
+    surfacePreparation: false,
+    tileQuality: false,
+    adhesiveMix: false,
+    tileAlignment: false,
+    grouting: false,
+    tileCutting: false,
+    levelness: false,
+    cleaning: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -489,6 +501,8 @@ export default function Inspection() {
           setBrickworkChecklist(data.checklist_data as any);
         } else if (data.work_category === 'PLASTERING') {
           setPlasteringChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'WALL AND FLOOR TILING') {
+          setWallAndFloorTilingChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -657,6 +671,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'BRICKWORK', brickworkChecklist);
       } else if (formData.work_category === 'PLASTERING' && Object.values(plasteringChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'PLASTERING', plasteringChecklist);
+      } else if (formData.work_category === 'WALL AND FLOOR TILING' && Object.values(wallAndFloorTilingChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'WALL AND FLOOR TILING', wallAndFloorTilingChecklist);
       }
 
       // Upload images if any
@@ -903,6 +919,18 @@ export default function Inspection() {
         joints: false,
         protection: false,
       });
+      setWallAndFloorTilingChecklist({
+        complianceToDrawing: false,
+        settingOut: false,
+        surfacePreparation: false,
+        tileQuality: false,
+        adhesiveMix: false,
+        tileAlignment: false,
+        grouting: false,
+        tileCutting: false,
+        levelness: false,
+        cleaning: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -1098,6 +1126,13 @@ export default function Inspection() {
 
   const handlePlasteringChecklistChange = (key: keyof typeof plasteringChecklist, value: boolean) => {
     setPlasteringChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleWallAndFloorTilingChecklistChange = (key: keyof typeof wallAndFloorTilingChecklist, value: boolean) => {
+    setWallAndFloorTilingChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -3354,6 +3389,145 @@ export default function Inspection() {
                       />
                       <Label htmlFor="protection" className="text-sm">
                         Protection
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Wall and Floor Tiling Checklist - Third Section */}
+              {formData.work_category === 'WALL AND FLOOR TILING' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Wall and Floor Tiling Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="complianceToDrawing"
+                        checked={wallAndFloorTilingChecklist.complianceToDrawing}
+                        onChange={(e) => handleWallAndFloorTilingChecklistChange('complianceToDrawing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="complianceToDrawing" className="text-sm">
+                        Compliance to the Drawing
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="settingOut"
+                        checked={wallAndFloorTilingChecklist.settingOut}
+                        onChange={(e) => handleWallAndFloorTilingChecklistChange('settingOut', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="settingOut" className="text-sm">
+                        Setting Out
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="surfacePreparation"
+                        checked={wallAndFloorTilingChecklist.surfacePreparation}
+                        onChange={(e) => handleWallAndFloorTilingChecklistChange('surfacePreparation', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="surfacePreparation" className="text-sm">
+                        Surface Preparation
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="tileQuality"
+                        checked={wallAndFloorTilingChecklist.tileQuality}
+                        onChange={(e) => handleWallAndFloorTilingChecklistChange('tileQuality', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="tileQuality" className="text-sm">
+                        Tile Quality
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="adhesiveMix"
+                        checked={wallAndFloorTilingChecklist.adhesiveMix}
+                        onChange={(e) => handleWallAndFloorTilingChecklistChange('adhesiveMix', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="adhesiveMix" className="text-sm">
+                        Adhesive Mix
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="tileAlignment"
+                        checked={wallAndFloorTilingChecklist.tileAlignment}
+                        onChange={(e) => handleWallAndFloorTilingChecklistChange('tileAlignment', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="tileAlignment" className="text-sm">
+                        Tile Alignment
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="grouting"
+                        checked={wallAndFloorTilingChecklist.grouting}
+                        onChange={(e) => handleWallAndFloorTilingChecklistChange('grouting', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="grouting" className="text-sm">
+                        Grouting
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="tileCutting"
+                        checked={wallAndFloorTilingChecklist.tileCutting}
+                        onChange={(e) => handleWallAndFloorTilingChecklistChange('tileCutting', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="tileCutting" className="text-sm">
+                        Tile Cutting
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="levelness"
+                        checked={wallAndFloorTilingChecklist.levelness}
+                        onChange={(e) => handleWallAndFloorTilingChecklistChange('levelness', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="levelness" className="text-sm">
+                        Levelness
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="cleaning"
+                        checked={wallAndFloorTilingChecklist.cleaning}
+                        onChange={(e) => handleWallAndFloorTilingChecklistChange('cleaning', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="cleaning" className="text-sm">
+                        Cleaning
                       </Label>
                     </div>
                   </div>
