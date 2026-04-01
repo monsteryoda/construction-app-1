@@ -109,6 +109,13 @@ export default function Inspection() {
     verticalityCheck: false,
     leanConcrete: false,
   });
+  const [formworkChecklist, setFormworkChecklist] = useState({
+    dimensionLevelsVerticality: false,
+    adequatelySupportedOfPropped: false,
+    jointsTight: false,
+    surfaceOfFormsAcceptable: false,
+    allSawdustAndRubbishRemoved: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -475,6 +482,13 @@ export default function Inspection() {
         verticalityCheck: false,
         leanConcrete: false,
       });
+      setFormworkChecklist({
+        dimensionLevelsVerticality: false,
+        adequatelySupportedOfPropped: false,
+        jointsTight: false,
+        surfaceOfFormsAcceptable: false,
+        allSawdustAndRubbishRemoved: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -584,6 +598,13 @@ export default function Inspection() {
 
   const handleFoundationChecklistChange = (key: keyof typeof foundationChecklist, value: boolean) => {
     setFoundationChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleFormworkChecklistChange = (key: keyof typeof formworkChecklist, value: boolean) => {
+    setFormworkChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -1003,6 +1024,80 @@ export default function Inspection() {
                       />
                       <Label htmlFor="leanConcrete" className="text-sm">
                         Lean Concrete
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Formwork Checklist - Third Section */}
+              {formData.work_category === 'FORMWORK' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Formwork Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="dimensionLevelsVerticality"
+                        checked={formworkChecklist.dimensionLevelsVerticality}
+                        onChange={(e) => handleFormworkChecklistChange('dimensionLevelsVerticality', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="dimensionLevelsVerticality" className="text-sm">
+                        Dimension Levels, Verticality.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="adequatelySupportedOfPropped"
+                        checked={formworkChecklist.adequatelySupportedOfPropped}
+                        onChange={(e) => handleFormworkChecklistChange('adequatelySupportedOfPropped', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="adequatelySupportedOfPropped" className="text-sm">
+                        Adequately Supported of Propped.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="jointsTight"
+                        checked={formworkChecklist.jointsTight}
+                        onChange={(e) => handleFormworkChecklistChange('jointsTight', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="jointsTight" className="text-sm">
+                        Joints Tight.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="surfaceOfFormsAcceptable"
+                        checked={formworkChecklist.surfaceOfFormsAcceptable}
+                        onChange={(e) => handleFormworkChecklistChange('surfaceOfFormsAcceptable', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="surfaceOfFormsAcceptable" className="text-sm">
+                        Surface of Forms Acceptable.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="allSawdustAndRubbishRemoved"
+                        checked={formworkChecklist.allSawdustAndRubbishRemoved}
+                        onChange={(e) => handleFormworkChecklistChange('allSawdustAndRubbishRemoved', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="allSawdustAndRubbishRemoved" className="text-sm">
+                        All Sawdust & Rubbish Removed.
                       </Label>
                     </div>
                   </div>
