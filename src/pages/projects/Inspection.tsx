@@ -570,12 +570,23 @@ export default function Inspection() {
                       className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     >
                       <option value="">Select work category</option>
-                      <option value="FIRE FIGHTING WORK">FIRE FIGHTING WORK</option>
-                      <option value="ELECTRICAL WORK">ELECTRICAL WORK</option>
-                      <option value="PLUMBING WORK">PLUMBING WORK</option>
-                      <option value="STRUCTURAL WORK">STRUCTURAL WORK</option>
-                      <option value="MECHANICAL WORK">MECHANICAL WORK</option>
-                      <option value="ARCHITECTURAL WORK">ARCHITECTURAL WORK</option>
+                      <option value="PILING WORK">PILING WORK</option>
+                      <option value="FOUNDATION FOOTING">FOUNDATION FOOTING</option>
+                      <option value="FORMWORK">FORMWORK</option>
+                      <option value="REINFORCEMENT WORK / BRC">REINFORCEMENT WORK / BRC</option>
+                      <option value="CONCRETE WORK">CONCRETE WORK</option>
+                      <option value="SITE CLEARANCE">SITE CLEARANCE</option>
+                      <option value="EARTHWORK">EARTHWORK</option>
+                      <option value="ROAD WORK">ROAD WORK</option>
+                      <option value="SURFACE WATER DRAIN">SURFACE WATER DRAIN</option>
+                      <option value="PERIMETER DRAIN AND APRON">PERIMETER DRAIN AND APRON</option>
+                      <option value="WASTE WATER DRAIN">WASTE WATER DRAIN</option>
+                      <option value="PIPE CULVERT / BOX CULVERT">PIPE CULVERT / BOX CULVERT</option>
+                      <option value="BRICKWORK">BRICKWORK</option>
+                      <option value="PLASTERING">PLASTERING</option>
+                      <option value="WALL AND FLOOR TILING">WALL AND FLOOR TILING</option>
+                      <option value="DOOR AND WINDOW">DOOR AND WINDOW</option>
+                      <option value="STRUCTURAL STEEL WORK">STRUCTURAL STEEL WORK</option>
                     </select>
                   </div>
 
