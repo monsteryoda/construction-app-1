@@ -339,6 +339,13 @@ export default function Inspection() {
     roofProtection: false,
     roofFinishing: false,
   });
+  const [gutterWorkChecklist, setGutterWorkChecklist] = useState({
+    material: false,
+    size: false,
+    joint: false,
+    support: false,
+    thickness: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -565,6 +572,8 @@ export default function Inspection() {
           setErectionChecklist(data.checklist_data as any);
         } else if (data.work_category === 'ROOFING WORK') {
           setRoofingWorkChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'GUTTER WORK') {
+          setGutterWorkChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -747,6 +756,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'ERECTION', erectionChecklist);
       } else if (formData.work_category === 'ROOFING WORK' && Object.values(roofingWorkChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'ROOFING WORK', roofingWorkChecklist);
+      } else if (formData.work_category === 'GUTTER WORK' && Object.values(gutterWorkChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'GUTTER WORK', gutterWorkChecklist);
       }
 
       // Upload images if any
@@ -1055,6 +1066,13 @@ export default function Inspection() {
         roofProtection: false,
         roofFinishing: false,
       });
+      setGutterWorkChecklist({
+        material: false,
+        size: false,
+        joint: false,
+        support: false,
+        thickness: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -1299,6 +1317,13 @@ export default function Inspection() {
 
   const handleRoofingWorkChecklistChange = (key: keyof typeof roofingWorkChecklist, value: boolean) => {
     setRoofingWorkChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleGutterWorkChecklistChange = (key: keyof typeof gutterWorkChecklist, value: boolean) => {
+    setGutterWorkChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -1589,48 +1614,22 @@ export default function Inspection() {
                 </div>
               </div>
 
-              {/* Door and Window Checklist - Third Section */}
-              {formData.work_category === 'DOOR AND WINDOW' && (
+              {/* Gutter Work Checklist - Ninth Section */}
+              {formData.work_category === 'GUTTER WORK' && (
                 <div className="border-2 border-slate-900 p-4">
-                  <h3 className="font-bold text-sm mb-3">Door and Window Checklist</h3>
+                  <h3 className="font-bold text-sm mb-3">Gutter Work Checklist</h3>
                   
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <input
                         type="checkbox"
-                        id="complianceToDrawing"
-                        checked={doorAndWindowChecklist.complianceToDrawing}
-                        onChange={(e) => handleDoorAndWindowChecklistChange('complianceToDrawing', e.target.checked)}
+                        id="material"
+                        checked={gutterWorkChecklist.material}
+                        onChange={(e) => handleGutterWorkChecklistChange('material', e.target.checked)}
                         className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <Label htmlFor="complianceToDrawing" className="text-sm">
-                        Compliance to The Drawing.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="clearingOfRubbish"
-                        checked={doorAndWindowChecklist.clearingOfRubbish}
-                        onChange={(e) => handleDoorAndWindowChecklistChange('clearingOfRubbish', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="clearingOfRubbish" className="text-sm">
-                        Clearing of Rubbish.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="typeOfMaterial"
-                        checked={doorAndWindowChecklist.typeOfMaterial}
-                        onChange={(e) => handleDoorAndWindowChecklistChange('typeOfMaterial', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="typeOfMaterial" className="text-sm">
-                        Type of Material.
+                      <Label htmlFor="material" className="text-sm">
+                        Material.
                       </Label>
                     </div>
 
@@ -1638,8 +1637,8 @@ export default function Inspection() {
                       <input
                         type="checkbox"
                         id="size"
-                        checked={doorAndWindowChecklist.size}
-                        onChange={(e) => handleDoorAndWindowChecklistChange('size', e.target.checked)}
+                        checked={gutterWorkChecklist.size}
+                        onChange={(e) => handleGutterWorkChecklistChange('size', e.target.checked)}
                         className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
                       <Label htmlFor="size" className="text-sm">
@@ -1650,487 +1649,39 @@ export default function Inspection() {
                     <div className="flex items-start gap-3">
                       <input
                         type="checkbox"
-                        id="primingCoat"
-                        checked={doorAndWindowChecklist.primingCoat}
-                        onChange={(e) => handleDoorAndWindowChecklistChange('primingCoat', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="primingCoat" className="text-sm">
-                        Priming Coat.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="settingOut"
-                        checked={doorAndWindowChecklist.settingOut}
-                        onChange={(e) => handleDoorAndWindowChecklistChange('settingOut', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="settingOut" className="text-sm">
-                        Setting Out.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="verticality"
-                        checked={doorAndWindowChecklist.verticality}
-                        onChange={(e) => handleDoorAndWindowChecklistChange('verticality', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="verticality" className="text-sm">
-                        Verticality.
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Structural Steel Work Checklist - Fourth Section */}
-              {formData.work_category === 'STRUCTURAL STEEL WORK' && (
-                <div className="border-2 border-slate-900 p-4">
-                  <h3 className="font-bold text-sm mb-3">Structural Steel Work Checklist</h3>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="welding"
-                        checked={structuralSteelWorkChecklist.welding}
-                        onChange={(e) => handleStructuralSteelWorkChecklistChange('welding', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="welding" className="text-sm">
-                        Welding.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="tolerance"
-                        checked={structuralSteelWorkChecklist.tolerance}
-                        onChange={(e) => handleStructuralSteelWorkChecklistChange('tolerance', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="tolerance" className="text-sm">
-                        Tolerance.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="typeAndSizes"
-                        checked={structuralSteelWorkChecklist.typeAndSizes}
-                        onChange={(e) => handleStructuralSteelWorkChecklistChange('typeAndSizes', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="typeAndSizes" className="text-sm">
-                        Type & Sizes.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="settingOutAlignmentVertically"
-                        checked={structuralSteelWorkChecklist.settingOutAlignmentVertically}
-                        onChange={(e) => handleStructuralSteelWorkChecklistChange('settingOutAlignmentVertically', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="settingOutAlignmentVertically" className="text-sm">
-                        Setting Out/Alignment/Vertically.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="cleanliness"
-                        checked={structuralSteelWorkChecklist.cleanliness}
-                        onChange={(e) => handleStructuralSteelWorkChecklistChange('cleanliness', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="cleanliness" className="text-sm">
-                        Cleanliness.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
                         id="joint"
-                        checked={structuralSteelWorkChecklist.joint}
-                        onChange={(e) => handleStructuralSteelWorkChecklistChange('joint', e.target.checked)}
+                        checked={gutterWorkChecklist.joint}
+                        onChange={(e) => handleGutterWorkChecklistChange('joint', e.target.checked)}
                         className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
                       <Label htmlFor="joint" className="text-sm">
                         Joint.
                       </Label>
                     </div>
-                  </div>
-                </div>
-              )}
 
-              {/* Anchor Bolt Work Checklist - Fifth Section */}
-              {formData.work_category === 'ANCHOR BOLT WORK' && (
-                <div className="border-2 border-slate-900 p-4">
-                  <h3 className="font-bold text-sm mb-3">Anchor Bolt Work Checklist</h3>
-                  
-                  <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <input
                         type="checkbox"
-                        id="tolerance"
-                        checked={anchorBoltWorkChecklist.tolerance}
-                        onChange={(e) => handleAnchorBoltWorkChecklistChange('tolerance', e.target.checked)}
+                        id="support"
+                        checked={gutterWorkChecklist.support}
+                        onChange={(e) => handleGutterWorkChecklistChange('support', e.target.checked)}
                         className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <Label htmlFor="tolerance" className="text-sm">
-                        Tolerance.
+                      <Label htmlFor="support" className="text-sm">
+                        Support.
                       </Label>
                     </div>
 
                     <div className="flex items-start gap-3">
                       <input
                         type="checkbox"
-                        id="typeAndSize"
-                        checked={anchorBoltWorkChecklist.typeAndSize}
-                        onChange={(e) => handleAnchorBoltWorkChecklistChange('typeAndSize', e.target.checked)}
+                        id="thickness"
+                        checked={gutterWorkChecklist.thickness}
+                        onChange={(e) => handleGutterWorkChecklistChange('thickness', e.target.checked)}
                         className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <Label htmlFor="typeAndSize" className="text-sm">
-                        Type & Size.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="settingOutAlignmentVertically"
-                        checked={anchorBoltWorkChecklist.settingOutAlignmentVertically}
-                        onChange={(e) => handleAnchorBoltWorkChecklistChange('settingOutAlignmentVertically', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="settingOutAlignmentVertically" className="text-sm">
-                        Setting Out/Alignment/Vertically.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="welding"
-                        checked={anchorBoltWorkChecklist.welding}
-                        onChange={(e) => handleAnchorBoltWorkChecklistChange('welding', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="welding" className="text-sm">
-                        Welding.
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Painting Work Checklist - Sixth Section */}
-              {formData.work_category === 'PAINTING WORK' && (
-                <div className="border-2 border-slate-900 p-4">
-                  <h3 className="font-bold text-sm mb-3">Painting Work Checklist</h3>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="preparingOfSurface"
-                        checked={paintingWorkChecklist.preparingOfSurface}
-                        onChange={(e) => handlePaintingWorkChecklistChange('preparingOfSurface', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="preparingOfSurface" className="text-sm">
-                        Preparing of Surface.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="typeColourTone"
-                        checked={paintingWorkChecklist.typeColourTone}
-                        onChange={(e) => handlePaintingWorkChecklistChange('typeColourTone', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="typeColourTone" className="text-sm">
-                        Type/Colour tone.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="underCoat"
-                        checked={paintingWorkChecklist.underCoat}
-                        onChange={(e) => handlePaintingWorkChecklistChange('underCoat', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="underCoat" className="text-sm">
-                        Under Coat.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="finishingCoat"
-                        checked={paintingWorkChecklist.finishingCoat}
-                        onChange={(e) => handlePaintingWorkChecklistChange('finishingCoat', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="finishingCoat" className="text-sm">
-                        Finishing Coat.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="others"
-                        checked={paintingWorkChecklist.others}
-                        onChange={(e) => handlePaintingWorkChecklistChange('others', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="others" className="text-sm">
-                        Others.
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Erection Checklist - Seventh Section */}
-              {formData.work_category === 'ERECTION' && (
-                <div className="border-2 border-slate-900 p-4">
-                  <h3 className="font-bold text-sm mb-3">Erection Checklist</h3>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="complianceToDrawing"
-                        checked={erectionChecklist.complianceToDrawing}
-                        onChange={(e) => handleErectionChecklistChange('complianceToDrawing', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="complianceToDrawing" className="text-sm">
-                        Compliance to The Drawing.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="settingOut"
-                        checked={erectionChecklist.settingOut}
-                        onChange={(e) => handleErectionChecklistChange('settingOut', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="settingOut" className="text-sm">
-                        Setting Out.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="erectionOfSteel"
-                        checked={erectionChecklist.erectionOfSteel}
-                        onChange={(e) => handleErectionChecklistChange('erectionOfSteel', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="erectionOfSteel" className="text-sm">
-                        Erection of Steel.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="alignment"
-                        checked={erectionChecklist.alignment}
-                        onChange={(e) => handleErectionChecklistChange('alignment', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="alignment" className="text-sm">
-                        Alignment.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="welding"
-                        checked={erectionChecklist.welding}
-                        onChange={(e) => handleErectionChecklistChange('welding', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="welding" className="text-sm">
-                        Welding.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="bolting"
-                        checked={erectionChecklist.bolting}
-                        onChange={(e) => handleErectionChecklistChange('bolting', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="bolting" className="text-sm">
-                        Bolting.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="grouting"
-                        checked={erectionChecklist.grouting}
-                        onChange={(e) => handleErectionChecklistChange('grouting', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="grouting" className="text-sm">
-                        Grouting.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="protection"
-                        checked={erectionChecklist.protection}
-                        onChange={(e) => handleErectionChecklistChange('protection', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="protection" className="text-sm">
-                        Protection.
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Roofing Work Checklist - Eighth Section */}
-              {formData.work_category === 'ROOFING WORK' && (
-                <div className="border-2 border-slate-900 p-4">
-                  <h3 className="font-bold text-sm mb-3">Roofing Work Checklist</h3>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="complianceToDrawing"
-                        checked={roofingWorkChecklist.complianceToDrawing}
-                        onChange={(e) => handleRoofingWorkChecklistChange('complianceToDrawing', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="complianceToDrawing" className="text-sm">
-                        Compliance to The Drawing.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="settingOut"
-                        checked={roofingWorkChecklist.settingOut}
-                        onChange={(e) => handleRoofingWorkChecklistChange('settingOut', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="settingOut" className="text-sm">
-                        Setting Out.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="roofStructure"
-                        checked={roofingWorkChecklist.roofStructure}
-                        onChange={(e) => handleRoofingWorkChecklistChange('roofStructure', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="roofStructure" className="text-sm">
-                        Roof Structure.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="roofCovering"
-                        checked={roofingWorkChecklist.roofCovering}
-                        onChange={(e) => handleRoofingWorkChecklistChange('roofCovering', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="roofCovering" className="text-sm">
-                        Roof Covering.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="roofJoints"
-                        checked={roofingWorkChecklist.roofJoints}
-                        onChange={(e) => handleRoofingWorkChecklistChange('roofJoints', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="roofJoints" className="text-sm">
-                        Roof Joints.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="roofDrainage"
-                        checked={roofingWorkChecklist.roofDrainage}
-                        onChange={(e) => handleRoofingWorkChecklistChange('roofDrainage', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="roofDrainage" className="text-sm">
-                        Roof Drainage.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="roofProtection"
-                        checked={roofingWorkChecklist.roofProtection}
-                        onChange={(e) => handleRoofingWorkChecklistChange('roofProtection', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="roofProtection" className="text-sm">
-                        Roof Protection.
-                      </Label>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="roofFinishing"
-                        checked={roofingWorkChecklist.roofFinishing}
-                        onChange={(e) => handleRoofingWorkChecklistChange('roofFinishing', e.target.checked)}
-                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <Label htmlFor="roofFinishing" className="text-sm">
-                        Roof Finishing.
+                      <Label htmlFor="thickness" className="text-sm">
+                        Thickness.
                       </Label>
                     </div>
                   </div>
