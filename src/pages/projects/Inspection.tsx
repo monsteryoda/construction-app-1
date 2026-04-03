@@ -298,6 +298,14 @@ export default function Inspection() {
     settingOut: false,
     verticality: false,
   });
+  const [structuralSteelWorkChecklist, setStructuralSteelWorkChecklist] = useState({
+    welding: false,
+    tolerance: false,
+    typeAndSizes: false,
+    settingOutAlignmentVertically: false,
+    cleanliness: false,
+    joint: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -514,6 +522,8 @@ export default function Inspection() {
           setWallAndFloorTilingChecklist(data.checklist_data as any);
         } else if (data.work_category === 'DOOR AND WINDOW') {
           setDoorAndWindowChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'STRUCTURAL STEEL WORK') {
+          setStructuralSteelWorkChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -686,6 +696,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'WALL AND FLOOR TILING', wallAndFloorTilingChecklist);
       } else if (formData.work_category === 'DOOR AND WINDOW' && Object.values(doorAndWindowChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'DOOR AND WINDOW', doorAndWindowChecklist);
+      } else if (formData.work_category === 'STRUCTURAL STEEL WORK' && Object.values(structuralSteelWorkChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'STRUCTURAL STEEL WORK', structuralSteelWorkChecklist);
       }
 
       // Upload images if any
@@ -953,6 +965,14 @@ export default function Inspection() {
         settingOut: false,
         verticality: false,
       });
+      setStructuralSteelWorkChecklist({
+        welding: false,
+        tolerance: false,
+        typeAndSizes: false,
+        settingOutAlignmentVertically: false,
+        cleanliness: false,
+        joint: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -1162,6 +1182,13 @@ export default function Inspection() {
 
   const handleDoorAndWindowChecklistChange = (key: keyof typeof doorAndWindowChecklist, value: boolean) => {
     setDoorAndWindowChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleStructuralSteelWorkChecklistChange = (key: keyof typeof structuralSteelWorkChecklist, value: boolean) => {
+    setStructuralSteelWorkChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -1546,6 +1573,93 @@ export default function Inspection() {
                       />
                       <Label htmlFor="verticality" className="text-sm">
                         Verticality.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Structural Steel Work Checklist - Fourth Section */}
+              {formData.work_category === 'STRUCTURAL STEEL WORK' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Structural Steel Work Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="welding"
+                        checked={structuralSteelWorkChecklist.welding}
+                        onChange={(e) => handleStructuralSteelWorkChecklistChange('welding', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="welding" className="text-sm">
+                        Welding.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="tolerance"
+                        checked={structuralSteelWorkChecklist.tolerance}
+                        onChange={(e) => handleStructuralSteelWorkChecklistChange('tolerance', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="tolerance" className="text-sm">
+                        Tolerance.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="typeAndSizes"
+                        checked={structuralSteelWorkChecklist.typeAndSizes}
+                        onChange={(e) => handleStructuralSteelWorkChecklistChange('typeAndSizes', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="typeAndSizes" className="text-sm">
+                        Type & Sizes.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="settingOutAlignmentVertically"
+                        checked={structuralSteelWorkChecklist.settingOutAlignmentVertically}
+                        onChange={(e) => handleStructuralSteelWorkChecklistChange('settingOutAlignmentVertically', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="settingOutAlignmentVertically" className="text-sm">
+                        Setting Out/Alignment/Vertically.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="cleanliness"
+                        checked={structuralSteelWorkChecklist.cleanliness}
+                        onChange={(e) => handleStructuralSteelWorkChecklistChange('cleanliness', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="cleanliness" className="text-sm">
+                        Cleanliness.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="joint"
+                        checked={structuralSteelWorkChecklist.joint}
+                        onChange={(e) => handleStructuralSteelWorkChecklistChange('joint', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="joint" className="text-sm">
+                        Joint.
                       </Label>
                     </div>
                   </div>
