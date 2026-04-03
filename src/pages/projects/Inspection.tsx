@@ -312,6 +312,13 @@ export default function Inspection() {
     settingOutAlignmentVertically: false,
     welding: false,
   });
+  const [paintingWorkChecklist, setPaintingWorkChecklist] = useState({
+    preparingOfSurface: false,
+    typeColourTone: false,
+    underCoat: false,
+    finishingCoat: false,
+    others: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -532,6 +539,8 @@ export default function Inspection() {
           setStructuralSteelWorkChecklist(data.checklist_data as any);
         } else if (data.work_category === 'ANCHOR BOLT WORK') {
           setAnchorBoltWorkChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'PAINTING WORK') {
+          setPaintingWorkChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -708,6 +717,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'STRUCTURAL STEEL WORK', structuralSteelWorkChecklist);
       } else if (formData.work_category === 'ANCHOR BOLT WORK' && Object.values(anchorBoltWorkChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'ANCHOR BOLT WORK', anchorBoltWorkChecklist);
+      } else if (formData.work_category === 'PAINTING WORK' && Object.values(paintingWorkChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'PAINTING WORK', paintingWorkChecklist);
       }
 
       // Upload images if any
@@ -989,6 +1000,13 @@ export default function Inspection() {
         settingOutAlignmentVertically: false,
         welding: false,
       });
+      setPaintingWorkChecklist({
+        preparingOfSurface: false,
+        typeColourTone: false,
+        underCoat: false,
+        finishingCoat: false,
+        others: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -1212,6 +1230,13 @@ export default function Inspection() {
 
   const handleAnchorBoltWorkChecklistChange = (key: keyof typeof anchorBoltWorkChecklist, value: boolean) => {
     setAnchorBoltWorkChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handlePaintingWorkChecklistChange = (key: keyof typeof paintingWorkChecklist, value: boolean) => {
+    setPaintingWorkChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -1744,6 +1769,80 @@ export default function Inspection() {
                       />
                       <Label htmlFor="welding" className="text-sm">
                         Welding.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Painting Work Checklist - Sixth Section */}
+              {formData.work_category === 'PAINTING WORK' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Painting Work Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="preparingOfSurface"
+                        checked={paintingWorkChecklist.preparingOfSurface}
+                        onChange={(e) => handlePaintingWorkChecklistChange('preparingOfSurface', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="preparingOfSurface" className="text-sm">
+                        Preparing of Surface.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="typeColourTone"
+                        checked={paintingWorkChecklist.typeColourTone}
+                        onChange={(e) => handlePaintingWorkChecklistChange('typeColourTone', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="typeColourTone" className="text-sm">
+                        Type/Colour tone.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="underCoat"
+                        checked={paintingWorkChecklist.underCoat}
+                        onChange={(e) => handlePaintingWorkChecklistChange('underCoat', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="underCoat" className="text-sm">
+                        Under Coat.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="finishingCoat"
+                        checked={paintingWorkChecklist.finishingCoat}
+                        onChange={(e) => handlePaintingWorkChecklistChange('finishingCoat', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="finishingCoat" className="text-sm">
+                        Finishing Coat.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="others"
+                        checked={paintingWorkChecklist.others}
+                        onChange={(e) => handlePaintingWorkChecklistChange('others', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="others" className="text-sm">
+                        Others.
                       </Label>
                     </div>
                   </div>
