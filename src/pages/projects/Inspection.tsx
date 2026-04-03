@@ -352,6 +352,14 @@ export default function Inspection() {
     joint: false,
     thickness: false,
   });
+  const [coldWaterPipingWorkChecklist, setColdWaterPipingWorkChecklist] = useState({
+    tappingOffFromMainPipe: false,
+    pumpingSystem: false,
+    waterTank: false,
+    internalPipeConnections: false,
+    sundries: false,
+    testingAndCommissioning: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -582,6 +590,8 @@ export default function Inspection() {
           setGutterWorkChecklist(data.checklist_data as any);
         } else if (data.work_category === 'RAIN WATER DOWN PIPE WORK') {
           setRainWaterDownPipeWorkChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'COLD WATER PIPING WORK') {
+          setColdWaterPipingWorkChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -768,6 +778,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'GUTTER WORK', gutterWorkChecklist);
       } else if (formData.work_category === 'RAIN WATER DOWN PIPE WORK' && Object.values(rainWaterDownPipeWorkChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'RAIN WATER DOWN PIPE WORK', rainWaterDownPipeWorkChecklist);
+      } else if (formData.work_category === 'COLD WATER PIPING WORK' && Object.values(coldWaterPipingWorkChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'COLD WATER PIPING WORK', coldWaterPipingWorkChecklist);
       }
 
       // Upload images if any
@@ -1089,6 +1101,14 @@ export default function Inspection() {
         joint: false,
         thickness: false,
       });
+      setColdWaterPipingWorkChecklist({
+        tappingOffFromMainPipe: false,
+        pumpingSystem: false,
+        waterTank: false,
+        internalPipeConnections: false,
+        sundries: false,
+        testingAndCommissioning: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -1347,6 +1367,13 @@ export default function Inspection() {
 
   const handleRainWaterDownPipeWorkChecklistChange = (key: keyof typeof rainWaterDownPipeWorkChecklist, value: boolean) => {
     setRainWaterDownPipeWorkChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleColdWaterPipingWorkChecklistChange = (key: keyof typeof coldWaterPipingWorkChecklist, value: boolean) => {
+    setColdWaterPipingWorkChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -1753,6 +1780,93 @@ export default function Inspection() {
                       />
                       <Label htmlFor="thickness" className="text-sm">
                         Thickness.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* COLD WATER PIPING WORK Checklist - Eleventh Section */}
+              {formData.work_category === 'COLD WATER PIPING WORK' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Cold Water Piping Work Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="tappingOffFromMainPipe"
+                        checked={coldWaterPipingWorkChecklist.tappingOffFromMainPipe}
+                        onChange={(e) => handleColdWaterPipingWorkChecklistChange('tappingOffFromMainPipe', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="tappingOffFromMainPipe" className="text-sm">
+                        Tapping Off From Main Pipe.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="pumpingSystem"
+                        checked={coldWaterPipingWorkChecklist.pumpingSystem}
+                        onChange={(e) => handleColdWaterPipingWorkChecklistChange('pumpingSystem', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="pumpingSystem" className="text-sm">
+                        Pumping System.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="waterTank"
+                        checked={coldWaterPipingWorkChecklist.waterTank}
+                        onChange={(e) => handleColdWaterPipingWorkChecklistChange('waterTank', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="waterTank" className="text-sm">
+                        Water Tank.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="internalPipeConnections"
+                        checked={coldWaterPipingWorkChecklist.internalPipeConnections}
+                        onChange={(e) => handleColdWaterPipingWorkChecklistChange('internalPipeConnections', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="internalPipeConnections" className="text-sm">
+                        Internal pipe Connections.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="sundries"
+                        checked={coldWaterPipingWorkChecklist.sundries}
+                        onChange={(e) => handleColdWaterPipingWorkChecklistChange('sundries', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="sundries" className="text-sm">
+                        Sundries.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="testingAndCommissioning"
+                        checked={coldWaterPipingWorkChecklist.testingAndCommissioning}
+                        onChange={(e) => handleColdWaterPipingWorkChecklistChange('testingAndCommissioning', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="testingAndCommissioning" className="text-sm">
+                        Testing & Commissioning.
                       </Label>
                     </div>
                   </div>
