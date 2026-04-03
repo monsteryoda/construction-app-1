@@ -306,6 +306,12 @@ export default function Inspection() {
     cleanliness: false,
     joint: false,
   });
+  const [anchorBoltWorkChecklist, setAnchorBoltWorkChecklist] = useState({
+    tolerance: false,
+    typeAndSize: false,
+    settingOutAlignmentVertically: false,
+    welding: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -524,6 +530,8 @@ export default function Inspection() {
           setDoorAndWindowChecklist(data.checklist_data as any);
         } else if (data.work_category === 'STRUCTURAL STEEL WORK') {
           setStructuralSteelWorkChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'ANCHOR BOLT WORK') {
+          setAnchorBoltWorkChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -698,6 +706,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'DOOR AND WINDOW', doorAndWindowChecklist);
       } else if (formData.work_category === 'STRUCTURAL STEEL WORK' && Object.values(structuralSteelWorkChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'STRUCTURAL STEEL WORK', structuralSteelWorkChecklist);
+      } else if (formData.work_category === 'ANCHOR BOLT WORK' && Object.values(anchorBoltWorkChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'ANCHOR BOLT WORK', anchorBoltWorkChecklist);
       }
 
       // Upload images if any
@@ -973,6 +983,12 @@ export default function Inspection() {
         cleanliness: false,
         joint: false,
       });
+      setAnchorBoltWorkChecklist({
+        tolerance: false,
+        typeAndSize: false,
+        settingOutAlignmentVertically: false,
+        welding: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -1189,6 +1205,13 @@ export default function Inspection() {
 
   const handleStructuralSteelWorkChecklistChange = (key: keyof typeof structuralSteelWorkChecklist, value: boolean) => {
     setStructuralSteelWorkChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleAnchorBoltWorkChecklistChange = (key: keyof typeof anchorBoltWorkChecklist, value: boolean) => {
+    setAnchorBoltWorkChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -1660,6 +1683,67 @@ export default function Inspection() {
                       />
                       <Label htmlFor="joint" className="text-sm">
                         Joint.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Anchor Bolt Work Checklist - Fifth Section */}
+              {formData.work_category === 'ANCHOR BOLT WORK' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Anchor Bolt Work Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="tolerance"
+                        checked={anchorBoltWorkChecklist.tolerance}
+                        onChange={(e) => handleAnchorBoltWorkChecklistChange('tolerance', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="tolerance" className="text-sm">
+                        Tolerance.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="typeAndSize"
+                        checked={anchorBoltWorkChecklist.typeAndSize}
+                        onChange={(e) => handleAnchorBoltWorkChecklistChange('typeAndSize', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="typeAndSize" className="text-sm">
+                        Type & Size.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="settingOutAlignmentVertically"
+                        checked={anchorBoltWorkChecklist.settingOutAlignmentVertically}
+                        onChange={(e) => handleAnchorBoltWorkChecklistChange('settingOutAlignmentVertically', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="settingOutAlignmentVertically" className="text-sm">
+                        Setting Out/Alignment/Vertically.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="welding"
+                        checked={anchorBoltWorkChecklist.welding}
+                        onChange={(e) => handleAnchorBoltWorkChecklistChange('welding', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="welding" className="text-sm">
+                        Welding.
                       </Label>
                     </div>
                   </div>
