@@ -346,6 +346,12 @@ export default function Inspection() {
     support: false,
     thickness: false,
   });
+  const [rainWaterDownPipeWorkChecklist, setRainWaterDownPipeWorkChecklist] = useState({
+    material: false,
+    size: false,
+    joint: false,
+    thickness: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -574,6 +580,8 @@ export default function Inspection() {
           setRoofingWorkChecklist(data.checklist_data as any);
         } else if (data.work_category === 'GUTTER WORK') {
           setGutterWorkChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'RAIN WATER DOWN PIPE WORK') {
+          setRainWaterDownPipeWorkChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -758,6 +766,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'ROOFING WORK', roofingWorkChecklist);
       } else if (formData.work_category === 'GUTTER WORK' && Object.values(gutterWorkChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'GUTTER WORK', gutterWorkChecklist);
+      } else if (formData.work_category === 'RAIN WATER DOWN PIPE WORK' && Object.values(rainWaterDownPipeWorkChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'RAIN WATER DOWN PIPE WORK', rainWaterDownPipeWorkChecklist);
       }
 
       // Upload images if any
@@ -1073,6 +1083,12 @@ export default function Inspection() {
         support: false,
         thickness: false,
       });
+      setRainWaterDownPipeWorkChecklist({
+        material: false,
+        size: false,
+        joint: false,
+        thickness: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -1324,6 +1340,13 @@ export default function Inspection() {
 
   const handleGutterWorkChecklistChange = (key: keyof typeof gutterWorkChecklist, value: boolean) => {
     setGutterWorkChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleRainWaterDownPipeWorkChecklistChange = (key: keyof typeof rainWaterDownPipeWorkChecklist, value: boolean) => {
+    setRainWaterDownPipeWorkChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -1662,13 +1685,61 @@ export default function Inspection() {
                     <div className="flex items-start gap-3">
                       <input
                         type="checkbox"
-                        id="support"
-                        checked={gutterWorkChecklist.support}
-                        onChange={(e) => handleGutterWorkChecklistChange('support', e.target.checked)}
+                        id="thickness"
+                        checked={gutterWorkChecklist.thickness}
+                        onChange={(e) => handleGutterWorkChecklistChange('thickness', e.target.checked)}
                         className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <Label htmlFor="support" className="text-sm">
-                        Support.
+                      <Label htmlFor="thickness" className="text-sm">
+                        Thickness.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* RAIN WATER DOWN PIPE WORK Checklist - Tenth Section */}
+              {formData.work_category === 'RAIN WATER DOWN PIPE WORK' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Rain Water Down Pipe Work Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="material"
+                        checked={rainWaterDownPipeWorkChecklist.material}
+                        onChange={(e) => handleRainWaterDownPipeWorkChecklistChange('material', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="material" className="text-sm">
+                        Material.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="size"
+                        checked={rainWaterDownPipeWorkChecklist.size}
+                        onChange={(e) => handleRainWaterDownPipeWorkChecklistChange('size', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="size" className="text-sm">
+                        Size.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="joint"
+                        checked={rainWaterDownPipeWorkChecklist.joint}
+                        onChange={(e) => handleRainWaterDownPipeWorkChecklistChange('joint', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="joint" className="text-sm">
+                        Joint.
                       </Label>
                     </div>
 
@@ -1676,8 +1747,8 @@ export default function Inspection() {
                       <input
                         type="checkbox"
                         id="thickness"
-                        checked={gutterWorkChecklist.thickness}
-                        onChange={(e) => handleGutterWorkChecklistChange('thickness', e.target.checked)}
+                        checked={rainWaterDownPipeWorkChecklist.thickness}
+                        onChange={(e) => handleRainWaterDownPipeWorkChecklistChange('thickness', e.target.checked)}
                         className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
                       <Label htmlFor="thickness" className="text-sm">
