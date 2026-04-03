@@ -329,6 +329,16 @@ export default function Inspection() {
     grouting: false,
     protection: false,
   });
+  const [roofingWorkChecklist, setRoofingWorkChecklist] = useState({
+    complianceToDrawing: false,
+    settingOut: false,
+    roofStructure: false,
+    roofCovering: false,
+    roofJoints: false,
+    roofDrainage: false,
+    roofProtection: false,
+    roofFinishing: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -553,6 +563,8 @@ export default function Inspection() {
           setPaintingWorkChecklist(data.checklist_data as any);
         } else if (data.work_category === 'ERECTION') {
           setErectionChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'ROOFING WORK') {
+          setRoofingWorkChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -733,6 +745,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'PAINTING WORK', paintingWorkChecklist);
       } else if (formData.work_category === 'ERECTION' && Object.values(erectionChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'ERECTION', erectionChecklist);
+      } else if (formData.work_category === 'ROOFING WORK' && Object.values(roofingWorkChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'ROOFING WORK', roofingWorkChecklist);
       }
 
       // Upload images if any
@@ -1031,6 +1045,16 @@ export default function Inspection() {
         grouting: false,
         protection: false,
       });
+      setRoofingWorkChecklist({
+        complianceToDrawing: false,
+        settingOut: false,
+        roofStructure: false,
+        roofCovering: false,
+        roofJoints: false,
+        roofDrainage: false,
+        roofProtection: false,
+        roofFinishing: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -1268,6 +1292,13 @@ export default function Inspection() {
 
   const handleErectionChecklistChange = (key: keyof typeof erectionChecklist, value: boolean) => {
     setErectionChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleRoofingWorkChecklistChange = (key: keyof typeof roofingWorkChecklist, value: boolean) => {
+    setRoofingWorkChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -1987,6 +2018,119 @@ export default function Inspection() {
                       />
                       <Label htmlFor="protection" className="text-sm">
                         Protection.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Roofing Work Checklist - Eighth Section */}
+              {formData.work_category === 'ROOFING WORK' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Roofing Work Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="complianceToDrawing"
+                        checked={roofingWorkChecklist.complianceToDrawing}
+                        onChange={(e) => handleRoofingWorkChecklistChange('complianceToDrawing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="complianceToDrawing" className="text-sm">
+                        Compliance to The Drawing.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="settingOut"
+                        checked={roofingWorkChecklist.settingOut}
+                        onChange={(e) => handleRoofingWorkChecklistChange('settingOut', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="settingOut" className="text-sm">
+                        Setting Out.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="roofStructure"
+                        checked={roofingWorkChecklist.roofStructure}
+                        onChange={(e) => handleRoofingWorkChecklistChange('roofStructure', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="roofStructure" className="text-sm">
+                        Roof Structure.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="roofCovering"
+                        checked={roofingWorkChecklist.roofCovering}
+                        onChange={(e) => handleRoofingWorkChecklistChange('roofCovering', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="roofCovering" className="text-sm">
+                        Roof Covering.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="roofJoints"
+                        checked={roofingWorkChecklist.roofJoints}
+                        onChange={(e) => handleRoofingWorkChecklistChange('roofJoints', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="roofJoints" className="text-sm">
+                        Roof Joints.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="roofDrainage"
+                        checked={roofingWorkChecklist.roofDrainage}
+                        onChange={(e) => handleRoofingWorkChecklistChange('roofDrainage', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="roofDrainage" className="text-sm">
+                        Roof Drainage.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="roofProtection"
+                        checked={roofingWorkChecklist.roofProtection}
+                        onChange={(e) => handleRoofingWorkChecklistChange('roofProtection', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="roofProtection" className="text-sm">
+                        Roof Protection.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="roofFinishing"
+                        checked={roofingWorkChecklist.roofFinishing}
+                        onChange={(e) => handleRoofingWorkChecklistChange('roofFinishing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="roofFinishing" className="text-sm">
+                        Roof Finishing.
                       </Label>
                     </div>
                   </div>
