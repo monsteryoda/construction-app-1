@@ -319,6 +319,16 @@ export default function Inspection() {
     finishingCoat: false,
     others: false,
   });
+  const [erectionChecklist, setErectionChecklist] = useState({
+    complianceToDrawing: false,
+    settingOut: false,
+    erectionOfSteel: false,
+    alignment: false,
+    welding: false,
+    bolting: false,
+    grouting: false,
+    protection: false,
+  });
   const [signatures, setSignatures] = useState({
     inspectedBy: '',
     reviewedBy: '',
@@ -541,6 +551,8 @@ export default function Inspection() {
           setAnchorBoltWorkChecklist(data.checklist_data as any);
         } else if (data.work_category === 'PAINTING WORK') {
           setPaintingWorkChecklist(data.checklist_data as any);
+        } else if (data.work_category === 'ERECTION') {
+          setErectionChecklist(data.checklist_data as any);
         }
       }
     } catch (error) {
@@ -719,6 +731,8 @@ export default function Inspection() {
         await saveChecklist(inspectionResult.id, 'ANCHOR BOLT WORK', anchorBoltWorkChecklist);
       } else if (formData.work_category === 'PAINTING WORK' && Object.values(paintingWorkChecklist).some(v => v)) {
         await saveChecklist(inspectionResult.id, 'PAINTING WORK', paintingWorkChecklist);
+      } else if (formData.work_category === 'ERECTION' && Object.values(erectionChecklist).some(v => v)) {
+        await saveChecklist(inspectionResult.id, 'ERECTION', erectionChecklist);
       }
 
       // Upload images if any
@@ -1007,6 +1021,16 @@ export default function Inspection() {
         finishingCoat: false,
         others: false,
       });
+      setErectionChecklist({
+        complianceToDrawing: false,
+        settingOut: false,
+        erectionOfSteel: false,
+        alignment: false,
+        welding: false,
+        bolting: false,
+        grouting: false,
+        protection: false,
+      });
       setSignatures({
         inspectedBy: '',
         reviewedBy: '',
@@ -1237,6 +1261,13 @@ export default function Inspection() {
 
   const handlePaintingWorkChecklistChange = (key: keyof typeof paintingWorkChecklist, value: boolean) => {
     setPaintingWorkChecklist(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleErectionChecklistChange = (key: keyof typeof erectionChecklist, value: boolean) => {
+    setErectionChecklist(prev => ({
       ...prev,
       [key]: value,
     }));
@@ -1843,6 +1874,119 @@ export default function Inspection() {
                       />
                       <Label htmlFor="others" className="text-sm">
                         Others.
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Erection Checklist - Seventh Section */}
+              {formData.work_category === 'ERECTION' && (
+                <div className="border-2 border-slate-900 p-4">
+                  <h3 className="font-bold text-sm mb-3">Erection Checklist</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="complianceToDrawing"
+                        checked={erectionChecklist.complianceToDrawing}
+                        onChange={(e) => handleErectionChecklistChange('complianceToDrawing', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="complianceToDrawing" className="text-sm">
+                        Compliance to The Drawing.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="settingOut"
+                        checked={erectionChecklist.settingOut}
+                        onChange={(e) => handleErectionChecklistChange('settingOut', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="settingOut" className="text-sm">
+                        Setting Out.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="erectionOfSteel"
+                        checked={erectionChecklist.erectionOfSteel}
+                        onChange={(e) => handleErectionChecklistChange('erectionOfSteel', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="erectionOfSteel" className="text-sm">
+                        Erection of Steel.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="alignment"
+                        checked={erectionChecklist.alignment}
+                        onChange={(e) => handleErectionChecklistChange('alignment', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="alignment" className="text-sm">
+                        Alignment.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="welding"
+                        checked={erectionChecklist.welding}
+                        onChange={(e) => handleErectionChecklistChange('welding', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="welding" className="text-sm">
+                        Welding.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="bolting"
+                        checked={erectionChecklist.bolting}
+                        onChange={(e) => handleErectionChecklistChange('bolting', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="bolting" className="text-sm">
+                        Bolting.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="grouting"
+                        checked={erectionChecklist.grouting}
+                        onChange={(e) => handleErectionChecklistChange('grouting', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="grouting" className="text-sm">
+                        Grouting.
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="protection"
+                        checked={erectionChecklist.protection}
+                        onChange={(e) => handleErectionChecklistChange('protection', e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label htmlFor="protection" className="text-sm">
+                        Protection.
                       </Label>
                     </div>
                   </div>
